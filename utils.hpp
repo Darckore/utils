@@ -66,6 +66,56 @@ namespace utils
   template <typename ...Args>
   void unused(Args&&...) noexcept {}
 
+  namespace detail
+  {
+    //
+    // Checks whether types can be comared by value
+    //
+    template <typename T1, typename T2, typename = std::void_t<>>
+    struct is_eq_comparable_pair : std::false_type {};
+
+    template <typename T1, typename T2>
+    struct is_eq_comparable_pair<T1, T2,
+      std::void_t<decltype(std::declval<T1>() == std::declval<T2>())>> : std::true_type {};
+
+    template <typename T1, typename ...Ts>
+    struct is_eq_comparable : std::bool_constant <
+      std::conjunction_v<is_eq_comparable_pair<T1, Ts>...> > {};
+
+    template <typename T1, typename ...Ts>
+    inline constexpr bool is_eq_comparable_v = is_eq_comparable<T1, Ts...>::value;
+  }
+  
+  //
+  // Checks whether the first arg equals ALL of subsequent args
+  //
+  template <typename T1, typename T2, typename ...Ts>
+  inline constexpr bool is_eq_all(T1 val, T2 arg1, Ts ...args) noexcept
+    requires detail::is_eq_comparable_v<T1, T2, Ts... >
+  {
+    return ((val == arg1) && ... && (val == args));
+  }
+
+  //
+  // Checks whether the first arg equals ANY of subsequent args
+  //
+  template <typename T1, typename T2, typename ...Ts>
+  inline constexpr bool is_eq_any(T1 val, T2 arg1, Ts ...args) noexcept
+    requires detail::is_eq_comparable_v<T1, T2, Ts... >
+  {
+    return ((val == arg1) || ... || (val == args));
+  }
+
+  //
+  // Checks whether the first arg equals NONE of subsequent args
+  //
+  template <typename T1, typename T2, typename ...Ts>
+  inline constexpr bool is_eq_none(T1 val, T2 arg1, Ts ...args) noexcept
+    requires detail::is_eq_comparable_v<T1, T2, Ts... >
+  {
+    return ((val != arg1) && ... && (val != args));
+  }
+
   //
   // This is needed for const-overloads of class members to avoid code duplication
   // Like so:
@@ -77,7 +127,7 @@ namespace utils
   //        }
   //
   template <typename T>
-  decltype(auto) mutate(T&& val) noexcept
+  inline constexpr decltype(auto) mutate(T&& val) noexcept
     requires (  !std::is_rvalue_reference_v<decltype(val)>
               || std::is_pointer_v<std::remove_reference_t<T>>)
   {

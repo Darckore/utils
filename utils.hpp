@@ -49,5 +49,19 @@
 
 namespace utils
 {
-  
+  template <typename T>
+  decltype(auto) mutate(T&& val) noexcept
+    requires (!std::is_rvalue_reference_v<decltype(val)> || std::is_pointer_v<std::remove_reference_t<T>>)
+  {
+    using noref_t = std::remove_reference_t<T>;
+    using noconst_t = std::remove_const_t<std::remove_pointer_t<noref_t>>;
+    if constexpr (std::is_pointer_v<noref_t>)
+    {
+      return const_cast<std::add_pointer_t<noconst_t>>(val);
+    }
+    else
+    {
+      return const_cast<std::add_lvalue_reference_t<noconst_t>>(val);
+    }
+  }
 }

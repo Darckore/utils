@@ -84,13 +84,37 @@ namespace utils
 
     template <typename T1, typename ...Ts>
     inline constexpr bool is_eq_comparable_v = is_eq_comparable<T1, Ts...>::value;
+
+    //
+    // A concept for any comparable type
+    //
+    template <typename T>
+    concept comparable = requires (T a, T b)
+    {
+      { a < b };
+      { a > b };
+      { a <= b };
+      { a >= b };
+      { a != b };
+      { a == b };
+    };
+  }
+
+  //
+  // Checks whether a value is in the specified range
+  //
+  template <detail::comparable T1, detail::comparable T2, detail::comparable T3>
+  inline constexpr bool is_in_range(T1&& val, T2&& low, T3&& high) noexcept
+    requires (T1{} >= T2{} && T1{} <= T3{})
+  {
+    return val >= low && val <= high;
   }
   
   //
   // Checks whether the first arg equals ALL of subsequent args
   //
   template <typename T1, typename T2, typename ...Ts>
-  inline constexpr bool is_eq_all(T1 val, T2 arg1, Ts ...args) noexcept
+  inline constexpr bool is_eq_all(T1&& val, T2&& arg1, Ts&& ...args) noexcept
     requires detail::is_eq_comparable_v<T1, T2, Ts... >
   {
     return ((val == arg1) && ... && (val == args));
@@ -100,7 +124,7 @@ namespace utils
   // Checks whether the first arg equals ANY of subsequent args
   //
   template <typename T1, typename T2, typename ...Ts>
-  inline constexpr bool is_eq_any(T1 val, T2 arg1, Ts ...args) noexcept
+  inline constexpr bool is_eq_any(T1&& val, T2&& arg1, Ts&& ...args) noexcept
     requires detail::is_eq_comparable_v<T1, T2, Ts... >
   {
     return ((val == arg1) || ... || (val == args));
@@ -110,7 +134,7 @@ namespace utils
   // Checks whether the first arg equals NONE of subsequent args
   //
   template <typename T1, typename T2, typename ...Ts>
-  inline constexpr bool is_eq_none(T1 val, T2 arg1, Ts ...args) noexcept
+  inline constexpr bool is_eq_none(T1&& val, T2&& arg1, Ts&& ...args) noexcept
     requires detail::is_eq_comparable_v<T1, T2, Ts... >
   {
     return ((val != arg1) && ... && (val != args));

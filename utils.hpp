@@ -6,7 +6,6 @@
  * and are perfectly accessible on compilation.
 */
 
-#pragma region Macros for special class members
 #define CLASS_SPECIALS_ALL(clName)\
   clName() = default;\
   clName(const clName&) = default;\
@@ -46,25 +45,31 @@
   clName(clName&&) = delete;\
   clName& operator=(clName&&) = delete;\
   ~clName() = default
-#pragma endregion
 
-#pragma region Debug macros
 // This is for Visual Studio only
-#if !defined(NDEBUG) && defined(_WIN32)
+#if !defined(NDEBUG) && defined(_WIN32) && defined(_MSC_VER)
   #define BREAK(cond) (void)((!(cond)) || ((__debugbreak()), 0))
 #else
   #define BREAK(cond) static_assert(false, "You can only use this in MSVC under debug")
 #endif
-#pragma endregion
 
 namespace utils
 {
   //
   // A simple way to shut up the compiler when something is unused.
-  // Just a convenience for debuggin
+  // Just a convenience for debugging
   //
   template <typename ...Args>
-  void unused(Args&&...) noexcept {}
+  void unused(Args&&...) noexcept
+  {
+    static_assert(
+#ifndef NDEBUG
+      true
+#else
+      false
+#endif
+      , "This is for debugging only");
+  }
 
   namespace detail
   {
@@ -104,7 +109,7 @@ namespace utils
   // Checks whether a value is in the specified range
   //
   template <detail::comparable T1, detail::comparable T2, detail::comparable T3>
-  inline constexpr bool is_in_range(T1&& val, T2&& low, T3&& high) noexcept
+  inline constexpr bool in_range(T1&& val, T2&& low, T3&& high) noexcept
     requires (T1{} >= T2{} && T1{} <= T3{})
   {
     return val >= low && val <= high;
@@ -114,7 +119,7 @@ namespace utils
   // Checks whether the first arg equals ALL of subsequent args
   //
   template <typename T1, typename T2, typename ...Ts>
-  inline constexpr bool is_eq_all(T1&& val, T2&& arg1, Ts&& ...args) noexcept
+  inline constexpr bool eq_all(T1&& val, T2&& arg1, Ts&& ...args) noexcept
     requires detail::is_eq_comparable_v<T1, T2, Ts... >
   {
     return ((val == arg1) && ... && (val == args));
@@ -124,7 +129,7 @@ namespace utils
   // Checks whether the first arg equals ANY of subsequent args
   //
   template <typename T1, typename T2, typename ...Ts>
-  inline constexpr bool is_eq_any(T1&& val, T2&& arg1, Ts&& ...args) noexcept
+  inline constexpr bool eq_any(T1&& val, T2&& arg1, Ts&& ...args) noexcept
     requires detail::is_eq_comparable_v<T1, T2, Ts... >
   {
     return ((val == arg1) || ... || (val == args));
@@ -134,7 +139,7 @@ namespace utils
   // Checks whether the first arg equals NONE of subsequent args
   //
   template <typename T1, typename T2, typename ...Ts>
-  inline constexpr bool is_eq_none(T1&& val, T2&& arg1, Ts&& ...args) noexcept
+  inline constexpr bool eq_none(T1&& val, T2&& arg1, Ts&& ...args) noexcept
     requires detail::is_eq_comparable_v<T1, T2, Ts... >
   {
     return ((val != arg1) && ... && (val != args));

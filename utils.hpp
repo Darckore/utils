@@ -103,6 +103,26 @@ namespace utils
       { a != b };
       { a == b };
     };
+
+    //
+    // A constexpr abs version
+    //
+    template <typename T>
+    constexpr auto abs(T val) noexcept requires std::is_arithmetic_v<T>
+    {
+      return val < 0 ? -val : val;
+    }
+  }
+
+  //
+  // This is mostly for floats
+  // To avoid dealing with the epsilon bs on comparing them
+  //
+  template <detail::comparable T>
+  constexpr bool eq(T left, T right) noexcept requires std::is_arithmetic_v<T>
+  {
+    constexpr auto min_diff = std::numeric_limits<T>::epsilon();
+    return detail::abs(left - right) <= min_diff;
   }
 
   //

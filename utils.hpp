@@ -60,16 +60,7 @@ namespace utils
   // Just a convenience for debugging
   //
   template <typename ...Args>
-  void unused(Args&&...) noexcept
-  {
-    static_assert(
-#ifndef NDEBUG
-      true
-#else
-      false
-#endif
-      , "This is for debugging only");
-  }
+  void unused(Args&&...) noexcept {}
 
   namespace detail
   {

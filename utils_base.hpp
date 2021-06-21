@@ -61,19 +61,11 @@ namespace utils
     //
     // Checks whether types can be comared by value
     //
-    template <typename T1, typename T2, typename = std::void_t<>>
-    struct is_eq_comparable_pair : std::false_type {};
-
-    template <typename T1, typename T2>
-    struct is_eq_comparable_pair<T1, T2,
-      std::void_t<decltype(std::declval<T1>() == std::declval<T2>())>> : std::true_type {};
-
-    template <typename T1, typename ...Ts>
-    struct is_eq_comparable : std::bool_constant <
-      std::conjunction_v<is_eq_comparable_pair<T1, Ts>...> > {};
-
-    template <typename T1, typename ...Ts>
-    inline constexpr bool is_eq_comparable_v = is_eq_comparable<T1, Ts...>::value;
+    template <typename Arg1, typename Arg2, typename ...Args>
+    concept equ_comparable = requires (Arg1 a, Arg2 b, Args... args)
+    {
+      { ((a == b), ..., (a == args)) };
+    };
 
     //
     // A concept for any comparable type
@@ -88,15 +80,18 @@ namespace utils
       { a != b };
       { a == b };
     };
+  }
 
-    //
-    // A constexpr abs version
-    //
-    template <typename T>
-    constexpr auto abs(T val) noexcept requires std::is_arithmetic_v<T>
-    {
+  //
+  // A constexpr abs version
+  //
+  template <typename T>
+  constexpr auto abs(T val) noexcept requires std::is_arithmetic_v<T>
+  {
+    if constexpr (std::is_unsigned_v<T>)
+      return val;
+    else
       return val < 0 ? -val : val;
-    }
   }
 
   //
@@ -106,8 +101,8 @@ namespace utils
   template <detail::comparable T>
   constexpr bool eq(T left, T right) noexcept requires std::is_arithmetic_v<T>
   {
-    constexpr auto min_diff = std::numeric_limits<T>::epsilon();
-    return detail::abs(left - right) <= min_diff;
+    constexpr auto max_diff = std::numeric_limits<T>::epsilon();
+    return detail::abs(left - right) <= max_diff;
   }
 
   //
@@ -125,7 +120,7 @@ namespace utils
   //
   template <typename T1, typename T2, typename ...Ts>
   inline constexpr bool eq_all(T1&& val, T2&& arg1, Ts&& ...args) noexcept
-    requires detail::is_eq_comparable_v<T1, T2, Ts... >
+    requires detail::equ_comparable<T1, T2, Ts... >
   {
     return ((val == arg1) && ... && (val == args));
   }
@@ -135,7 +130,7 @@ namespace utils
   //
   template <typename T1, typename T2, typename ...Ts>
   inline constexpr bool eq_any(T1&& val, T2&& arg1, Ts&& ...args) noexcept
-    requires detail::is_eq_comparable_v<T1, T2, Ts... >
+    requires detail::equ_comparable<T1, T2, Ts... >
   {
     return ((val == arg1) || ... || (val == args));
   }
@@ -145,7 +140,7 @@ namespace utils
   //
   template <typename T1, typename T2, typename ...Ts>
   inline constexpr bool eq_none(T1&& val, T2&& arg1, Ts&& ...args) noexcept
-    requires detail::is_eq_comparable_v<T1, T2, Ts... >
+    requires detail::equ_comparable<T1, T2, Ts... >
   {
     return ((val != arg1) && ... && (val != args));
   }
@@ -163,7 +158,7 @@ namespace utils
   template <typename T>
   inline constexpr decltype(auto) mutate(T&& val) noexcept
     requires (!std::is_rvalue_reference_v<decltype(val)>
-      || std::is_pointer_v<std::remove_reference_t<T>>)
+            || std::is_pointer_v<std::remove_reference_t<T>>)
   {
     using noref_t = std::remove_reference_t<T>;
     using noconst_t = std::remove_const_t<std::remove_pointer_t<noref_t>>;

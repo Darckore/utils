@@ -102,7 +102,7 @@ namespace utils
   constexpr bool eq(T left, T right) noexcept requires std::is_arithmetic_v<T>
   {
     constexpr auto max_diff = std::numeric_limits<T>::epsilon();
-    return detail::abs(left - right) <= max_diff;
+    return abs(left - right) <= max_diff;
   }
 
   //

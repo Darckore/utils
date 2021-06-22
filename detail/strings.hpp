@@ -26,4 +26,39 @@ namespace utils
         return detail::to_string_view(part);
       });
   }
+
+  //
+  // Trims a string_view from the left
+  // Takes another string_view which represents the prefix to remove
+  //
+  constexpr auto ltrim(std::string_view str, std::string_view pattern) noexcept
+  {
+    while (str.starts_with(pattern))
+    {
+      str.remove_prefix(pattern.length());
+    }
+    return str;
+  }
+
+  //
+  // Trims a string_view from the right
+  // Takes another string_view which represents the prefix to remove
+  //
+  constexpr auto rtrim(std::string_view str, std::string_view pattern) noexcept
+  {
+    while (str.ends_with(pattern))
+    {
+      str.remove_suffix(pattern.length());
+    }
+    return str;
+  }
+
+  //
+  // Trims a string_view from both sides
+  // Takes another string_view which represents the prefix to remove
+  //
+  constexpr auto trim(std::string_view str, std::string_view pattern) noexcept
+  {
+    return rtrim(ltrim(str, pattern), pattern);
+  }
 }

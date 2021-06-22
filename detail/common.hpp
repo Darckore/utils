@@ -68,6 +68,13 @@ namespace utils
     };
 
     //
+    // Checks whether all provided types are convertible to the first type
+    //
+    template <typename To, typename From1, typename ...FromN>
+    concept all_convertible = std::conjunction_v<std::is_convertible<From1, To>,
+                              std::is_convertible<FromN, To>...>;
+
+    //
     // A concept for any comparable type
     //
     template <typename T>

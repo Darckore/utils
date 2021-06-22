@@ -80,6 +80,65 @@ namespace utils
       { a != b };
       { a == b };
     };
+
+    //
+    // Basic numerics and the like
+    //
+    using baseline_real_t = double;
+    using baseline_int_t  = std::uintmax_t;
+
+    template <typename T>
+    concept integer = (std::is_integral_v<T> || std::is_convertible_v<T, baseline_int_t>)
+                   && !std::is_same_v<T, bool>;
+    template <typename T>
+    concept real = std::is_floating_point_v<T>
+                || std::is_convertible_v<T, baseline_real_t>;
+
+    //
+    // For Quake's fast inverse square root
+    //
+    template <real T>
+    struct sqrt_magic;
+
+    template <>
+    struct sqrt_magic<float>
+    {
+      static constexpr auto value = 0x5f3759df;
+      using type = std::uint32_t;
+    };
+    template <>
+    struct sqrt_magic<double>
+    {
+      static constexpr auto value = 0x5fe6eb50c7b537a9;
+      using type = std::uint64_t;
+    };
+
+    template <real T>
+    inline constexpr auto sqrt_magic_v = sqrt_magic<T>::value;
+
+    template <real T>
+    using sqrt_magic_t = sqrt_magic<T>::type;
+  }
+
+  //
+  // Quake's fast inverse square root
+  //
+  template <detail::real T>
+  constexpr auto inv_sqrt(T number) noexcept
+  {
+    using detail::sqrt_magic_t;
+    using detail::sqrt_magic_v;
+    using std::bit_cast;
+    using result_type = T;
+    using intrm_type = sqrt_magic_t<result_type>;
+
+    constexpr auto magic      = sqrt_magic_v<result_type>;
+    constexpr auto threehalfs = result_type{ 1.5 };
+    constexpr auto half       = result_type{ 0.5 };
+
+    const auto intermediate = bit_cast<intrm_type>(number);
+    const auto res = bit_cast<result_type>(magic - (intermediate >> 1));
+    return res * (threehalfs - (number * half * res * res));
   }
 
   //

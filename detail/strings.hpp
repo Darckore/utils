@@ -42,7 +42,7 @@ namespace utils
 
   //
   // Trims a string_view from the right
-  // Takes another string_view which represents the prefix to remove
+  // Takes another string_view which represents the postfix to remove
   //
   constexpr auto rtrim(std::string_view str, std::string_view pattern) noexcept
   {
@@ -55,10 +55,65 @@ namespace utils
 
   //
   // Trims a string_view from both sides
-  // Takes another string_view which represents the prefix to remove
+  // Takes another string_view which represents the prefix and postfix to remove
   //
   constexpr auto trim(std::string_view str, std::string_view pattern) noexcept
   {
     return rtrim(ltrim(str, pattern), pattern);
+  }
+
+  //
+  // Trims a string_view from the left
+  // Takes another a number of characters (or value convertible to them)
+  // which will be removed if encountered in no specific order
+  //
+  template <typename C1, typename ...CN>
+  constexpr auto ltrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
+    requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+  {
+    auto offset = 0ull;
+    for (auto c : str)
+    {
+      if (eq_none(c, std::forward<C1>(c1), std::forward<CN>(cn)...))
+        break;
+
+      ++offset;
+    }
+    str.remove_prefix(offset);
+    return str;
+  }
+
+  //
+  // Trims a string_view from the right
+  // Takes another a number of characters (or value convertible to them)
+  // which will be removed if encountered in no specific order
+  //
+  template <typename C1, typename ...CN>
+  constexpr auto rtrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
+    requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+  {
+    auto offset = 0ull;
+    for (auto c : str | rvi::reverse)
+    {
+      if (eq_none(c, std::forward<C1>(c1), std::forward<CN>(cn)...))
+        break;
+
+      ++offset;
+    }
+    str.remove_suffix(offset);
+    return str;
+  }
+
+  //
+  // Trims a string_view from both sides
+  // Takes another a number of characters (or value convertible to them)
+  // which will be removed if encountered in no specific order
+  //
+  template <typename C1, typename ...CN>
+  constexpr auto trim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
+    requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+  {
+    str = ltrim(str, std::forward<C1>(c1), std::forward<CN>(cn)...);
+    return rtrim(str, std::forward<C1>(c1), std::forward<CN>(cn)...);
   }
 }

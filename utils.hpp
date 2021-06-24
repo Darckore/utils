@@ -8,9 +8,12 @@
 #include <numeric>
 #include <string_view>
 #include <array>
+#include <random>
+#include <chrono>
 
-namespace rng = std::ranges;
-namespace rvi = std::views;
+namespace ranges = std::ranges;
+namespace views = std::views;
 
 #include "detail/common.hpp"
 #include "detail/strings.hpp"
+#include "detail/random.hpp"

@@ -7,12 +7,12 @@ namespace utils
     //
     // Converts a range into a string_view
     //
-    template <rng::range R>
+    template <ranges::range R>
     constexpr auto to_string_view(R range) noexcept
       requires std::is_convertible_v<decltype(*range.begin()), std::string_view::value_type>
     {
       using size_type = std::string_view::size_type;
-      return std::string_view{ &*range.begin(), static_cast<size_type>(rng::distance(range)) };
+      return std::string_view{ &*range.begin(), static_cast<size_type>(ranges::distance(range)) };
     }
   }
 
@@ -21,7 +21,7 @@ namespace utils
   //
   constexpr auto split(std::string_view str, std::string_view pattern) noexcept
   {
-    return str | rvi::split(pattern) | rvi::transform([](auto&& part)
+    return str | views::split(pattern) | views::transform([](auto&& part)
       {
         return detail::to_string_view(part);
       });
@@ -93,7 +93,7 @@ namespace utils
     requires detail::all_convertible<std::string_view::value_type, C1, CN...>
   {
     auto offset = 0ull;
-    for (auto c : str | rvi::reverse)
+    for (auto c : str | views::reverse)
     {
       if (eq_none(c, std::forward<C1>(c1), std::forward<CN>(cn)...))
         break;

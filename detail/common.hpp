@@ -95,11 +95,9 @@ namespace utils
     using baseline_int_t  = std::uintmax_t;
 
     template <typename T>
-    concept integer = (std::is_integral_v<T> || std::is_convertible_v<T, baseline_int_t>)
-                   && !std::is_same_v<T, bool>;
+    concept integer = std::is_integral_v<T> && !std::is_same_v<T, bool>;
     template <typename T>
-    concept real = std::is_floating_point_v<T>
-                || std::is_convertible_v<T, baseline_real_t>;
+    concept real = std::is_floating_point_v<T>;
 
     //
     // For Quake's fast inverse square root

@@ -8,8 +8,22 @@
   clName& operator=(clName&&) = default;\
   ~clName() = default
 
+#define CLASS_SPECIALS_ALL_CUSTOM(clName)\
+  clName(const clName&) = default;\
+  clName& operator=(const clName&) = default;\
+  clName(clName&&) = default;\
+  clName& operator=(clName&&) = default;\
+  ~clName() = default
+
 #define CLASS_SPECIALS_NOCOPY(clName)\
   clName() = default;\
+  clName(const clName&) = delete;\
+  clName& operator=(const clName&) = delete;\
+  clName(clName&&) = default;\
+  clName& operator=(clName&&) = default;\
+  ~clName() = default
+
+#define CLASS_SPECIALS_NOCOPY_CUSTOM(clName)\
   clName(const clName&) = delete;\
   clName& operator=(const clName&) = delete;\
   clName(clName&&) = default;\
@@ -34,6 +48,13 @@
 
 #define CLASS_SPECIALS_NONE(clName)\
   clName() = delete;\
+  clName(const clName&) = delete;\
+  clName& operator=(const clName&) = delete;\
+  clName(clName&&) = delete;\
+  clName& operator=(clName&&) = delete;\
+  ~clName() = default
+
+#define CLASS_SPECIALS_NONE_CUSTOM(clName)\
   clName(const clName&) = delete;\
   clName& operator=(const clName&) = delete;\
   clName(clName&&) = delete;\

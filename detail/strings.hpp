@@ -64,7 +64,7 @@ namespace utils
 
   //
   // Trims a string_view from the left
-  // Takes another a number of characters (or value convertible to them)
+  // Takes a number of characters (or value convertible to them)
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>
@@ -85,7 +85,7 @@ namespace utils
 
   //
   // Trims a string_view from the right
-  // Takes another a number of characters (or value convertible to them)
+  // Takes a number of characters (or value convertible to them)
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>
@@ -106,7 +106,7 @@ namespace utils
 
   //
   // Trims a string_view from both sides
-  // Takes another a number of characters (or value convertible to them)
+  // Takes a number of characters (or value convertible to them)
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>

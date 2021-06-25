@@ -91,13 +91,12 @@ namespace utils
   //
   // A timer. Calls a function ashynchronously at the given interval
   //
-  template <typename T, typename F>
+  template <typename F>
     requires std::is_invocable_r_v<void, F, I_timer&>
   class timer : public I_timer, private clock<double>
   {
   public:
     using underlying_type = clock::value_type;
-    using interval_unit_t = T;
     using callback_t = F;
 
     using enum timer_policy;
@@ -130,7 +129,6 @@ namespace utils
     {
       stop();
       reset_clock();
-      m_stop = {};
       auto new_exec = std::async(std::launch::async, [this](std::future<void> abort_flag)
         {
           tick(std::move(abort_flag));
@@ -142,6 +140,7 @@ namespace utils
       if (m_execution.valid())
       {
         m_stop.set_value();
+        m_stop = {};
         m_execution.get();
       }
     }

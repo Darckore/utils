@@ -2,7 +2,6 @@
 
 namespace utils
 {
-
   //
   // A simple clock
   //
@@ -73,11 +72,28 @@ namespace utils
   };
 
   //
+  // Base class for the timer's callbacks
+  //
+  class I_timer
+  {
+  public:
+    using interval_unit_t = chrono::milliseconds;
+
+    virtual void set_interval(interval_unit_t interval) noexcept = 0;
+    virtual void start() = 0;
+    virtual void stop() = 0;
+
+    virtual bool is_autostart() const noexcept = 0;
+    virtual bool is_deferred() const noexcept = 0;
+    virtual bool is_manual() const noexcept = 0;
+  };
+
+  //
   // A timer. Calls a function ashynchronously at the given interval
   //
   template <typename T, typename F>
-  requires std::is_invocable_r_v<void, F>
-    class timer : private clock<double>
+  requires std::is_invocable_r_v<void, F, I_timer&>
+    class timer : public I_timer, private clock<double>
   {
   public:
     using underlying_type = clock::value_type;
@@ -106,11 +122,11 @@ namespace utils
       timer{ deferred, interval, std::move(callback) }
     {}
 
-    void set_interval(interval_unit_t interval) noexcept
+    virtual void set_interval(interval_unit_t interval) noexcept override
     {
       m_interval = interval;
     }
-    void start()
+    virtual void start() override
     {
       stop();
       reset_clock();
@@ -121,7 +137,7 @@ namespace utils
         }, std::move(m_stop.get_future()));
       m_execution = std::move(new_exec);
     }
-    void stop()
+    virtual void stop() override
     {
       if (m_execution.valid())
       {
@@ -130,15 +146,15 @@ namespace utils
       }
     }
 
-    bool is_autostart() const noexcept
+    virtual bool is_autostart() const noexcept override
     {
       return m_policy == automatic;
     }
-    bool is_deferred() const noexcept
+    virtual bool is_deferred() const noexcept override
     {
       return m_policy == deferred;
     }
-    bool is_manual() const noexcept
+    virtual bool is_manual() const noexcept override
     {
       return m_policy == manual;
     }
@@ -146,7 +162,7 @@ namespace utils
   private:
     void mark()
     {
-      m_callback();
+      m_callback(*this);
       if (is_manual())
       {
         stop();

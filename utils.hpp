@@ -9,6 +9,7 @@
 #include <string_view>
 #include <array>
 #include <random>
+#include <future>
 #include <chrono>
 
 namespace ranges = std::ranges;

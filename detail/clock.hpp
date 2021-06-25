@@ -92,8 +92,8 @@ namespace utils
   // A timer. Calls a function ashynchronously at the given interval
   //
   template <typename T, typename F>
-  requires std::is_invocable_r_v<void, F, I_timer&>
-    class timer : public I_timer, private clock<double>
+    requires std::is_invocable_r_v<void, F, I_timer&>
+  class timer : public I_timer, private clock<double>
   {
   public:
     using underlying_type = clock::value_type;

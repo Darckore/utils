@@ -86,4 +86,22 @@ namespace utils
     constexpr auto max_diff = std::numeric_limits<T>::epsilon();
     return abs(left - right) <= max_diff;
   }
+
+  //
+  // Converts degrees to radians
+  //
+  template <detail::real Angle>
+  constexpr auto deg_to_rad(Angle angle) noexcept
+  {
+    return angle * std::numbers::pi_v<Angle> / 180;
+  }
+
+  //
+  // Converts radians to degrees
+  //
+  template <detail::real Angle>
+  constexpr auto rad_to_deg(Angle angle) noexcept
+  {
+    return angle * 180 / std::numbers::pi_v<Angle>;
+  }
 }

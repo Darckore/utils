@@ -6,6 +6,7 @@
 #include <ranges>
 #include <bit>
 #include <numeric>
+#include <numbers>
 #include <string_view>
 #include <array>
 #include <random>

@@ -83,7 +83,7 @@ namespace utils
     requires std::is_arithmetic_v<T>
   {
     if constexpr (std::is_unsigned_v<T>)
-      return T{ 1 };
+      return val != 0 ? T{ 1 } : T{ 0 };
     else
       return val < 0
             ? T{ -1 }
@@ -119,4 +119,7 @@ namespace utils
   {
     return angle * 180 / std::numbers::pi_v<Angle>;
   }
+
 }
+
+#include "ratio.hpp"

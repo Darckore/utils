@@ -18,7 +18,7 @@ namespace views = std::views;
 namespace chrono = std::chrono;
 
 #include "detail/common.hpp"
-#include "detail/math.h"
+#include "detail/math.hpp"
 #include "detail/strings.hpp"
 #include "detail/random.hpp"
 #include "detail/clock.hpp"

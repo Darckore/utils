@@ -38,7 +38,7 @@ namespace utils
     inline constexpr auto sqrt_magic_v = sqrt_magic<T>::value;
 
     template <real T>
-    using sqrt_magic_t = sqrt_magic<T>::type;
+    using sqrt_magic_t = typename sqrt_magic<T>::type;
   } 
    
   //

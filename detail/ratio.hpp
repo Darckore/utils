@@ -57,8 +57,8 @@ namespace utils
     {
       using common_t = std::common_type_t<value_type, I>;
       using common_signed_t = std::make_signed_t<common_t>;
-      const auto l = get_simplified().to<common_t>();
-      const auto r = other.get_simplified().to<common_t>();
+      const auto l = get_simplified().template to<common_t>();
+      const auto r = other.get_simplified().template to<common_t>();
       const auto res_denom = l.denom() * r.denom();
       const auto lnum = l.sign() * std::bit_cast<common_signed_t>(l.num() * r.denom());
       const auto rnum = r.sign() * std::bit_cast<common_signed_t>(r.num() * l.denom());
@@ -79,13 +79,13 @@ namespace utils
     constexpr auto mul(const ratio<I>& other) const noexcept
     {
       using common_t = std::common_type_t<value_type, I>;
-      const auto l = get_simplified().to<common_t>();
-      const auto r = other.get_simplified().to<common_t>();
+      const auto l = get_simplified().template to<common_t>();
+      const auto r = other.get_simplified().template to<common_t>();
       return ratio<I>
       {
         l.num()* r.num(),
-          l.denom()* r.denom(),
-          l.sign()* r.sign()
+        l.denom()* r.denom(),
+        static_cast<sign_t>(l.sign()* r.sign())
       }.get_simplified();
     }
     template <detail::integer I>
@@ -97,52 +97,52 @@ namespace utils
     template <detail::integer I>
     constexpr ratio& operator+=(const ratio<I>& other) noexcept
     {
-      *this = (*this + other).to<value_type>();
+      *this = (*this + other).template to<value_type>();
       return *this;
     }
     template <detail::integer I>
     constexpr ratio& operator+=(const I& other) noexcept
     {
-      *this = (*this + other).to<value_type>();
+      *this = (*this + other).template to<value_type>();
       return *this;
     }
 
     template <detail::integer I>
     constexpr ratio& operator-=(const ratio<I>& other) noexcept
     {
-      *this = (*this - other).to<value_type>();
+      *this = (*this - other).template to<value_type>();
       return *this;
     }
     template <detail::integer I>
     constexpr ratio& operator-=(const I& other) noexcept
     {
-      *this = (*this - other).to<value_type>();
+      *this = (*this - other).template to<value_type>();
       return *this;
     }
 
     template <detail::integer I>
     constexpr ratio& operator*=(const ratio<I>& other) noexcept
     {
-      *this = (*this * other).to<value_type>();
+      *this = (*this * other).template to<value_type>();
       return *this;
     }
     template <detail::integer I>
     constexpr ratio& operator*=(const I& other) noexcept
     {
-      *this = (*this * other).to<value_type>();
+      *this = (*this * other).template to<value_type>();
       return *this;
     }
 
     template <detail::integer I>
     constexpr ratio& operator/=(const ratio<I>& other) noexcept
     {
-      *this = (*this / other).to<value_type>();
+      *this = (*this / other).template to<value_type>();
       return *this;
     }
     template <detail::integer I>
     constexpr ratio& operator/=(const I& other) noexcept
     {
-      *this = (*this / other).to<value_type>();
+      *this = (*this / other).template to<value_type>();
       return *this;
     }
 
@@ -220,17 +220,22 @@ namespace utils
       return false;
 
     using common_t = std::common_type_t<L, R>;
-    const auto l = lhs.get_simplified().to<common_t>();
-    const auto r = rhs.get_simplified().to<common_t>();
+    const auto l = lhs.get_simplified().template to<common_t>();
+    const auto r = rhs.get_simplified().template to<common_t>();
 
-    return l.sign() == r.sign()
-      && l.num() == r.num()
-      && l.denom() == r.denom();
+    return l.sign()  == r.sign()
+        && l.num()   == r.num()
+        && l.denom() == r.denom();
   }
   template <detail::integer L, detail::integer R>
   constexpr bool operator==(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs == ratio<R>{ rhs };
+  }
+  template <detail::integer L, detail::real R>
+  constexpr bool operator==(const ratio<L>& lhs, const R& rhs) noexcept
+  {
+    return eq(lhs.template to<R>(), rhs);
   }
 
   template <detail::integer L, detail::integer R>
@@ -240,8 +245,8 @@ namespace utils
       return cmp;
 
     using common_t = std::common_type_t<L, R>;
-    const auto l = lhs.get_simplified().to<common_t>();
-    const auto r = rhs.get_simplified().to<common_t>();
+    const auto l = lhs.get_simplified().template to<common_t>();
+    const auto r = rhs.get_simplified().template to<common_t>();
     return (l.num() * r.denom()) <=> (r.num() * l.denom());
   }
   template <detail::integer L, detail::integer R>
@@ -251,6 +256,11 @@ namespace utils
       return lsign <=> static_cast<decltype(lsign)>(sign(rhs));
 
     return lhs <=> ratio<R>{ rhs };
+  }
+  template <detail::integer L, detail::real R>
+  constexpr auto operator<=>(const ratio<L>& lhs, const R& rhs) noexcept
+  {
+    return lhs.template to<R>() <=> rhs;
   }
 
   template <detail::integer L, detail::integer R>
@@ -268,6 +278,16 @@ namespace utils
   {
     return ratio<L>{ lhs }.add(rhs);
   }
+  template <detail::integer L, detail::real R>
+  constexpr auto operator+(const ratio<L>& lhs, const R& rhs) noexcept
+  {
+    return lhs.template to<R>() + rhs;
+  }
+  template <detail::real L, detail::integer R>
+  constexpr auto operator+(const L& lhs, const ratio<R>& rhs) noexcept
+  {
+    return lhs + rhs.template to<L>();
+  }
 
   template <detail::integer L, detail::integer R>
   constexpr auto operator-(const ratio<L>& lhs, const ratio<R>& rhs) noexcept
@@ -283,6 +303,16 @@ namespace utils
   constexpr auto operator-(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return ratio<L>{ lhs }.sub(rhs);
+  }
+  template <detail::integer L, detail::real R>
+  constexpr auto operator-(const ratio<L>& lhs, const R& rhs) noexcept
+  {
+    return lhs.template to<R>() - rhs;
+  }
+  template <detail::real L, detail::integer R>
+  constexpr auto operator-(const L& lhs, const ratio<R>& rhs) noexcept
+  {
+    return lhs - rhs.template to<L>();
   }
 
   template <detail::integer L, detail::integer R>
@@ -300,6 +330,16 @@ namespace utils
   {
     return ratio<L>{ lhs }.mul(rhs);
   }
+  template <detail::integer L, detail::real R>
+  constexpr auto operator*(const ratio<L>& lhs, const R& rhs) noexcept
+  {
+    return lhs.template to<R>() * rhs;
+  }
+  template <detail::real L, detail::integer R>
+  constexpr auto operator*(const L& lhs, const ratio<R>& rhs) noexcept
+  {
+    return lhs * rhs.template to<L>();
+  }
 
   template <detail::integer L, detail::integer R>
   constexpr auto operator/(const ratio<L>& lhs, const ratio<R>& rhs) noexcept
@@ -315,5 +355,15 @@ namespace utils
   constexpr auto operator/(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return ratio<L>{ lhs }.div(rhs);
+  }
+  template <detail::integer L, detail::real R>
+  constexpr auto operator/(const ratio<L>& lhs, const R& rhs) noexcept
+  {
+    return lhs.template to<R>() / rhs;
+  }
+  template <detail::real L, detail::integer R>
+  constexpr auto operator/(const L& lhs, const ratio<R>& rhs) noexcept
+  {
+    return lhs / rhs.template to<L>();
   }
 }

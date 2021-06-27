@@ -76,6 +76,21 @@ namespace utils
   }
 
   //
+  // Checks the sign
+  //
+  template <typename T>
+  constexpr auto sign(T val) noexcept
+    requires std::is_arithmetic_v<T>
+  {
+    if constexpr (std::is_unsigned_v<T>)
+      return T{ 1 };
+    else
+      return val < 0
+            ? T{ -1 }
+            : (val > 0 ? T{ 1 } : T{ 0 });
+  }
+
+  //
   // This is mostly for floats
   // To avoid dealing with the epsilon bs on comparing them
   //

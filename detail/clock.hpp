@@ -98,7 +98,6 @@ namespace utils
       m_callback{ std::move(callback) },
       m_policy{ policy }
     {
-      static_assert(std::is_invocable_r_v<void, callback_t, decltype(*this)&>);
       if (is_autostart())
         start();
     }
@@ -143,9 +142,24 @@ namespace utils
     }
 
   private:
+    void callback() noexcept(std::is_nothrow_invocable_v<callback_t>)
+    {
+      if constexpr (std::is_invocable_r_v<void, callback_t, decltype(*this)&>)
+      {
+        m_callback(*this);
+      }
+      else if constexpr (std::is_invocable_r_v<void, callback_t>)
+      {
+        m_callback();
+      }
+      else
+      {
+        static_assert(false, "Invalid callback signature");
+      }
+    }
     void mark()
     {
-      m_callback(*this);
+      callback();
       if (is_manual())
       {
         stop();

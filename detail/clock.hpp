@@ -16,7 +16,7 @@ namespace utils
     using duration_t = chrono::duration<value_type>;
 
     clock() = default;
-    virtual ~clock() = default;
+    ~clock() = default;
     CLASS_SPECIALS_NONE_CUSTOM(clock);
 
     auto operator()() noexcept
@@ -72,38 +72,23 @@ namespace utils
   };
 
   //
-  // Base class for the timer's callbacks
-  //
-  class I_timer
-  {
-  public:
-    using interval_unit_t = chrono::milliseconds;
-
-    virtual void set_interval(interval_unit_t interval) noexcept = 0;
-    virtual void start() = 0;
-    virtual void stop() = 0;
-
-    virtual bool is_autostart() const noexcept = 0;
-    virtual bool is_deferred() const noexcept = 0;
-    virtual bool is_manual() const noexcept = 0;
-  };
-
-  //
   // A timer. Calls a function ashynchronously at the given interval
   //
   template <typename F>
-    requires std::is_invocable_r_v<void, F, I_timer&>
-  class timer : public I_timer, private clock<double>
+  class timer
   {
   public:
-    using underlying_type = clock::value_type;
+    using interval_unit_t = chrono::milliseconds;
+    using clock_t = clock<double>;
+    using underlying_type = clock_t::value_type;
     using callback_t = F;
+    using exec_t = std::future<void>;
 
     using enum timer_policy;
 
   public:
     CLASS_SPECIALS_NONE(timer);
-    virtual ~timer() noexcept
+    ~timer() noexcept
     {
       stop();
     }
@@ -113,6 +98,7 @@ namespace utils
       m_callback{ std::move(callback) },
       m_policy{ policy }
     {
+      static_assert(std::is_invocable_r_v<void, callback_t, decltype(*this)&>);
       if (is_autostart())
         start();
     }
@@ -121,39 +107,37 @@ namespace utils
       timer{ deferred, interval, std::move(callback) }
     {}
 
-    virtual void set_interval(interval_unit_t interval) noexcept override
+    void set_interval(interval_unit_t interval) noexcept
     {
       m_interval = interval;
     }
-    virtual void start() override
+    void start()
     {
       stop();
       reset_clock();
-      auto new_exec = std::async(std::launch::async, [this](std::future<void> abort_flag)
+      m_active = true;
+      auto new_exec = std::async(std::launch::async,
+        [this]
         {
-          tick(std::move(abort_flag));
-        }, std::move(m_stop.get_future()));
+          tick();
+        });
+      
       m_execution = std::move(new_exec);
     }
-    virtual void stop() override
+    void stop() 
     {
-      if (m_execution.valid())
-      {
-        m_stop.set_value();
-        m_stop = {};
-        m_execution.get();
-      }
+      m_active = false;
     }
 
-    virtual bool is_autostart() const noexcept override
+    bool is_autostart() const noexcept
     {
       return m_policy == automatic;
     }
-    virtual bool is_deferred() const noexcept override
+    bool is_deferred() const noexcept
     {
       return m_policy == deferred;
     }
-    virtual bool is_manual() const noexcept override
+    bool is_manual() const noexcept
     {
       return m_policy == manual;
     }
@@ -170,19 +154,16 @@ namespace utils
     }
     void reset_clock()
     {
-      auto&& self = *this;
-      unused(self());
+      m_clock();
     }
-    void tick(std::future<void> abort_flag)
+    void tick()
     {
-      using namespace std::literals::chrono_literals;
       for (;;)
       {
-        if (abort_flag.wait_for(0ms) == std::future_status::ready)
-          break;
+        if (!m_active)
+          return;
 
-        const auto diff = peek<interval_unit_t>();
-        if (diff >= m_interval)
+        if (m_clock.peek<interval_unit_t>() >= m_interval)
         {
           mark();
         }
@@ -190,10 +171,11 @@ namespace utils
     }
 
   private:
-    interval_unit_t m_interval;
-    std::promise<void> m_stop;
-    std::future<void>  m_execution;
     callback_t m_callback;
+    interval_unit_t m_interval;
+    exec_t m_execution;
+    clock_t m_clock;
+    std::atomic_bool m_active = false;
     timer_policy m_policy;
   };
 }

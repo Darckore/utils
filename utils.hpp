@@ -12,6 +12,7 @@
 #include <random>
 #include <future>
 #include <chrono>
+#include <atomic>
 
 namespace ranges = std::ranges;
 namespace views = std::views;

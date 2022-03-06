@@ -39,12 +39,23 @@ namespace utils
     }
 
     template <typename Intr>
-    auto peek() noexcept
+    auto peek() const noexcept
     {
-      return chrono::duration_cast<Intr>(clock_t::now() - m_mark);
+      return chrono::duration_cast<Intr>(cur_diff());
+    }
+
+    auto peek() const noexcept
+    {
+      const duration_t diff = cur_diff();
+      return diff.count();
     }
 
   private:
+    auto cur_diff() const noexcept
+    {
+      return clock_t::now() - m_mark;
+    }
+
     auto update() noexcept
     {
       const auto prev = m_mark;

@@ -12,6 +12,24 @@ namespace utils
   namespace detail
   {
     //
+    // Checks that the parameter pack is not empty
+    //
+    template <typename ...Pack>
+    concept not_empty = (sizeof...(Pack) != 0);
+
+    //
+    // Checks that all types in the pack are the same
+    //
+    template <typename Arg1, typename ...Args>
+    concept all_same = std::conjunction_v<std::is_same<Arg1, Args>...>;
+
+    //
+    // Checks that all types in a pack are the same, and the pack is larger than 1 element
+    //
+    template <typename Arg1, typename ...Args>
+    concept homogenous_pack = not_empty<Args...> && all_same<Arg1, Args...>;
+
+    //
     // Checks whether types can be comared by value
     //
     template <typename Arg1, typename Arg2, typename ...Args>

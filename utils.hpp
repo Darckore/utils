@@ -83,3 +83,4 @@ namespace chrono = std::chrono;
 #include "detail/strings.hpp"
 #include "detail/random.hpp"
 #include "detail/clock.hpp"
+#include "detail/colour.hpp"

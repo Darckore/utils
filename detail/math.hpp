@@ -123,3 +123,4 @@ namespace utils
 }
 
 #include "ratio.hpp"
+#include "vector.hpp"

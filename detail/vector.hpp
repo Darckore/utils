@@ -83,6 +83,14 @@ namespace utils
       }
     }
 
+    template <detail::coordinate U, std::size_t N>
+      requires (std::is_same_v<U, value_type> && N == dimensions)
+    constexpr auto& operator+=(const vector<U, N>& other) noexcept
+    {
+      *this = *this + other;
+      return *this;
+    }
+
     template <detail::coordinate U>
     constexpr auto operator-(const vector<U, dimensions>& other) const noexcept
     {
@@ -103,6 +111,35 @@ namespace utils
         using ct = std::common_type_t<U, value_type>;
         return to<ct, dimensions>() - other.template to<ct, dimensions>();
       }
+    }
+
+    template <detail::coordinate U, std::size_t N>
+      requires (std::is_same_v<U, value_type> && N == dimensions)
+    constexpr auto& operator-=(const vector<U, N>& other) noexcept
+    {
+      *this = *this - other;
+      return *this;
+    }
+
+    template <detail::coordinate U>
+    constexpr auto operator*(const vector<U, dimensions>& other) const noexcept
+    {
+      using ct = std::common_type_t<U, value_type>;
+      auto it = other.begin();
+      return std::accumulate(m_coords.begin(), m_coords.end(), ct{},
+                             [&it](auto acc, auto cur)
+                             {
+                               return acc + static_cast<ct>(cur * *(it++));
+                             });
+    }
+
+    constexpr auto& operator*=(detail::coordinate auto scalar) noexcept
+    {
+      return scale(scalar);
+    }
+    constexpr auto& operator/=(detail::coordinate auto scalar) noexcept
+    {
+      return scale(value_type{ 1 } / scalar);
     }
 
     template <detail::coordinate U, std::size_t N>
@@ -146,6 +183,41 @@ namespace utils
       return lsq * inv_sqrt(lsq);
     }
 
+    constexpr auto get_scaled(detail::coordinate auto scalar) const noexcept
+    {
+      vector result;
+      std::transform(m_coords.begin(), m_coords.end(), result.m_coords.begin(),
+                     [scalar](auto cur)
+                     {
+                       return static_cast<value_type>(cur * scalar);
+                     });
+      return result;
+    }
+    constexpr auto& scale(detail::coordinate auto scalar) noexcept
+    {
+      *this = get_scaled(scalar);
+      return *this;
+    }
+
+    constexpr auto get_normalised() const noexcept
+    {
+      return *this / len();
+    }
+    constexpr auto& normalise() noexcept
+    {
+      *this = get_normalised();
+      return *this;
+    }
+
+    constexpr auto begin() const noexcept
+    {
+      return m_coords.begin();
+    }
+    constexpr auto end() const noexcept
+    {
+      return m_coords.end();
+    }
+
   private:
     template <typename U>
     constexpr bool eq(const vector<U, dimensions>& other) const noexcept
@@ -169,6 +241,22 @@ namespace utils
   private:
     storage_type m_coords{};
   };
+
+  template <detail::coordinate T, std::size_t N, detail::coordinate S>
+  constexpr auto operator*(const vector<T, N>& vec, const S& scalar) noexcept
+  {
+    return vec.get_scaled(scalar);
+  }
+  template <detail::coordinate T, std::size_t N, detail::coordinate S>
+  constexpr auto operator*(const S& scalar, const vector<T, N>& vec) noexcept
+  {
+    return vec * scalar;
+  }
+  template <detail::coordinate T, std::size_t N, detail::coordinate S>
+  constexpr auto operator/(const vector<T, N>& vec, const S& scalar) noexcept
+  {
+    return vec.get_scaled(T{ 1 } / scalar);
+  }
 
   template <detail::coordinate First, detail::coordinate... Rest>
   vector(First, Rest...)->vector<First, sizeof...(Rest) + 1>;

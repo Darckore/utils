@@ -41,7 +41,7 @@ namespace utils
       m_coords{ arr }
     { }
 
-    template <detail::coordinate U, std::size_t N>
+    template <detail::coordinate U, size_type N>
     constexpr bool operator==(const vector<U, N>& other) const noexcept
     {
       if constexpr (N != dimensions)
@@ -83,7 +83,7 @@ namespace utils
       }
     }
 
-    template <detail::coordinate U, std::size_t N>
+    template <detail::coordinate U, size_type N>
       requires (std::is_same_v<U, value_type> && N == dimensions)
     constexpr auto& operator+=(const vector<U, N>& other) noexcept
     {
@@ -113,7 +113,7 @@ namespace utils
       }
     }
 
-    template <detail::coordinate U, std::size_t N>
+    template <detail::coordinate U, size_type N>
       requires (std::is_same_v<U, value_type> && N == dimensions)
     constexpr auto& operator-=(const vector<U, N>& other) noexcept
     {
@@ -142,7 +142,7 @@ namespace utils
       return scale(value_type{ 1 } / scalar);
     }
 
-    template <detail::coordinate U, std::size_t N>
+    template <detail::coordinate U, size_type N>
     constexpr auto to() const noexcept
     {
       if constexpr (N == dimensions && std::is_same_v<value_type, U>)
@@ -162,7 +162,7 @@ namespace utils
       }
     }
 
-    template <detail::coordinate U, std::size_t N>
+    template <detail::coordinate U, size_type N>
     constexpr operator vector<U, N>() const noexcept
     {
       return to<U, N>();
@@ -207,6 +207,17 @@ namespace utils
     {
       *this = get_normalised();
       return *this;
+    }
+
+    template <size_type N> requires (N < dimensions)
+    constexpr const auto& get() const noexcept
+    {
+      return m_coords[N];
+    }
+    template <size_type N> requires (N < dimensions)
+    constexpr auto& get() noexcept
+    {
+      return mutate(std::as_const(*this).get<N>());
     }
 
     constexpr auto begin() const noexcept

@@ -95,9 +95,8 @@ namespace utils
   //
   // A constexpr abs version
   //
-  template <typename T>
+  template <typename T> requires std::is_arithmetic_v<T>
   constexpr auto abs(T val) noexcept
-    requires std::is_arithmetic_v<T>
   {
     if constexpr (std::is_unsigned_v<T>)
       return val;
@@ -108,9 +107,8 @@ namespace utils
   //
   // Return the sign of the given value
   //
-  template <typename T>
+  template <typename T> requires std::is_arithmetic_v<T>
   constexpr auto sign(T val) noexcept
-    requires std::is_arithmetic_v<T>
   {
     if constexpr (std::is_unsigned_v<T>)
       return val != 0 ? T{ 1 } : T{ 0 };
@@ -124,12 +122,23 @@ namespace utils
   // This is mostly for floats
   // To avoid dealing with the epsilon bs on comparing them
   //
-  template <detail::comparable T>
+  template <detail::comparable T> requires std::is_arithmetic_v<T>
   constexpr bool eq(T left, T right) noexcept
-    requires std::is_arithmetic_v<T>
   {
     constexpr auto max_diff = std::numeric_limits<T>::epsilon();
     return abs(left - right) <= max_diff;
+  }
+
+  //
+  // Inverts the value ( 1 / val )
+  //
+  template <detail::real T>
+  constexpr auto inv(T val) noexcept
+  {
+    if (eq(val, T{}))
+      return T{};
+
+    return T{ 1 } / val;
   }
 
   //

@@ -63,9 +63,8 @@ namespace utils
   //
   // Checks whether a value is in the specified range
   //
-  template <detail::comparable T1, detail::comparable T2, detail::comparable T3>
+  template <detail::comparable T1, detail::comparable T2, detail::comparable T3> requires (T1{} >= T2{} && T1{} <= T3{})
   inline constexpr bool in_range(T1&& val, T2&& low, T3&& high) noexcept
-    requires (T1{} >= T2{} && T1{} <= T3{})
   {
     return val >= low && val <= high;
   }
@@ -73,9 +72,8 @@ namespace utils
   //
   // Checks whether the first arg equals ALL of subsequent args
   //
-  template <typename T1, typename T2, typename ...Ts>
+  template <typename T1, typename T2, typename ...Ts> requires detail::equ_comparable<T1, T2, Ts... >
   inline constexpr bool eq_all(T1&& val, T2&& arg1, Ts&& ...args) noexcept
-    requires detail::equ_comparable<T1, T2, Ts... >
   {
     return ((val == arg1) && ... && (val == args));
   }
@@ -83,9 +81,8 @@ namespace utils
   //
   // Checks whether the first arg equals ANY of subsequent args
   //
-  template <typename T1, typename T2, typename ...Ts>
+  template <typename T1, typename T2, typename ...Ts> requires detail::equ_comparable<T1, T2, Ts... >
   inline constexpr bool eq_any(T1&& val, T2&& arg1, Ts&& ...args) noexcept
-    requires detail::equ_comparable<T1, T2, Ts... >
   {
     return ((val == arg1) || ... || (val == args));
   }
@@ -93,9 +90,8 @@ namespace utils
   //
   // Checks whether the first arg equals NONE of subsequent args
   //
-  template <typename T1, typename T2, typename ...Ts>
+  template <typename T1, typename T2, typename ...Ts> requires detail::equ_comparable<T1, T2, Ts... >
   inline constexpr bool eq_none(T1&& val, T2&& arg1, Ts&& ...args) noexcept
-    requires detail::equ_comparable<T1, T2, Ts... >
   {
     return ((val != arg1) && ... && (val != args));
   }

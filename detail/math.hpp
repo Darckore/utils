@@ -39,6 +39,36 @@ namespace utils
 
     template <real T>
     using sqrt_magic_t = typename sqrt_magic<T>::type;
+
+    template <max_int_t Bytes>
+    struct max_factorial;
+
+    template <max_int_t Bytes>
+    inline constexpr auto max_factorial_v = max_factorial<Bytes>::value;
+
+    template <>
+    struct max_factorial<1>
+    {
+      static constexpr max_int_t value{ 5 };
+    };
+
+    template <>
+    struct max_factorial<2>
+    {
+      static constexpr max_int_t value{ 8 };
+    };
+
+    template <>
+    struct max_factorial<4>
+    {
+      static constexpr max_int_t value{ 12 };
+    };
+
+    template <>
+    struct max_factorial<8>
+    {
+      static constexpr max_int_t value{ 20 };
+    };
   } 
    
   //
@@ -76,7 +106,7 @@ namespace utils
   }
 
   //
-  // Checks the sign
+  // Return the sign of the given value
   //
   template <typename T>
   constexpr auto sign(T val) noexcept
@@ -103,24 +133,27 @@ namespace utils
   }
 
   //
-  // Converts degrees to radians
+  // Factorial
+  // Returns 0 if overflown
   //
-  template <detail::real Angle>
-  constexpr auto deg_to_rad(Angle angle) noexcept
+  template <detail::integer I> requires std::is_unsigned_v<I>
+  constexpr auto factorial(I value) noexcept
   {
-    return angle * std::numbers::pi_v<Angle> / 180;
-  }
+    using result_type = detail::max_int_t;
+    if (!value)
+      return result_type{ 1 };
 
-  //
-  // Converts radians to degrees
-  //
-  template <detail::real Angle>
-  constexpr auto rad_to_deg(Angle angle) noexcept
-  {
-    return angle * 180 / std::numbers::pi_v<Angle>;
-  }
+    if (value > detail::max_factorial_v<sizeof(result_type)>)
+      return result_type{};
 
+    auto res = result_type{ value };
+    for (result_type cur = value - 1; cur != 0; --cur)
+      res *= cur;
+
+    return res;
+  }
 }
 
+#include "trig.hpp"
 #include "ratio.hpp"
 #include "vector.hpp"

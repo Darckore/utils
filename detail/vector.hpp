@@ -233,20 +233,14 @@ namespace utils
     template <typename U>
     constexpr bool eq(const vector<U, dimensions>& other) const noexcept
     {
-      if constexpr (std::is_same_v<U, value_type>)
+      using ct = std::common_type_t<U, value_type>;
+      auto otherIt = other.begin();
+      for (auto it = begin(); it != end(); ++it, ++otherIt)
       {
-        for (auto i1 = m_coords.begin(), i2 = other.m_coords.begin(); i1 != m_coords.end(); ++i1, ++i2)
-        {
-          if (!utils::eq(*i1, *i2))
-            return false;
-        }
-        return true;
+        if (!utils::eq(static_cast<ct>(*it), static_cast<ct>(*otherIt)))
+          return false;
       }
-      else
-      {
-        using ct = std::common_type_t<U, value_type>;
-        return to<ct, dimensions>() == other.template to<ct, dimensions>();
-      }
+      return true;
     }
 
   private:

@@ -24,6 +24,14 @@ namespace utils
 
     static constexpr auto zero_coord = value_type{ 0 };
 
+    template <size_type Axis> requires (Axis < dimensions)
+    static consteval auto axis_norm() noexcept
+    {
+      vector <value_type, dimensions> res;
+      res.get<Axis>() = value_type{ 1 };
+      return res;
+    }
+
   public:
     CLASS_SPECIALS_ALL(vector);
 
@@ -178,6 +186,34 @@ namespace utils
     constexpr auto& scale(detail::coordinate auto scalar) noexcept
     {
       *this = get_scaled(scalar);
+      return *this;
+    }
+
+    constexpr auto get_rotated(detail::real auto angle) const noexcept requires (dimensions >= 2)
+    {
+      vector<value_type, dimensions> res;
+      const auto cosA = cos(angle);
+      const auto sinA = sin(angle);
+
+      // Special case for 2D
+      if constexpr (dimensions == 2)
+      {
+        auto&& x = get<0>();
+        auto&& y = get<1>();
+        res.template get<0>() = x * cosA - y * sinA;
+        res.template get<1>() = x * sinA + y * cosA;
+        return res;
+      }
+      else
+      {
+        // Todo: higher dimensions
+        unused(angle, res);
+        return *this;
+      }
+    }
+    constexpr auto& rotate(detail::real auto angle) noexcept
+    {
+      *this = get_rotated(angle);
       return *this;
     }
 

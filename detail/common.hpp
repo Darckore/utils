@@ -7,7 +7,7 @@ namespace utils
   // Just a convenience for debugging
   //
   template <typename ...Args>
-  void unused(Args&&...) noexcept {}
+  constexpr void unused(Args&&...) noexcept {}
 
   namespace detail
   {

@@ -136,7 +136,7 @@ namespace utils
   constexpr auto inv(T val) noexcept
   {
     if (eq(val, T{}))
-      return T{};
+      return std::numeric_limits<T>::infinity();
 
     return T{ 1 } / val;
   }

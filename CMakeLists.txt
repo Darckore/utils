@@ -27,7 +27,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/out)
 
 set(APP_TARGET test_app)
 set(LIB0_TARGET utils) 
-set(TESTS_TARGET tests) 
+set(TESTS_TARGET ut_tests) 
 
 project(utilities CXX)
 

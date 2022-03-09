@@ -29,7 +29,7 @@ set(APP_TARGET test_app)
 set(LIB0_TARGET utils) 
 set(TESTS_TARGET tests) 
 
-project(space_assault CXX)
+project(utilities CXX)
 
 set(TARGET_NAME ${LIB0_TARGET})
 add_subdirectory("${TARGET_NAME}")

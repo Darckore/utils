@@ -160,13 +160,19 @@ namespace utils
 
   namespace colours
   {
-    inline constexpr auto white   = colour{ 255, 255, 255 };
-    inline constexpr auto black   = colour{   0,   0,   0 };
-    inline constexpr auto gray    = colour{ 127, 127, 127 };
-    inline constexpr auto red     = colour{ 255,   0,   0 };
-    inline constexpr auto green   = colour{   0, 255,   0 };
-    inline constexpr auto blue    = colour{   0,   0, 255 };
-    inline constexpr auto yellow  = colour{ 255, 255,   0 };
+    inline constexpr auto white     = colour{ 255, 255, 255 };
+    inline constexpr auto black     = colour{   0,   0,   0 };
+    inline constexpr auto gray      = colour{ 128, 128, 128 };
+    inline constexpr auto silver    = colour{ 192, 192, 192 };
+    inline constexpr auto red       = colour{ 255,   0,   0 };
+    inline constexpr auto orange    = colour{ 255, 165,   0 };
+    inline constexpr auto lime      = colour{   0, 255,   0 };
+    inline constexpr auto green     = colour{   0, 128,   0 };
+    inline constexpr auto olive     = colour{ 128, 128,   0 };
+    inline constexpr auto blue      = colour{   0,   0, 255 };
+    inline constexpr auto darkBlue  = colour{   0,   0, 160 };
+    inline constexpr auto yellow    = colour{ 255, 255,   0 };
+    inline constexpr auto purple    = colour{ 128,   0, 128 };
 
     inline constexpr auto magenta   = colour{ 255,   0, 255 };
     inline constexpr auto chromakey = magenta;

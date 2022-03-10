@@ -33,6 +33,11 @@ namespace utils
     }
 
   public:
+    explicit operator bool() const noexcept
+    {
+      return num() != 0;
+    }
+
     constexpr auto operator-() const noexcept
     {
       return ratio{ num(), denom(), -sign() };
@@ -60,12 +65,12 @@ namespace utils
       const auto l = get_simplified().template to<common_t>();
       const auto r = other.get_simplified().template to<common_t>();
       const auto res_denom = l.denom() * r.denom();
-      const auto lnum = l.sign() * std::bit_cast<common_signed_t>(l.num() * r.denom());
-      const auto rnum = r.sign() * std::bit_cast<common_signed_t>(r.num() * l.denom());
+      const auto lnum = l.sign() * static_cast<common_signed_t>(l.num() * r.denom());
+      const auto rnum = r.sign() * static_cast<common_signed_t>(r.num() * l.denom());
       const auto res_num = lnum + rnum;
       return ratio<common_t>
       {
-        std::bit_cast<common_t>(utils::abs(res_num)),
+        static_cast<common_t>(utils::abs(res_num)),
           res_denom,
           static_cast<sign_t>(utils::sign(res_num))
       }.simplify();
@@ -81,11 +86,11 @@ namespace utils
       using common_t = std::common_type_t<value_type, I>;
       const auto l = get_simplified().template to<common_t>();
       const auto r = other.get_simplified().template to<common_t>();
-      return ratio<I>
+      return ratio<common_t>
       {
-        l.num()* r.num(),
-        l.denom()* r.denom(),
-        static_cast<sign_t>(l.sign()* r.sign())
+        l.num() * r.num(),
+        l.denom() * r.denom(),
+        static_cast<sign_t>(l.sign() * r.sign())
       }.get_simplified();
     }
     template <detail::integer I>
@@ -212,6 +217,24 @@ namespace utils
     value_type m_den{};
     sign_t m_sign{};
   };
+
+  template <detail::integer I>
+  constexpr auto sign(ratio<I> r) noexcept
+  {
+    return r.sign();
+  }
+
+  template <detail::integer I>
+  constexpr auto abs(ratio<I> r) noexcept
+  {
+    return ratio<I>{ r.num(), r.denom() };
+  }
+
+  template <detail::integer I>
+  constexpr auto inv(ratio<I> r) noexcept
+  {
+    return r.get_flipped();
+  }
 
   template <detail::integer L, detail::integer R>
   constexpr bool operator==(const ratio<L>& lhs, const ratio<R>& rhs) noexcept

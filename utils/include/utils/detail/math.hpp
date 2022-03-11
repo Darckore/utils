@@ -135,7 +135,7 @@ namespace utils
   template <detail::real T>
   constexpr auto inv(T val) noexcept
   {
-    if (eq(val, T{}))
+    if (val == T{})
       return std::numeric_limits<T>::infinity();
 
     return T{ 1 } / val;

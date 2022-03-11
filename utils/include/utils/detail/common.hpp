@@ -63,7 +63,7 @@ namespace utils
   //
   // Checks whether a value is in the specified range
   //
-  template <detail::comparable T1, detail::comparable T2, detail::comparable T3> requires (T1{} >= T2{} && T1{} <= T3{})
+  template <detail::comparable T1, detail::comparable T2, detail::comparable T3>
   inline constexpr bool in_range(T1&& val, T2&& low, T3&& high) noexcept
   {
     return val >= low && val <= high;

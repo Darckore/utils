@@ -19,6 +19,12 @@ namespace utils
       using type = std::uniform_real_distribution<T>;
     };
 
+    template <>
+    struct rnd_distr<bool>
+    {
+      using type = std::bernoulli_distribution;
+    };
+
     template <typename T>
     using random_distribution_t = rnd_distr<T>::type;
   }
@@ -31,13 +37,15 @@ namespace utils
   //
   template <typename T,
     typename Distr  = detail::random_distribution_t<T>,
-    typename Engine = std::mt19937>
+    std::uniform_random_bit_generator Engine = std::mt19937>
   class rng
   {
   public:
-    using value_type = T;
+    using value_type     = T;
+    using seed_seq_t     = std::seed_seq;
     using distribution_t = Distr;
-    using engine_t = Engine;
+    using engine_t       = Engine;
+    using seed_type      = engine_t::result_type;
   
   public:
     CLASS_SPECIALS_NONE(rng);
@@ -58,6 +66,15 @@ namespace utils
     auto operator()()
     {
       return m_dist(m_rng);
+    }
+
+    void seed(seed_type s)
+    {
+      m_rng.seed(s);
+    }
+    void seed(seed_seq_t& seq)
+    {
+      m_rng.seed(seq);
     }
   
   private:

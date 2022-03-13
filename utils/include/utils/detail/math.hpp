@@ -165,4 +165,3 @@ namespace utils
 
 #include "trig.hpp"
 #include "ratio.hpp"
-#include "vector.hpp"

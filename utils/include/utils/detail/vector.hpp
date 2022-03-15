@@ -9,7 +9,7 @@ namespace utils
   }
 
   //
-  // A vector of arbitrary dimensions
+  // Vector of arbitrary dimensions
   // This is the math vector representing
   // a point in space relative to the origin
   //
@@ -17,8 +17,9 @@ namespace utils
   class vector
   {
   public:
-    using value_type = T;
     static constexpr auto dimensions = D;
+
+    using value_type = T;
     using storage_type = std::array<value_type, dimensions>;
     using size_type = storage_type::size_type;
 
@@ -59,7 +60,7 @@ namespace utils
     }
 
     //
-    // Doesnt check the bounds, be careful
+    // Doesn't check the bounds, be careful
     //
     constexpr auto& operator[](size_type idx) const noexcept
     {
@@ -72,9 +73,7 @@ namespace utils
 
     constexpr auto operator-() const noexcept
     {
-      vector result;
-      std::transform(m_coords.begin(), m_coords.end(), result.m_coords.begin(), std::negate<>{});
-      return result;
+      return get_scaled(value_type{ -1 });
     }
 
     template <detail::coordinate U>
@@ -128,7 +127,7 @@ namespace utils
     {
       using ct = std::common_type_t<U, value_type>;
       auto it = other.begin();
-      return std::accumulate(m_coords.begin(), m_coords.end(), ct{},
+      return std::accumulate(begin(), end(), ct{},
                              [&it](auto acc, auto cur)
                              {
                                return acc + ct{ cur * *(it++) };
@@ -141,7 +140,7 @@ namespace utils
     }
     constexpr auto& operator/=(detail::coordinate auto scalar) noexcept
     {
-      return scale(value_type{ 1 } / scalar);
+      return scale(inv(scalar));
     }
 
     template <detail::coordinate U, size_type N>
@@ -307,6 +306,12 @@ namespace utils
     storage_type m_coords{};
   };
 
+  template <detail::coordinate T, std::size_t N>
+  constexpr bool eq(const vector<T, N>& v1, const vector<T, N>& v2) noexcept
+  {
+    return v1 == v2;
+  }
+
   template <detail::coordinate T, std::size_t N, detail::coordinate S>
   constexpr auto operator*(const vector<T, N>& vec, const S& scalar) noexcept
   {
@@ -320,7 +325,7 @@ namespace utils
   template <detail::coordinate T, std::size_t N, detail::coordinate S>
   constexpr auto operator/(const vector<T, N>& vec, const S& scalar) noexcept
   {
-    return vec.get_scaled(T{ 1 } / scalar);
+    return vec.get_scaled(inv(scalar));
   }
 
   template <detail::coordinate First, detail::coordinate... Rest>

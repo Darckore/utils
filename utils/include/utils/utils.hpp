@@ -13,6 +13,7 @@
 #include <future>
 #include <chrono>
 #include <atomic>
+#include <initializer_list>
 
 namespace ranges = std::ranges;
 namespace views = std::views;
@@ -81,6 +82,7 @@ namespace chrono = std::chrono;
 #include "detail/common.hpp"
 #include "detail/math.hpp"
 #include "detail/vector.hpp"
+#include "detail/matrix.hpp"
 #include "detail/strings.hpp"
 #include "detail/random.hpp"
 #include "detail/clock.hpp"

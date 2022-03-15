@@ -58,6 +58,18 @@ namespace utils
       }
     }
 
+    //
+    // Doesnt check the bounds, be careful
+    //
+    constexpr auto& operator[](size_type idx) const noexcept
+    {
+      return m_coords[idx];
+    }
+    constexpr auto& operator[](size_type idx) noexcept
+    {
+      return utils::mutate(std::as_const(*this).operator[](idx));
+    }
+
     constexpr auto operator-() const noexcept
     {
       vector result;

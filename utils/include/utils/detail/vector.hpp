@@ -24,6 +24,7 @@ namespace utils
     using size_type = storage_type::size_type;
 
     static constexpr auto zero_coord = value_type{ 0 };
+    static constexpr auto unit_coord = value_type{ 1 };
 
     template <size_type Axis> requires (Axis < dimensions)
     static consteval auto axis_norm() noexcept
@@ -140,7 +141,7 @@ namespace utils
     }
     constexpr auto& operator/=(detail::coordinate auto scalar) noexcept
     {
-      return scale(inv(scalar));
+      return scale_inv(scalar);
     }
 
     template <detail::coordinate U, size_type N>
@@ -190,13 +191,28 @@ namespace utils
       std::transform(begin(), end(), result.begin(),
                      [scalar](auto cur)
                      {
-                       return static_cast<value_type>(cur * scalar);
+                       return static_cast<value_type>(scalar) * cur;
                      });
       return result;
     }
     constexpr auto& scale(detail::coordinate auto scalar) noexcept
     {
       *this = get_scaled(scalar);
+      return *this;
+    }
+    constexpr auto get_scaled_inv(detail::coordinate auto scalar) const noexcept
+    {
+      vector result;
+      std::transform(begin(), end(), result.begin(),
+                     [scalar](auto cur)
+                     {
+                       return cur / static_cast<value_type>(scalar);
+                     });
+      return result;
+    }
+    constexpr auto& scale_inv(detail::coordinate auto scalar) noexcept
+    {
+      *this = get_scaled_inv(scalar);
       return *this;
     }
 
@@ -325,7 +341,12 @@ namespace utils
   template <detail::coordinate T, std::size_t N, detail::coordinate S>
   constexpr auto operator/(const vector<T, N>& vec, const S& scalar) noexcept
   {
-    return vec.get_scaled(inv(scalar));
+    return vec.get_scaled_inv(scalar);
+  }
+  template <detail::coordinate T, std::size_t N, detail::coordinate S>
+  constexpr auto operator/(const S& scalar, const vector<T, N>& vec) noexcept
+  {
+    return vec / scalar;
   }
 
   template <detail::coordinate First, detail::coordinate... Rest>

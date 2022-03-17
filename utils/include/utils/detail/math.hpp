@@ -70,27 +70,6 @@ namespace utils
       static constexpr max_int_t value{ 20 };
     };
   } 
-   
-  //
-  // Quake's fast inverse square root
-  //
-  template <detail::real T>
-  constexpr auto inv_sqrt(T number) noexcept
-  {
-    using detail::sqrt_magic_t;
-    using detail::sqrt_magic_v;
-    using std::bit_cast;
-    using result_type = T;
-    using intrm_type = sqrt_magic_t<result_type>;
-
-    constexpr auto magic = sqrt_magic_v<result_type>;
-    constexpr auto threehalfs = result_type{ 1.5 };
-    constexpr auto half = result_type{ 0.5 };
-
-    const auto intermediate = bit_cast<intrm_type>(number);
-    const auto res = bit_cast<result_type>(magic - (intermediate >> 1));
-    return res * (threehalfs - (number * half * res * res));
-  }
 
   //
   // A constexpr abs version
@@ -139,6 +118,38 @@ namespace utils
       return std::numeric_limits<T>::infinity();
 
     return T{ 1 } / val;
+  }
+
+  //
+  // Quake's fast inverse square root
+  //
+  template <detail::real T>
+  constexpr auto inv_sqrt(T number) noexcept
+  {
+    using detail::sqrt_magic_t;
+    using detail::sqrt_magic_v;
+    using std::bit_cast;
+    using result_type = T;
+    using intrm_type = sqrt_magic_t<result_type>;
+    constexpr auto one = result_type{ 1 };
+
+    // Special case
+    if (eq(number, one))
+    {
+      return one;
+    }
+
+    constexpr auto magic = sqrt_magic_v<result_type>;
+    constexpr auto threehalfs1 = result_type{ 1.50131454 };
+    constexpr auto threehalfs2 = result_type{ 1.50000086 };
+    constexpr auto correction  = result_type{ 0.999124984 };
+    const auto half = result_type{ 0.500438180 } * number;
+
+    const auto intermediate = bit_cast<intrm_type>(number);
+    auto  res = bit_cast<result_type>(magic - (intermediate >> 1));
+    res = res * (threehalfs1 - (half * res * res));
+    res = res * (threehalfs2 - 0.999124984 * (half * res * res));
+    return res;
   }
 
   //

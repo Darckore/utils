@@ -23,7 +23,7 @@ TEST(math, t_inv_sqrt)
     374890.982661993
   };
 
-  constexpr auto precision = 100.0;
+  constexpr auto precision = 1e6;
   for (auto val : data)
   {
     const auto sqrtStd  = std::sqrt(val);

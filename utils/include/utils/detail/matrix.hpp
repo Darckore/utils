@@ -21,6 +21,19 @@ namespace utils
     using storage_type = std::array<row_type, height>;
     using size_type = storage_type::size_type;
 
+  private:
+    template <typename T, T... Seq>
+    static consteval auto identity_impl(std::integer_sequence<T, Seq...>) noexcept
+    {
+      return matrix{ row_type::template axis_norm<Seq>()... };
+    }
+
+  public:
+    static consteval auto identity() noexcept requires (width == height)
+    {
+      return identity_impl(std::make_index_sequence<width>{});
+    }
+
   public:
     CLASS_SPECIALS_ALL(matrix);
 
@@ -94,15 +107,26 @@ namespace utils
       return *this;
     }
 
+    template <size_type R> requires (R < height)
+    constexpr const auto& get() const noexcept
+    {
+      return m_data[R];
+    }
+    template <size_type R> requires (R < height)
+    constexpr auto& get() noexcept
+    {
+      return mutate(std::as_const(*this).template get<R>());
+    }
+
     template <size_type R, size_type C> requires (R < height && C < width)
     constexpr const auto& get() const noexcept
     {
-      return m_data[R][C];
+      return get<R>().template get<C>();
     }
     template <size_type R, size_type C> requires (R < height && C < width)
     constexpr auto& get() noexcept
     {
-      return mutate(std::as_const(*this).get<R, C>());
+      return mutate(std::as_const(*this).template get<R, C>());
     }
 
     constexpr auto begin() const noexcept
@@ -143,4 +167,29 @@ namespace utils
 
   template <typename ValT, std::size_t W, typename... Rest>
   matrix(vector<ValT, W>, Rest...)->matrix<ValT, W, sizeof...(Rest) + 1>;
+
+  template <detail::coordinate T>
+  using matr2 = matrix<T, 2, 2>;
+
+  template <detail::coordinate T>
+  using matr3 = matrix<T, 3, 3>;
+
+  using matrf2 = matr2<float>;
+  using matrf3 = matr3<float>;
+  using matrd2 = matr2<double>;
+  using matrd3 = matr3<double>;
+  using matri2 = matr2<int>;
+  using matri3 = matr3<int>;
+
+  template <typename T, std::size_t W, std::size_t H>
+  struct std::tuple_size<utils::matrix<T, W, H>>
+  {
+    static constexpr auto value = H;
+  };
+
+  template <std::size_t I, typename T, std::size_t W, std::size_t H>
+  struct std::tuple_element<I, utils::matrix<T, W, H>>
+  {
+    using type = typename utils::matrix<T, W, H>::row_type;
+  };
 }

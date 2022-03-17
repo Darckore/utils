@@ -148,7 +148,7 @@ namespace utils
     const auto intermediate = bit_cast<intrm_type>(number);
     auto  res = bit_cast<result_type>(magic - (intermediate >> 1));
     res = res * (threehalfs1 - (half * res * res));
-    res = res * (threehalfs2 - 0.999124984 * (half * res * res));
+    res = res * (threehalfs2 - correction * (half * res * res));
     return res;
   }
 

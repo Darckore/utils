@@ -86,20 +86,3 @@ TEST(random, t_seed_float)
 {
   test_seed<float>();
 }
-
-TEST(random, t_bernoulli)
-{
-  constexpr auto p = 0.25;
-  constexpr auto v = p * (1.0 - p);
-  using prob_t = decltype(p);
-
-  rng<bool> r{ p };
-  auto seq = make_series(r, 1000ull);
-  
-  const auto trueCount  = static_cast<prob_t>(ranges::count(seq, true));
-  const auto seqSize    = static_cast<prob_t>(seq.size());
-  const auto rate       = trueCount / seqSize;
-
-  constexpr auto dev = p * v;
-  EXPECT_TRUE(in_range(rate, p - dev, p + dev));
-}

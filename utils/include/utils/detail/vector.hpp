@@ -378,6 +378,6 @@ namespace utils
   template <std::size_t I, typename T, std::size_t N>
   struct std::tuple_element<I, utils::vector<T, N>>
   {
-    using type = decltype(std::declval<utils::vector<T, N>>().get<I>());
+    using type = T;
   };
 }

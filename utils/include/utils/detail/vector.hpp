@@ -171,6 +171,11 @@ namespace utils
     }
 
   public:
+    constexpr auto is_normalised() const noexcept
+    {
+      return utils::eq(len_sq(), unit_coord);
+    }
+
     constexpr auto len_sq() const noexcept
     {
       return std::accumulate(begin(), end(), zero_coord,

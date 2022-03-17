@@ -30,7 +30,7 @@ namespace utils
     static consteval auto axis_norm() noexcept
     {
       vector <value_type, dimensions> res;
-      res.get<Axis>() = value_type{ 1 };
+      res.get<Axis>() = unit_coord;
       return res;
     }
 
@@ -378,6 +378,6 @@ namespace utils
   template <std::size_t I, typename T, std::size_t N>
   struct std::tuple_element<I, utils::vector<T, N>>
   {
-    using type = T;
+    using type = typename utils::vector<T, N>::value_type;
   };
 }

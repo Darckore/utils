@@ -24,7 +24,7 @@ namespace utils
       }
 
       template <typename T, T... Seq>
-      static constexpr auto calc_coeffs(std::integer_sequence<T, Seq...>)
+      static constexpr auto calc_coeffs(std::integer_sequence<T, Seq...>) noexcept
       {
         return array_type{ coeff(Seq + 1)... };
       }

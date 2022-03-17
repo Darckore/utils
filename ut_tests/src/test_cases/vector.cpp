@@ -151,11 +151,99 @@ TEST(vect, t_scale)
   constexpr auto div = 20.0;
 
   vector v{ 1.0, 2.0, 0.5 };
+  const auto vc = v;
   auto&& [x, y, z] = v;
   
-  const auto vs = v * mul;
-  auto&& [sx, sy, sz] = vs;
-  EXPECT_DOUBLE_EQ(sx, (x * mul));
-  EXPECT_DOUBLE_EQ(sy, (y * mul));
-  EXPECT_DOUBLE_EQ(sz, (z * mul));
+  const auto vm = v * mul;
+  auto&& [mx, my, mz] = vm;
+  EXPECT_DOUBLE_EQ(mx, (x * mul));
+  EXPECT_DOUBLE_EQ(my, (y * mul));
+  EXPECT_DOUBLE_EQ(mz, (z * mul));
+
+  const auto vd = v / div;
+  auto&& [dx, dy, dz] = vd;
+  EXPECT_DOUBLE_EQ(dx, (x / div));
+  EXPECT_DOUBLE_EQ(dy, (y / div));
+  EXPECT_DOUBLE_EQ(dz, (z / div));
+
+  v *= mul;
+  EXPECT_DOUBLE_EQ(mx, x);
+  EXPECT_DOUBLE_EQ(my, y);
+  EXPECT_DOUBLE_EQ(mz, z);
+
+  v = vc;
+  v /= div;
+  EXPECT_DOUBLE_EQ(dx, x);
+  EXPECT_DOUBLE_EQ(dy, y);
+  EXPECT_DOUBLE_EQ(dz, z);
+
+  v = vc;
+  v.scale(mul);
+  EXPECT_FALSE(v == vc);
+  v.scale_inv(mul);
+  EXPECT_TRUE(v == vc);
+}
+
+TEST(vect, t_arithmetic)
+{
+  vector v1{ 1.0,   2.0 };
+  vector v2{ 3.0f, -4.0f };
+
+  constexpr vector vneg{ -3.0, 4.0 };
+  EXPECT_TRUE(vneg == (-v2));
+
+  constexpr vector vsum{ 4.0, -2.0 };
+  EXPECT_TRUE(vsum == (v1 + v2));
+  
+  constexpr vector vdif{ -2.0, 6.0 };
+  EXPECT_TRUE(vdif == (v1 - v2));
+
+  const auto [x1, y1] = v1;
+  const auto [x2, y2] = v2;
+  const auto dot = x1 * x2 + y1 * y2;
+  EXPECT_DOUBLE_EQ(dot, (v1 * v2));
+
+  vecd2 v3 = v2;
+  
+  v3 += v1;
+  EXPECT_TRUE(v3 == vsum);
+
+  v3 -= v1;
+  EXPECT_TRUE(v3 == v2);
+}
+
+TEST(vect, t_cross)
+{
+  constexpr vector v21{ 10, 2 };
+  constexpr vector v22{ 3, 42 };
+
+  constexpr auto cross2 = v21[0] * v22[1] - v21[1] * v22[0];
+  EXPECT_EQ(cross2, ( v21.cross(v22)));
+  EXPECT_EQ(cross2, (-v22.cross(v21)));
+  EXPECT_EQ(0, (v21.cross(v21)));
+
+  constexpr auto v3x = vecd3::axis_norm<0>();
+  constexpr auto v3y = vecd3::axis_norm<1>();
+  constexpr auto v3z = vecd3::axis_norm<2>();
+  
+  constexpr auto cross3xy = v3x.cross(v3y);
+  EXPECT_TRUE(cross3xy ==  v3z);
+  constexpr auto cross3yx = v3y.cross(v3x);
+  EXPECT_TRUE(cross3yx == -v3z);
+}
+
+TEST(vect, t_rotate)
+{
+  constexpr auto ninetyDeg = deg_to_rad(90.0);
+  constexpr auto vx = vecd2::axis_norm<0>();
+  constexpr auto vy = vecd2::axis_norm<1>();
+  
+  auto vr = vx.get_rotated(ninetyDeg);
+  EXPECT_TRUE(vr == vy);
+  vr.rotate(ninetyDeg);
+  EXPECT_TRUE(vr == -vx);
+  vr.rotate(ninetyDeg);
+  EXPECT_TRUE(vr == -vy);
+  vr.rotate(ninetyDeg);
+  EXPECT_TRUE(vr == vx);
 }

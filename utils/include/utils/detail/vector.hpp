@@ -224,33 +224,44 @@ namespace utils
       return *this;
     }
 
+    // 2D rotation
     constexpr auto get_rotated(detail::real auto angle) const noexcept
-      requires (dimensions >= 2)
+      requires (dimensions == 2)
     {
       vector<value_type, dimensions> res;
       const auto cosA = cos(angle);
       const auto sinA = sin(angle);
-
-      // Special case for 2D
-      if constexpr (dimensions == 2)
-      {
-        auto&& x = get<0>();
-        auto&& y = get<1>();
-        res.template get<0>() = x * cosA - y * sinA;
-        res.template get<1>() = x * sinA + y * cosA;
-        return res;
-      }
-      else
-      {
-        // Todo: higher dimensions
-        unused(angle, res);
-        return *this;
-      }
+      auto&& x = get<0>();
+      auto&& y = get<1>();
+      res.template get<0>() = x * cosA - y * sinA;
+      res.template get<1>() = x * sinA + y * cosA;
+      return res;
     }
     constexpr auto& rotate(detail::real auto angle) noexcept
-      requires (dimensions >= 2)
+      requires (dimensions == 2)
     {
       *this = get_rotated(angle);
+      return *this;
+    }
+
+    // 3D rotation around an axis (don't have to normalise that)
+    template <detail::coordinate U, size_type N>
+    constexpr auto get_rotated(detail::real auto angle, const vector<U, N>& axis) const noexcept
+      requires (N == dimensions && N == 3)
+    {
+      auto aNorm = axis.get_normalised();
+      const auto cosA = cos(angle);
+      const auto sinA = sin(angle);
+      const auto& self = *this;
+      return (self * cosA)
+           + (aNorm.cross(self) * sinA)
+           + (aNorm * (aNorm * self) * (unit_coord - cosA));
+    }
+    template <detail::coordinate U, size_type N>
+    constexpr auto& rotate(detail::real auto angle, const vector<U, N>& axis) noexcept
+      requires (N == dimensions && N == 3)
+    {
+      *this = get_rotated(angle, axis);
       return *this;
     }
 

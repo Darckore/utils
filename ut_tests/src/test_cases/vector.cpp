@@ -230,3 +230,32 @@ TEST(vect, t_rotate2d)
   vr.rotate(ninetyDeg);
   EXPECT_TRUE(vr == vx);
 }
+
+TEST(vect, t_rotate3d)
+{
+  constexpr auto ninetyDeg = deg_to_rad(90.0);
+  constexpr auto vx = vecd3::axis_norm<0>();
+  constexpr auto vy = vecd3::axis_norm<1>();
+  constexpr auto vz = vecd3::axis_norm<2>();
+
+  auto vr = vx.get_rotated(ninetyDeg, vy);
+  EXPECT_TRUE(vr == -vz);
+  vr.rotate(ninetyDeg, vx);
+  EXPECT_TRUE(vr == vy);
+  vr.rotate(ninetyDeg, vz);
+  EXPECT_TRUE(vr == -vx);
+
+  vr = -vr * 20.0;
+  vr.rotate(ninetyDeg, vy);
+  EXPECT_TRUE(vr == (-vz * 20));
+
+  vr = { 10,20,40 };
+  constexpr auto angle = deg_to_rad(30.0);
+  constexpr vecd3 axis{ 1,-42,69 };
+
+  // Precalculated elsewhere
+  constexpr vecd3 result{ -10.239601307121651, 19.679489104142927, 40.098235460022018 };
+
+  vr.rotate(angle, axis);
+  EXPECT_TRUE(vr == result);
+}

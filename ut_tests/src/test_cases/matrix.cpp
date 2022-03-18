@@ -38,3 +38,36 @@ TEST(matr, t_aliases)
   constexpr matri3 m3i;
   EXPECT_TRUE((utils::testing::test_type<int, 3, 3>(m3i)));
 }
+
+TEST(matr, t_conv)
+{
+  constexpr matrf2 m{ 
+    vecf2{ 1, 2 },
+    vecf2{ 3, 4 } };
+
+  constexpr auto m2f = m;
+  EXPECT_TRUE((utils::testing::test_type<float, 2, 2>(m2f)));
+  EXPECT_FLOAT_EQ(m2f[0][0], 1.0f);
+  EXPECT_FLOAT_EQ(m2f[0][1], 2.0f);
+  EXPECT_FLOAT_EQ(m2f[1][0], 3.0f);
+  EXPECT_FLOAT_EQ(m2f[1][1], 4.0f);
+
+  constexpr auto m2i = m.to<int, 2, 2>();
+  EXPECT_TRUE((utils::testing::test_type<int, 2, 2>(m2i)));
+  EXPECT_EQ(m2i[0][0], 1);
+  EXPECT_EQ(m2i[0][1], 2);
+  EXPECT_EQ(m2i[1][0], 3);
+  EXPECT_EQ(m2i[1][1], 4);
+
+  constexpr matrd3 m3d = m2i;
+  EXPECT_TRUE((utils::testing::test_type<double, 3, 3>(m3d)));
+  EXPECT_DOUBLE_EQ(m3d[0][0], 1.0);
+  EXPECT_DOUBLE_EQ(m3d[0][1], 2.0);
+  EXPECT_DOUBLE_EQ(m3d[0][2], 0.0);
+  EXPECT_DOUBLE_EQ(m3d[1][0], 3.0);
+  EXPECT_DOUBLE_EQ(m3d[1][1], 4.0);
+  EXPECT_DOUBLE_EQ(m3d[1][2], 0.0);
+  EXPECT_DOUBLE_EQ(m3d[2][0], 0.0);
+  EXPECT_DOUBLE_EQ(m3d[2][1], 0.0);
+  EXPECT_DOUBLE_EQ(m3d[2][2], 0.0);
+}

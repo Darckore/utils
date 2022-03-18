@@ -6,6 +6,15 @@ namespace utils
   {
     template <typename T>
     concept coordinate = integer<T> || real<T>;
+
+    template <typename T>
+    concept math_vec = requires (T a)
+    {
+      requires coordinate<typename T::value_type>;
+      requires integer<typename T::size_type>;
+      requires coordinate<decltype(a.zero_coord)>;
+      requires coordinate<decltype(a.unit_coord)>;
+    };
   }
 
   //
@@ -373,9 +382,6 @@ namespace utils
 
   template <detail::coordinate First, detail::coordinate... Rest>
   vector(First, Rest...)->vector<First, sizeof...(Rest) + 1>;
-
-  template <detail::coordinate T, std::size_t N>
-  vector(std::array<T, N>)->vector<T, N>;
 
   template <detail::coordinate T>
   using vec2 = vector<T, 2>;

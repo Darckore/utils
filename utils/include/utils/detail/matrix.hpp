@@ -48,12 +48,12 @@ namespace utils
   public:
     CLASS_SPECIALS_ALL(matrix);
 
-    template <typename... R> requires detail::homogenous_pack<row_type, R...>
+    template <detail::math_vec... R> requires detail::homogenous_pack<row_type, R...>
     constexpr matrix(row_type first, R... rows) noexcept :
       m_data{ first, rows... }
     { }
 
-    template <typename First, typename... Rest> requires (sizeof...(Rest) <= height - 1)
+    template <detail::math_vec First, detail::math_vec... Rest> requires (sizeof...(Rest) <= height - 1)
     constexpr matrix(First first, Rest ...values) noexcept :
       m_data{ static_cast<row_type>(first), static_cast<row_type>(values)... }
     { }
@@ -100,6 +100,31 @@ namespace utils
                        return vec * val;
                      });
       return result;
+    }
+
+    template <detail::coordinate U, size_type C, size_type R>
+    constexpr auto to() const noexcept
+    {
+      if constexpr (C == width && R == height && std::is_same_v<value_type, U>)
+      {
+        return *this;
+      }
+      else
+      {
+        matrix<U, C, R> dest;
+        auto destIt = dest.begin();
+        ranges::for_each_n(begin(), std::min(height, R), [&destIt](const auto& val)
+                           {
+                             *(destIt++) = val.template to<U, C>();
+                           });
+        return dest;
+      }
+    }
+
+    template <detail::coordinate U, size_type C, size_type R>
+    constexpr operator matrix<U, C, R>() const noexcept
+    {
+      return to<U, C, R>();
     }
 
   public:

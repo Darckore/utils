@@ -77,8 +77,9 @@ namespace utils
       return get_scaled(value_type{ -1 });
     }
 
-    template <detail::coordinate U>
-    constexpr auto operator+(const vector<U, dimensions>& other) const noexcept
+    template <detail::coordinate U, size_type N>
+    constexpr auto operator+(const vector<U, N>& other) const noexcept
+      requires (N == dimensions)
     {
       using ct = std::common_type_t<U, value_type>;
       vector<ct, dimensions> dest;
@@ -100,8 +101,9 @@ namespace utils
       return *this;
     }
 
-    template <detail::coordinate U>
-    constexpr auto operator-(const vector<U, dimensions>& other) const noexcept
+    template <detail::coordinate U, size_type N>
+    constexpr auto operator-(const vector<U, N>& other) const noexcept
+      requires (N == dimensions)
     {
       using ct = std::common_type_t<U, value_type>;
       vector<ct, dimensions> dest;
@@ -123,8 +125,9 @@ namespace utils
       return *this;
     }
 
-    template <detail::coordinate U>
-    constexpr auto operator*(const vector<U, dimensions>& other) const noexcept
+    template <detail::coordinate U, size_type N>
+    constexpr auto operator*(const vector<U, N>& other) const noexcept
+      requires (N == dimensions)
     {
       using ct = std::common_type_t<U, value_type>;
       auto it = other.begin();
@@ -221,7 +224,8 @@ namespace utils
       return *this;
     }
 
-    constexpr auto get_rotated(detail::real auto angle) const noexcept requires (dimensions >= 2)
+    constexpr auto get_rotated(detail::real auto angle) const noexcept
+      requires (dimensions >= 2)
     {
       vector<value_type, dimensions> res;
       const auto cosA = cos(angle);
@@ -244,6 +248,7 @@ namespace utils
       }
     }
     constexpr auto& rotate(detail::real auto angle) noexcept
+      requires (dimensions >= 2)
     {
       *this = get_rotated(angle);
       return *this;
@@ -263,8 +268,9 @@ namespace utils
     // Cross product
     // Only supported in 2 and 3 dimensions
     //
-    template <detail::coordinate U> requires (eq_any(dimensions, 2, 3))
-    constexpr auto cross(const vector<U, dimensions>& other) const noexcept
+    template <detail::coordinate U, size_type N>
+    constexpr auto cross(const vector<U, N>& other) const noexcept
+      requires (N == dimensions && eq_any(dimensions, 2, 3))
     {
       // Special case for 2D - we get a number
       if constexpr (dimensions == 2)

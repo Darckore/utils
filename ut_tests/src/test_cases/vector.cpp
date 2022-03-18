@@ -1,64 +1,47 @@
 #include "utils/utils.hpp"
+#include "tests/helpers.hpp"
 using namespace utils;
-
-namespace
-{
-  template <typename T>
-  struct vec_test
-  {
-    using underlying_type = std::remove_cvref_t<T>;
-    using type = underlying_type::value_type;
-    static constexpr auto dimensions = underlying_type::dimensions;
-  };
-
-  template <typename T, std::size_t N>
-  bool test_type(auto&& vec)
-  {
-    using vt = vec_test<decltype(vec)>;
-    return std::is_same_v<T, typename vt::type> && N == vt::dimensions;
-  }
-}
 
 TEST(vect, t_deduction)
 {
   constexpr vector v2i{ 1, 2 };
-  EXPECT_TRUE((test_type<int, 2>(v2i)));
+  EXPECT_TRUE((utils::testing::test_type<int, 2>(v2i)));
 
   constexpr vector v3f{ 1.0f, 2.0f, 3.0f };
-  EXPECT_TRUE((test_type<float, 3>(v3f)));
+  EXPECT_TRUE((utils::testing::test_type<float, 3>(v3f)));
 
   constexpr vector v4d{ 1.0, 2.0, 3.0, 4.0 };
-  EXPECT_TRUE((test_type<double, 4>(v4d)));
+  EXPECT_TRUE((utils::testing::test_type<double, 4>(v4d)));
 
   constexpr vector v2if{ 1, 2.0f };
-  EXPECT_TRUE((test_type<int, 2>(v2if)));
+  EXPECT_TRUE((utils::testing::test_type<int, 2>(v2if)));
 
   constexpr vector v3fdi{ 1.0f, 2.0, 3 };
-  EXPECT_TRUE((test_type<float, 3>(v3fdi)));
+  EXPECT_TRUE((utils::testing::test_type<float, 3>(v3fdi)));
 
   constexpr vector v4difll{ 1.0, 2, 3.0f, 4ll };
-  EXPECT_TRUE((test_type<double, 4>(v4difll)));
+  EXPECT_TRUE((utils::testing::test_type<double, 4>(v4difll)));
 }
 
 TEST(vect, t_aliases)
 {
   constexpr vecf2 v2f;
-  EXPECT_TRUE((test_type<float, 2>(v2f)));
+  EXPECT_TRUE((utils::testing::test_type<float, 2>(v2f)));
 
   constexpr vecf3 v3f;
-  EXPECT_TRUE((test_type<float, 3>(v3f)));
+  EXPECT_TRUE((utils::testing::test_type<float, 3>(v3f)));
 
   constexpr vecd2 v2d;
-  EXPECT_TRUE((test_type<double, 2>(v2d)));
+  EXPECT_TRUE((utils::testing::test_type<double, 2>(v2d)));
 
   constexpr vecd3 v3d;
-  EXPECT_TRUE((test_type<double, 3>(v3d)));
+  EXPECT_TRUE((utils::testing::test_type<double, 3>(v3d)));
 
   constexpr point2d v2i;
-  EXPECT_TRUE((test_type<int, 2>(v2i)));
+  EXPECT_TRUE((utils::testing::test_type<int, 2>(v2i)));
 
   constexpr point3d v3i;
-  EXPECT_TRUE((test_type<int, 3>(v3i)));
+  EXPECT_TRUE((utils::testing::test_type<int, 3>(v3i)));
 }
 
 TEST(vect, t_conv)
@@ -66,18 +49,18 @@ TEST(vect, t_conv)
   constexpr vecf2 v{ 1, 2 };
 
   constexpr auto v2f = v;
-  EXPECT_TRUE((test_type<float, 2>(v2f)));
+  EXPECT_TRUE((utils::testing::test_type<float, 2>(v2f)));
   EXPECT_FLOAT_EQ(v2f[0], 1.0f);
   EXPECT_FLOAT_EQ(v2f[1], 2.0f);
 
   constexpr auto v3i = static_cast<point3d>(v);
-  EXPECT_TRUE((test_type<int, 3>(v3i)));
+  EXPECT_TRUE((utils::testing::test_type<int, 3>(v3i)));
   EXPECT_EQ(v3i[0], 1);
   EXPECT_EQ(v3i[1], 2);
   EXPECT_EQ(v3i[2], 0);
 
   constexpr auto v4d = v3i.to<double, 4>();
-  EXPECT_TRUE((test_type<double, 4>(v4d)));
+  EXPECT_TRUE((utils::testing::test_type<double, 4>(v4d)));
   EXPECT_DOUBLE_EQ(v4d[0], 1.0);
   EXPECT_DOUBLE_EQ(v4d[1], 2.0);
   EXPECT_DOUBLE_EQ(v4d[2], 0.0);
@@ -232,7 +215,7 @@ TEST(vect, t_cross)
   EXPECT_TRUE(cross3yx == -v3z);
 }
 
-TEST(vect, t_rotate)
+TEST(vect, t_rotate2d)
 {
   constexpr auto ninetyDeg = deg_to_rad(90.0);
   constexpr auto vx = vecd2::axis_norm<0>();

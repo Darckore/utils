@@ -23,15 +23,26 @@ namespace utils
 
   private:
     template <typename T, T... Seq>
-    static consteval auto identity_impl(std::integer_sequence<T, Seq...>) noexcept
+    using idx_seq = std::integer_sequence<T, Seq...>;
+
+    template <size_type N>
+    using idx_gen = std::make_index_sequence<N>;
+
+    using idx_w = idx_gen<width>;
+    using idx_h = idx_gen<height>;
+
+  private:
+    template <typename T, T... Seq>
+    static consteval auto identity_impl(idx_seq<T, Seq...>) noexcept
     {
       return matrix{ row_type::template axis_norm<Seq>()... };
     }
 
   public:
-    static consteval auto identity() noexcept requires (width == height)
+    static consteval auto identity() noexcept
+      requires (width == height)
     {
-      return identity_impl(std::make_index_sequence<width>{});
+      return identity_impl(idx_w{});
     }
 
   public:
@@ -77,11 +88,12 @@ namespace utils
       return get_scaled(value_type{ -1 });
     }
 
-    template <detail::coordinate U>
-    constexpr auto operator*(const vector<U, width>& vec) const noexcept
+    template <detail::coordinate U, size_type D>
+    constexpr auto operator*(const vector<U, D>& vec) const noexcept
+      requires (D == width)
     {
       using ct = std::common_type_t<U, value_type>;
-      vector<ct, width> result;
+      vector<ct, height> result;
       std::transform(begin(), end(), result.begin(),
                      [&vec](const auto& val)
                      {

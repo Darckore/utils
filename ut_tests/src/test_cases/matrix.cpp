@@ -71,3 +71,29 @@ TEST(matr, t_conv)
   EXPECT_DOUBLE_EQ(m3d[2][1], 0.0);
   EXPECT_DOUBLE_EQ(m3d[2][2], 0.0);
 }
+
+TEST(matr, t_compare)
+{
+  constexpr auto m3f = matrix{
+    vector{ 69.0f, 42,  228 },
+    vector{    -1,  5,   19 },
+    vector{   666, 11,  -14 } };
+  
+  constexpr matri3 m3i{
+    vector{    69, 42,  228 },
+    vector{    -1,  5,   19 },
+    vector{   666, 11,  -14 } };
+  EXPECT_TRUE(m3f == m3i);
+  EXPECT_FALSE(m3f != m3i);
+
+  constexpr auto m3d = matrix{
+    vector{ 0.0, 42,  228 },
+    vector{  -1,  5,   19 },
+    vector{  42, 11,  -14 } };
+  EXPECT_TRUE(m3d != m3i);
+  EXPECT_FALSE(m3d == m3i);
+
+  constexpr matri2 m2i = m3f;
+  EXPECT_TRUE(m2i != m3f);
+  EXPECT_FALSE(m2i == m3f);
+}

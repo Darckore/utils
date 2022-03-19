@@ -5,7 +5,7 @@ TEST(strings, t_to_string_view)
 {
   constexpr std::array arr{ 'l', 'o', 'l', ' ', 'k', 'e', 'k' };
   constexpr auto baseline = "lol kek"sv;
-  constexpr auto res = detail::to_string_view(arr);
+  auto res = detail::to_string_view(arr);
 
   EXPECT_EQ(baseline, res);
 }
@@ -13,7 +13,7 @@ TEST(strings, t_to_string_view)
 TEST(strings, t_split)
 {
   constexpr auto str = "eeny#$%meeny#$%miny#$%moe"sv;
-  constexpr auto splitRng = split(str, "#$%"sv);
+  auto splitRng = split(str, "#$%"sv);
   constexpr std::array baseline{ "eeny"sv, "meeny"sv, "miny"sv, "moe"sv };
   using sz_t = decltype(baseline)::size_type;
 

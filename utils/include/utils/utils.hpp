@@ -19,6 +19,15 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 namespace chrono = std::chrono;
 
+namespace utils
+{
+  template<typename... Bases>
+  struct visitor : Bases...
+  { 
+    using Bases::operator()...;
+  };
+}
+
 #define CLASS_SPECIALS_ALL(clName)\
   clName() = default;\
   clName(const clName&) = default;\

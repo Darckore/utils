@@ -1,5 +1,37 @@
 #include "utils/utils.hpp"
+#include <variant>
 using namespace utils;
+
+TEST(common, t_visit)
+{
+  std::variant <int, bool, float> var;
+  constexpr auto visitor = utils::visitor{
+    [](int i)
+    {
+      return static_cast<double>(i + 228);
+    },
+    [](bool b)
+    {
+      return static_cast<double>(!b);
+    },
+    [](float f)
+    {
+      return std::sqrt(static_cast<double>(f));
+    }
+  };
+
+  var = 42;
+  const auto r1 = std::visit(visitor, var);
+  EXPECT_DOUBLE_EQ(r1, 270.0);
+
+  var = false;
+  const auto r2 = std::visit(visitor, var);
+  EXPECT_DOUBLE_EQ(r2, 1.0);
+
+  var = 0.25f;
+  const auto r3 = std::visit(visitor, var);
+  EXPECT_DOUBLE_EQ(r3, 0.5);
+}
 
 TEST(common, t_in_range)
 {

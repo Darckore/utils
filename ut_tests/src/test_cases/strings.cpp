@@ -57,3 +57,12 @@ TEST(strings, t_trim)
   constexpr auto eqtrimmedFromList = trim(eqs, '=', 'a', '$');
   EXPECT_EQ(baseline, eqtrimmedFromList);
 }
+
+TEST(strings, t_trim_spaces)
+{
+  constexpr auto str = " \r\n\rhi there\tm8\v\f"sv;
+  
+  EXPECT_TRUE(ltrim(str).starts_with("hi there"));
+  EXPECT_TRUE(rtrim(str).ends_with("\tm8"));
+  EXPECT_EQ(trim(str), "hi there\tm8"sv);
+}

@@ -19,7 +19,7 @@ namespace utils
   //
   // Splits a string_view into an iterable range
   //
-  constexpr auto split(std::string_view str, std::string_view pattern) noexcept
+  inline constexpr auto split(std::string_view str, std::string_view pattern) noexcept
   {
     return str | views::split(pattern) | views::transform([](auto&& part)
       {
@@ -31,7 +31,7 @@ namespace utils
   // Trims a string_view from the left
   // Takes another string_view which represents the prefix to remove
   //
-  constexpr auto ltrim(std::string_view str, std::string_view pattern) noexcept
+  inline constexpr auto ltrim(std::string_view str, std::string_view pattern) noexcept
   {
     while (str.starts_with(pattern))
     {
@@ -44,7 +44,7 @@ namespace utils
   // Trims a string_view from the right
   // Takes another string_view which represents the postfix to remove
   //
-  constexpr auto rtrim(std::string_view str, std::string_view pattern) noexcept
+  inline constexpr auto rtrim(std::string_view str, std::string_view pattern) noexcept
   {
     while (str.ends_with(pattern))
     {
@@ -57,19 +57,19 @@ namespace utils
   // Trims a string_view from both sides
   // Takes another string_view which represents the prefix and postfix to remove
   //
-  constexpr auto trim(std::string_view str, std::string_view pattern) noexcept
+  inline constexpr auto trim(std::string_view str, std::string_view pattern) noexcept
   {
     return rtrim(ltrim(str, pattern), pattern);
   }
 
   //
   // Trims a string_view from the left
-  // Takes a number of characters (or value convertible to them)
+  // Takes a number of characters (or values convertible to them)
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>
-  constexpr auto ltrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
     requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+  constexpr auto ltrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
   {
     auto offset = 0ull;
     for (auto c : str)
@@ -85,12 +85,12 @@ namespace utils
 
   //
   // Trims a string_view from the right
-  // Takes a number of characters (or value convertible to them)
+  // Takes a number of characters (or values convertible to them)
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>
-  constexpr auto rtrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
     requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+  constexpr auto rtrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
   {
     auto offset = 0ull;
     for (auto c : str | views::reverse)
@@ -106,14 +106,44 @@ namespace utils
 
   //
   // Trims a string_view from both sides
-  // Takes a number of characters (or value convertible to them)
+  // Takes a number of characters (or values convertible to them)
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>
-  constexpr auto trim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
     requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+  constexpr auto trim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
   {
     str = ltrim(str, std::forward<C1>(c1), std::forward<CN>(cn)...);
     return rtrim(str, std::forward<C1>(c1), std::forward<CN>(cn)...);
+  }
+
+  //
+  // Trims a string_view from the right
+  // Removes whitespace chars:
+  // ' ', '\f', '\n', '\r', '\t', '\v'
+  //
+  inline constexpr auto ltrim(std::string_view str) noexcept
+  {
+    return ltrim(str, ' ', '\f', '\n', '\r', '\t', '\v');
+  }
+
+  //
+  // Trims a string_view from the left
+  // Removes whitespace chars:
+  // ' ', '\f', '\n', '\r', '\t', '\v'
+  //
+  inline constexpr auto rtrim(std::string_view str) noexcept
+  {
+    return rtrim(str, ' ', '\f', '\n', '\r', '\t', '\v');
+  }
+
+  //
+  // Trims a string_view from both sides
+  // Removes whitespace chars:
+  // ' ', '\f', '\n', '\r', '\t', '\v'
+  //
+  inline constexpr auto trim(std::string_view str) noexcept
+  {
+    return trim(str, ' ', '\f', '\n', '\r', '\t', '\v');
   }
 }

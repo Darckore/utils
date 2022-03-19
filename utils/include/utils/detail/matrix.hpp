@@ -102,6 +102,15 @@ namespace utils
       return result;
     }
 
+    constexpr auto& operator*=(detail::coordinate auto scalar) noexcept
+    {
+      return scale(scalar);
+    }
+    constexpr auto& operator/=(detail::coordinate auto scalar) noexcept
+    {
+      return scale_inv(scalar);
+    }
+
     template <detail::coordinate U, size_type C, size_type R>
     constexpr auto to() const noexcept
     {
@@ -141,6 +150,21 @@ namespace utils
     constexpr auto& scale(detail::coordinate auto scalar) noexcept
     {
       *this = get_scaled(scalar);
+      return *this;
+    }
+    constexpr auto get_scaled_inv(detail::coordinate auto scalar) const noexcept
+    {
+      matrix result;
+      std::transform(begin(), end(), result.begin(),
+                     [scalar](const auto& cur)
+                     {
+                       return cur / scalar;
+                     });
+      return result;
+    }
+    constexpr auto& scale_inv(detail::coordinate auto scalar) noexcept
+    {
+      *this = get_scaled_inv(scalar);
       return *this;
     }
 
@@ -201,6 +225,22 @@ namespace utils
   private:
     storage_type m_data;
   };
+
+  template <detail::coordinate T, std::size_t C, std::size_t R, detail::coordinate S>
+  constexpr auto operator*(const matrix<T, C, R>& mat, const S& scalar) noexcept
+  {
+    return mat.get_scaled(scalar);
+  }
+  template <detail::coordinate T, std::size_t C, std::size_t R, detail::coordinate S>
+  constexpr auto operator*(const S& scalar, const matrix<T, C, R>& mat) noexcept
+  {
+    return mat * scalar;
+  }
+  template <detail::coordinate T, std::size_t C, std::size_t R, detail::coordinate S>
+  constexpr auto operator/(const matrix<T, C, R>& mat, const S& scalar) noexcept
+  {
+    return mat.get_scaled_inv(scalar);
+  }
 
   template <typename ValT, std::size_t W, typename... Rest>
   matrix(vector<ValT, W>, Rest...)->matrix<ValT, W, sizeof...(Rest) + 1>;

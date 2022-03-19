@@ -97,3 +97,55 @@ TEST(matr, t_compare)
   EXPECT_TRUE(m2i != m3f);
   EXPECT_FALSE(m2i == m3f);
 }
+
+TEST(matr, t_identity)
+{
+  constexpr auto id3d = matrd3::identity();
+  EXPECT_DOUBLE_EQ((id3d.get<0, 0>()), 1.0);
+  EXPECT_DOUBLE_EQ((id3d.get<0, 1>()), 0.0);
+  EXPECT_DOUBLE_EQ((id3d.get<0, 2>()), 0.0);
+  EXPECT_DOUBLE_EQ((id3d.get<1, 0>()), 0.0);
+  EXPECT_DOUBLE_EQ((id3d.get<1, 1>()), 1.0);
+  EXPECT_DOUBLE_EQ((id3d.get<1, 2>()), 0.0);
+  EXPECT_DOUBLE_EQ((id3d.get<2, 0>()), 0.0);
+  EXPECT_DOUBLE_EQ((id3d.get<2, 1>()), 0.0);
+  EXPECT_DOUBLE_EQ((id3d.get<2, 2>()), 1.0);
+}
+
+TEST(matr, t_scale)
+{
+  constexpr auto mul = 10.0;
+  constexpr auto div = 20.0;
+
+  matrd2 m{
+    vecd2{ 1, 2 },
+    vecd2{ 3, 4 } };
+
+  const auto mc = m;
+  auto&& [r1, r2] = m;
+
+  const auto mm = m * mul;
+  auto&& [mr1, mr2] = mm;
+  EXPECT_TRUE(mr1 == (r1 * mul));
+  EXPECT_TRUE(mr2 == (r2 * mul));
+
+  const auto md = m / div;
+  auto&& [dr1, dr2] = md;
+  EXPECT_TRUE(dr1 == (r1 / div));
+  EXPECT_TRUE(dr2 == (r2 / div));
+
+  m *= mul;
+  EXPECT_TRUE(r1 == mr1);
+  EXPECT_TRUE(r2 == mr2);
+
+  m = mc;
+  m /= div;
+  EXPECT_TRUE(r1 == dr1);
+  EXPECT_TRUE(r2 == dr2);
+
+  m = mc;
+  m.scale(mul);
+  EXPECT_FALSE(m == mc);
+  m.scale_inv(mul);
+  EXPECT_TRUE(m == mc);
+}

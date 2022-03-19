@@ -374,11 +374,6 @@ namespace utils
   {
     return vec.get_scaled_inv(scalar);
   }
-  template <detail::coordinate T, std::size_t N, detail::coordinate S>
-  constexpr auto operator/(const S& scalar, const vector<T, N>& vec) noexcept
-  {
-    return vec / scalar;
-  }
 
   template <detail::coordinate First, detail::coordinate... Rest>
   vector(First, Rest...)->vector<First, sizeof...(Rest) + 1>;

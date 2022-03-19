@@ -68,7 +68,7 @@ namespace utils
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>
-    requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+    requires (detail::all_convertible<std::string_view::value_type, C1, CN...>)
   constexpr auto ltrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
   {
     auto offset = 0ull;
@@ -89,7 +89,7 @@ namespace utils
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>
-    requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+    requires (detail::all_convertible<std::string_view::value_type, C1, CN...>)
   constexpr auto rtrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
   {
     auto offset = 0ull;
@@ -110,7 +110,7 @@ namespace utils
   // which will be removed if encountered in no specific order
   //
   template <typename C1, typename ...CN>
-    requires detail::all_convertible<std::string_view::value_type, C1, CN...>
+    requires (detail::all_convertible<std::string_view::value_type, C1, CN...>)
   constexpr auto trim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
   {
     str = ltrim(str, std::forward<C1>(c1), std::forward<CN>(cn)...);

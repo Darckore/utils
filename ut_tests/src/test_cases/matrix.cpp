@@ -215,3 +215,15 @@ TEST(matr, t_mul)
                         vector{ -3,  -1 } };
   EXPECT_TRUE(res == mmul);
 }
+
+TEST(matr, t_rotation2d)
+{
+  constexpr vecd2 v{ 1.0, 2.0 };
+  constexpr auto angle = deg_to_rad(60.0);
+  constexpr auto vr0 = v.get_rotated(angle);
+
+  constexpr auto rm = matrd2::rotation(angle);
+  constexpr auto vr = rm * v;
+
+  EXPECT_TRUE(eq(vr, vr0));
+}

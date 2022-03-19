@@ -67,6 +67,17 @@ namespace utils
       return identity_impl(idx_w{});
     }
 
+    // 2D rotation matrix
+    static constexpr auto rotation(detail::coordinate auto angle) noexcept
+      requires (is_square() && width == 2)
+    {
+      const auto sinA = sin(angle);
+      const auto cosA = cos(angle);
+      return matrix{
+        row_type{ cosA, -sinA },
+        row_type{ sinA,  cosA } };
+    }
+
   public:
     CLASS_SPECIALS_ALL(matrix);
 

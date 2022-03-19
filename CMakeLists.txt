@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.18)
 
 set(OPT_PCH_NAME "pch.h")
-set(OPT_STD "cxx_std_20")
+set(OPT_STD "cxx_std_23")
 set(OPT_UTILS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_cmake")
 set(OPT_DATA_DIR "data")
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release")

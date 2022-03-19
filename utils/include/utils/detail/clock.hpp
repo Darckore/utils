@@ -155,17 +155,17 @@ namespace utils
   private:
     void callback() noexcept(std::is_nothrow_invocable_v<callback_t>)
     {
-      if constexpr (std::is_invocable_r_v<void, callback_t, decltype(*this)&>)
+      constexpr auto noparInv = std::is_invocable_r_v<void, callback_t>;
+      constexpr auto paramInv = std::is_invocable_r_v<void, callback_t, decltype(*this)&>;
+      static_assert(noparInv || paramInv, "Invalid callback signature");
+
+      if constexpr (paramInv)
       {
         m_callback(*this);
       }
-      else if constexpr (std::is_invocable_r_v<void, callback_t>)
-      {
-        m_callback();
-      }
       else
       {
-        static_assert(false, "Invalid callback signature");
+        m_callback();
       }
     }
     void mark()

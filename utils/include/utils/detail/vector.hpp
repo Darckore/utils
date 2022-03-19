@@ -4,14 +4,21 @@ namespace utils
 {
   namespace detail
   {
+    //
+    // Coordinate type accepted by vectors and matrices
+    //
     template <typename T>
     concept coordinate = integer<T> || real<T>;
 
+    //
+    // Defines a math vector type
+    //
     template <typename T>
     concept math_vec = requires (T a)
     {
       requires coordinate<typename T::value_type>;
       requires integer<typename T::size_type>;
+      requires integer<decltype(a.dimensions)>;
       requires coordinate<decltype(a.zero_coord)>;
       requires coordinate<decltype(a.unit_coord)>;
     };
@@ -353,8 +360,7 @@ namespace utils
     storage_type m_coords{};
   };
 
-  template <detail::coordinate T, std::size_t N>
-  constexpr bool eq(const vector<T, N>& v1, const vector<T, N>& v2) noexcept
+  constexpr bool eq(const detail::math_vec auto& v1, const detail::math_vec auto& v2) noexcept
   {
     return v1 == v2;
   }

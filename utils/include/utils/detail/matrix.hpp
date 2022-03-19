@@ -2,6 +2,22 @@
 
 namespace utils
 {
+  namespace detail
+  {
+    //
+    // Defines a math matrix type
+    //
+    template <typename T>
+    concept math_matr = requires (T a)
+    {
+      requires coordinate<typename T::value_type>;
+      requires integer<decltype(a.width)>;
+      requires integer<decltype(a.height)>;
+      requires math_vec<typename T::row_type>;
+      requires math_vec<typename T::col_type>;
+    };
+  }
+
   //
   // Matrix of arbitrary dimensions
   //
@@ -10,14 +26,15 @@ namespace utils
   {
   private:
     template <detail::coordinate C, std::size_t N>
-    using rt_helper = vector<C, N>;
+    using rc_helper = vector<C, N>;
 
   public:
     static constexpr auto width  = W;
     static constexpr auto height = H;
 
     using value_type = T;
-    using row_type = rt_helper<T, width>;
+    using row_type = rc_helper<value_type, width>;
+    using col_type = rc_helper<value_type, height>;
     using storage_type = std::array<row_type, height>;
     using size_type = storage_type::size_type;
 
@@ -88,6 +105,54 @@ namespace utils
       return get_scaled(value_type{ -1 });
     }
 
+    template <detail::coordinate U, size_type C, size_type R>
+    constexpr auto operator+(const matrix<U, C, R>& other) const noexcept
+      requires (C == width && R == height)
+    {
+      using ct = std::common_type_t<U, value_type>;
+      matrix<ct, width, height> dest;
+      auto thisIt  = begin();
+      auto otherIt = other.begin();
+      std::transform(dest.begin(), dest.end(), dest.begin(),
+                     [&thisIt, &otherIt](const auto&)
+                     {
+                       return *(thisIt++) + *(otherIt++);
+                     });
+      return dest;
+    }
+
+    template <detail::coordinate U, size_type C, size_type R>
+      requires (std::is_same_v<U, value_type> && C == width && R == height)
+    constexpr auto& operator+=(const matrix<U, C, R>& other) noexcept
+    {
+      *this = *this + other;
+      return *this;
+    }
+
+    template <detail::coordinate U, size_type C, size_type R>
+    constexpr auto operator-(const matrix<U, C, R>& other) const noexcept
+      requires (C == width && R == height)
+    {
+      using ct = std::common_type_t<U, value_type>;
+      matrix<ct, width, height> dest;
+      auto thisIt  = begin();
+      auto otherIt = other.begin();
+      std::transform(dest.begin(), dest.end(), dest.begin(),
+                     [&thisIt, &otherIt](const auto&)
+                     {
+                       return *(thisIt++) - *(otherIt++);
+                     });
+      return dest;
+    }
+
+    template <detail::coordinate U, size_type C, size_type R>
+      requires (std::is_same_v<U, value_type> && C == width && R == height)
+    constexpr auto& operator-=(const matrix<U, C, R>& other) noexcept
+    {
+      *this = *this - other;
+      return *this;
+    }
+
     template <detail::coordinate U, size_type D>
     constexpr auto operator*(const vector<U, D>& vec) const noexcept
       requires (D == width)
@@ -109,6 +174,25 @@ namespace utils
     constexpr auto& operator/=(detail::coordinate auto scalar) noexcept
     {
       return scale_inv(scalar);
+    }
+
+    template <detail::coordinate U, size_type C, size_type R>
+      requires (C == height && R == width)
+    constexpr auto operator*(const matrix<U, C, R>& other) const noexcept
+    {
+      using ct = std::common_type_t<value_type, U>;
+      using rt = matrix<ct, height, other.width>;
+      rt dest;
+
+      for (size_type rIdx{}; rIdx < height; ++rIdx)
+      {
+        for (size_type cIdx{}; cIdx < other.width; ++cIdx)
+        {
+          dest[rIdx][cIdx] = (*this)[rIdx] * other.column(cIdx);
+        }
+      }
+
+      return dest;
     }
 
     template <detail::coordinate U, size_type C, size_type R>
@@ -190,6 +274,28 @@ namespace utils
       return mutate(std::as_const(*this).template get<R, C>());
     }
 
+  private:
+    template <typename T, T... Seq>
+    constexpr auto column_impl(size_type c, idx_seq<T, Seq...>) const noexcept
+    {
+      return col_type{ ((*this)[Seq][c])... };
+    }
+
+  public:
+    //
+    // Doesn't check the bounds, be careful
+    //
+    constexpr auto column(size_type c) const noexcept
+    {
+      return column_impl(c, idx_h{});
+    }
+
+    template <size_type C> requires (C < width)
+    constexpr auto column() const noexcept
+    {
+      return column(C);
+    }
+
     constexpr auto begin() const noexcept
     {
       return m_data.begin();
@@ -212,11 +318,11 @@ namespace utils
     constexpr bool eq(const matrix<U, width, height>& other) const noexcept
     {
       using ct = std::common_type_t<U, value_type>;
-      using target_t = rt_helper<ct, width>;
+      using target_t = rc_helper<ct, width>;
       auto otherIt = other.begin();
       for (auto it = begin(); it != end(); ++it, ++otherIt)
       {
-        if (!utils::eq(static_cast<target_t>(*it), static_cast<target_t>(*otherIt)))
+        if (!utils::eq(*it, *otherIt))
           return false;
       }
       return true;
@@ -225,6 +331,11 @@ namespace utils
   private:
     storage_type m_data;
   };
+
+  constexpr bool eq(const detail::math_matr auto& m1, const detail::math_matr auto& m2) noexcept
+  {
+    return m1 == m2;
+  }
 
   template <detail::coordinate T, std::size_t C, std::size_t R, detail::coordinate S>
   constexpr auto operator*(const matrix<T, C, R>& mat, const S& scalar) noexcept

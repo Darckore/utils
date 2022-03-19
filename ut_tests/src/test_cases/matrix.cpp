@@ -83,6 +83,7 @@ TEST(matr, t_compare)
     vector{    69, 42,  228 },
     vector{    -1,  5,   19 },
     vector{   666, 11,  -14 } };
+  EXPECT_TRUE(eq(m3f, m3i));
   EXPECT_TRUE(m3f == m3i);
   EXPECT_FALSE(m3f != m3i);
 
@@ -148,4 +149,69 @@ TEST(matr, t_scale)
   EXPECT_FALSE(m == mc);
   m.scale_inv(mul);
   EXPECT_TRUE(m == mc);
+}
+
+TEST(matr, t_arithmetic)
+{ 
+  matrix m1{ vector{ 1.0,   2.0 },
+             vector{ 5.0,  -6.0 } };
+  matrix m2{ vector{ 3.0f, -4.0f },
+             vector{ 5.0,  -6.0 } };
+
+  constexpr matrix mneg{ vector{ -3.0, 4.0 },
+                         vector{ -5.0, 6.0 } };
+  EXPECT_TRUE(mneg == (-m2));
+
+  constexpr matrix msum{ vector{  4.0,  -2.0 },
+                         vector{ 10.0, -12.0 } };
+  EXPECT_TRUE(msum == (m1 + m2));
+  
+  constexpr matrix mdif{ vector{ -2.0, 6.0 },
+                         vector{  0.0, 0.0 } };
+  EXPECT_TRUE(mdif == (m1 - m2));
+
+  matrd2 m3 = m2;
+  
+  m3 += m1;
+  EXPECT_TRUE(m3 == msum);
+  m3 -= m1;
+  EXPECT_TRUE(m3 == m2);
+}
+
+TEST(matr, t_column)
+{
+  constexpr matrix m{
+    vector{ 1, 2 },
+    vector{ 3, 4 },
+    vector{ 5, 6 } };
+
+  constexpr auto c1 = m.column<0>();
+  constexpr auto c2 = m.column<1>();
+
+  EXPECT_TRUE(c1 == (vector{ 1, 3, 5 }));
+  EXPECT_TRUE(c2 == (vector{ 2, 4, 6 }));
+}
+
+TEST(matr, t_mul)
+{
+  constexpr matrix m1{
+    vector{ 0,   4, -2 },
+    vector{ -4, -3,  0 } };
+
+  constexpr matrix m2{
+    vector{ 0.0,  1 },
+    vector{   1, -1 },
+    vector{   2,  3 } };
+
+  constexpr auto mmul = m1 * m2;
+  EXPECT_TRUE((utils::testing::test_type<double, 2, 2>(mmul)));
+
+  constexpr auto rmul = m2 * m1;
+  EXPECT_TRUE((utils::testing::test_type<double, 3, 3>(rmul)));
+  EXPECT_FALSE(rmul == mmul);
+
+  // Calculated elsewhere
+  constexpr matrix res{ vector{  0, -10 },
+                        vector{ -3,  -1 } };
+  EXPECT_TRUE(res == mmul);
 }

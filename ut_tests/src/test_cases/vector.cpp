@@ -76,6 +76,7 @@ TEST(vect, t_compare)
   constexpr auto v3f = vector{ 69.0f, 42.0f, 228.0f };
   
   constexpr point3d v3i{ 69, 42, 228 };
+  EXPECT_TRUE(eq(v3f, v3i));
   EXPECT_TRUE(v3f == v3i);
   EXPECT_FALSE(v3f != v3i);
 

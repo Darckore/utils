@@ -56,8 +56,13 @@ namespace utils
     }
 
   public:
+    static consteval auto is_square() noexcept
+    {
+      return width == height;
+    }
+
     static consteval auto identity() noexcept
-      requires (width == height)
+      requires (is_square())
     {
       return identity_impl(idx_w{});
     }

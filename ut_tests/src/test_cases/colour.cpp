@@ -1,77 +1,81 @@
 #include "utils/utils.hpp"
 using namespace utils;
 
-TEST(clrs, t_rgb)
+namespace ut_tests
 {
-  EXPECT_EQ((colour{}),                  0x00000000u);
-  EXPECT_EQ((colour{ 255,   255, 255 }), 0x00FFFFFFu);
-  EXPECT_EQ((colour{ 255,     0,   0 }), 0x000000FFu);
-  EXPECT_EQ((colour{   0,   255,   0 }), 0x0000FF00u);
-  EXPECT_EQ((colour{   0,     0, 255 }), 0x00FF0000u);
-  EXPECT_EQ((colour{   0,   255, 255 }), 0x00FFFF00u);
-  EXPECT_EQ((colour{ 255,     0, 255 }), 0x00FF00FFu);
-  
-  EXPECT_EQ((colour{ 255, 10, 15, 128 }), 0x800F0AFFu);
-}
-
-TEST(clrs, t_components)
-{
-  colour clr{};
-  EXPECT_EQ(clr.red(),   0u);
-  EXPECT_EQ(clr.green(), 0u);
-  EXPECT_EQ(clr.blue(),  0u);
-  EXPECT_EQ(clr.alpha(), 0u);
-
-  clr.set_red  (10);
-  clr.set_green(15);
-  clr.set_blue (128);
-  clr.set_alpha(255);
-  EXPECT_EQ(clr.red(),    10u);
-  EXPECT_EQ(clr.green(),  15u);
-  EXPECT_EQ(clr.blue(),  128u);
-  EXPECT_EQ(clr.alpha(), 255u);
-  EXPECT_EQ(clr, 0xFF800F0Au);
-}
-
-TEST(clrs, t_conv)
-{
-  colour clr{ 0x0A0B0C0D };
-  EXPECT_EQ(clr.red(),    13u);
-  EXPECT_EQ(clr.green(),  12u);
-  EXPECT_EQ(clr.blue(),   11u);
-  EXPECT_EQ(clr.alpha(),  10u);
-
-  clr = 0xABCDu;
-  EXPECT_EQ(clr.red(),   205u);
-  EXPECT_EQ(clr.green(), 171u);
-  EXPECT_EQ(clr.blue(),    0u);
-  EXPECT_EQ(clr.alpha(),   0u);
-
-  auto func = [](colour::value_type val) noexcept
+  TEST(clrs, t_rgb)
   {
-    EXPECT_EQ(val, 0x0000ABCDu);
-  };
-  func(clr);
-}
+    EXPECT_EQ((colour{}), 0x00000000u);
+    EXPECT_EQ((colour{ 255,   255, 255 }), 0x00FFFFFFu);
+    EXPECT_EQ((colour{ 255,     0,   0 }), 0x000000FFu);
+    EXPECT_EQ((colour{ 0,   255,   0 }), 0x0000FF00u);
+    EXPECT_EQ((colour{ 0,     0, 255 }), 0x00FF0000u);
+    EXPECT_EQ((colour{ 0,   255, 255 }), 0x00FFFF00u);
+    EXPECT_EQ((colour{ 255,     0, 255 }), 0x00FF00FFu);
 
-TEST(clrs, t_bitwise)
-{
-  constexpr auto alpha = colour{ 0xFF000000u };
-  constexpr auto black = colours::black;
-  constexpr auto white = colours::white;
-  constexpr auto red   = colours::red;
-  constexpr auto green = colours::lime;
-  constexpr auto blue  = colours::blue;
+    EXPECT_EQ((colour{ 255, 10, 15, 128 }), 0x800F0AFFu);
+  }
 
-  EXPECT_EQ((black & white), black);
-  EXPECT_EQ((black | white), white);
-  EXPECT_EQ((black ^ white), white);
-  EXPECT_EQ((white ^ white), black);
-  EXPECT_EQ(~black, (white | alpha));
+  TEST(clrs, t_components)
+  {
+    colour clr{};
+    EXPECT_EQ(clr.red(), 0u);
+    EXPECT_EQ(clr.green(), 0u);
+    EXPECT_EQ(clr.blue(), 0u);
+    EXPECT_EQ(clr.alpha(), 0u);
 
-  EXPECT_EQ((white & ~blue), colours::yellow);
+    clr.set_red(10);
+    clr.set_green(15);
+    clr.set_blue(128);
+    clr.set_alpha(255);
+    EXPECT_EQ(clr.red(), 10u);
+    EXPECT_EQ(clr.green(), 15u);
+    EXPECT_EQ(clr.blue(), 128u);
+    EXPECT_EQ(clr.alpha(), 255u);
+    EXPECT_EQ(clr, 0xFF800F0Au);
+  }
 
-  EXPECT_EQ((red | blue), colours::chromakey);
+  TEST(clrs, t_conv)
+  {
+    colour clr{ 0x0A0B0C0D };
+    EXPECT_EQ(clr.red(), 13u);
+    EXPECT_EQ(clr.green(), 12u);
+    EXPECT_EQ(clr.blue(), 11u);
+    EXPECT_EQ(clr.alpha(), 10u);
 
-  EXPECT_EQ((red | green | blue | alpha), ~black);
+    clr = 0xABCDu;
+    EXPECT_EQ(clr.red(), 205u);
+    EXPECT_EQ(clr.green(), 171u);
+    EXPECT_EQ(clr.blue(), 0u);
+    EXPECT_EQ(clr.alpha(), 0u);
+
+    auto func = [](colour::value_type val) noexcept
+    {
+      EXPECT_EQ(val, 0x0000ABCDu);
+    };
+    func(clr);
+  }
+
+  TEST(clrs, t_bitwise)
+  {
+    constexpr auto alpha = colour{ 0xFF000000u };
+    constexpr auto black = colours::black;
+    constexpr auto white = colours::white;
+    constexpr auto red = colours::red;
+    constexpr auto green = colours::lime;
+    constexpr auto blue = colours::blue;
+
+    EXPECT_EQ((black & white), black);
+    EXPECT_EQ((black | white), white);
+    EXPECT_EQ((black ^ white), white);
+    EXPECT_EQ((white ^ white), black);
+    EXPECT_EQ(~black, (white | alpha));
+
+    EXPECT_EQ((white & ~blue), colours::yellow);
+
+    EXPECT_EQ((red | blue), colours::chromakey);
+
+    EXPECT_EQ((red | green | blue | alpha), ~black);
+  }
+
 }

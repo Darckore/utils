@@ -1,68 +1,72 @@
 #include "utils/utils.hpp"
 using namespace utils;
 
-TEST(strings, t_to_string_view)
+namespace ut_tests
 {
-  constexpr std::array arr{ 'l', 'o', 'l', ' ', 'k', 'e', 'k' };
-  constexpr auto baseline = "lol kek"sv;
-  auto res = detail::to_string_view(arr);
-
-  EXPECT_EQ(baseline, res);
-}
-
-TEST(strings, t_split)
-{
-  constexpr auto str = "eeny#$%meeny#$%miny#$%moe"sv;
-  auto splitRng = split(str, "#$%"sv);
-  constexpr std::array baseline{ "eeny"sv, "meeny"sv, "miny"sv, "moe"sv };
-  using sz_t = decltype(baseline)::size_type;
-
-  sz_t idx = 0;
-  for (auto item : splitRng)
+  TEST(strings, t_to_string_view)
   {
-    EXPECT_EQ(item, baseline[idx++]);
+    constexpr std::array arr{ 'l', 'o', 'l', ' ', 'k', 'e', 'k' };
+    constexpr auto baseline = "lol kek"sv;
+    auto res = detail::to_string_view(arr);
+
+    EXPECT_EQ(baseline, res);
   }
 
-  EXPECT_EQ(idx, baseline.size());
-}
+  TEST(strings, t_split)
+  {
+    constexpr auto str = "eeny#$%meeny#$%miny#$%moe"sv;
+    auto splitRng = split(str, "#$%"sv);
+    constexpr std::array baseline{ "eeny"sv, "meeny"sv, "miny"sv, "moe"sv };
+    using sz_t = decltype(baseline)::size_type;
 
-TEST(strings, t_trim)
-{
-  constexpr auto baseline = "lorem ipsum"sv;
-  
-  constexpr auto curlys    = "{{lorem ipsum}}"sv;
+    sz_t idx = 0;
+    for (auto item : splitRng)
+    {
+      EXPECT_EQ(item, baseline[idx++]);
+    }
 
-  constexpr auto ltrimmed  = ltrim(curlys, "{{"sv);
-  EXPECT_TRUE(ltrimmed.starts_with(baseline));
-  EXPECT_TRUE(ltrimmed.ends_with("}}"sv));
+    EXPECT_EQ(idx, baseline.size());
+  }
 
-  constexpr auto rtrimmed = rtrim(ltrimmed, "}}"sv);
-  EXPECT_EQ(baseline, rtrimmed);
+  TEST(strings, t_trim)
+  {
+    constexpr auto baseline = "lorem ipsum"sv;
 
-  constexpr auto trimmed_from_list = trim(curlys, '{', '}', '#', '@');
-  EXPECT_EQ(baseline, trimmed_from_list);
+    constexpr auto curlys = "{{lorem ipsum}}"sv;
 
-  constexpr auto ltrimmedFromList = ltrim(curlys, '{', '}', '#', '@');
-  EXPECT_EQ(ltrimmed, ltrimmedFromList);
+    constexpr auto ltrimmed = ltrim(curlys, "{{"sv);
+    EXPECT_TRUE(ltrimmed.starts_with(baseline));
+    EXPECT_TRUE(ltrimmed.ends_with("}}"sv));
 
-  constexpr auto rtrimmedFromList = rtrim(curlys, '{', '}', '#', '@');
-  EXPECT_TRUE(rtrimmedFromList.ends_with(baseline));
-  EXPECT_TRUE(rtrimmedFromList.starts_with("{{"sv));
+    constexpr auto rtrimmed = rtrim(ltrimmed, "}}"sv);
+    EXPECT_EQ(baseline, rtrimmed);
 
-  constexpr auto eqs = "==lorem ipsum==";
-  
-  constexpr auto eqtrimmed = trim(eqs, "=="sv);
-  EXPECT_EQ(baseline, eqtrimmed);
+    constexpr auto trimmed_from_list = trim(curlys, '{', '}', '#', '@');
+    EXPECT_EQ(baseline, trimmed_from_list);
 
-  constexpr auto eqtrimmedFromList = trim(eqs, '=', 'a', '$');
-  EXPECT_EQ(baseline, eqtrimmedFromList);
-}
+    constexpr auto ltrimmedFromList = ltrim(curlys, '{', '}', '#', '@');
+    EXPECT_EQ(ltrimmed, ltrimmedFromList);
 
-TEST(strings, t_trim_spaces)
-{
-  constexpr auto str = " \r\n\rhi there\tm8\v\f"sv;
-  
-  EXPECT_TRUE(ltrim(str).starts_with("hi there"));
-  EXPECT_TRUE(rtrim(str).ends_with("\tm8"));
-  EXPECT_EQ(trim(str), "hi there\tm8"sv);
+    constexpr auto rtrimmedFromList = rtrim(curlys, '{', '}', '#', '@');
+    EXPECT_TRUE(rtrimmedFromList.ends_with(baseline));
+    EXPECT_TRUE(rtrimmedFromList.starts_with("{{"sv));
+
+    constexpr auto eqs = "==lorem ipsum==";
+
+    constexpr auto eqtrimmed = trim(eqs, "=="sv);
+    EXPECT_EQ(baseline, eqtrimmed);
+
+    constexpr auto eqtrimmedFromList = trim(eqs, '=', 'a', '$');
+    EXPECT_EQ(baseline, eqtrimmedFromList);
+  }
+
+  TEST(strings, t_trim_spaces)
+  {
+    constexpr auto str = " \r\n\rhi there\tm8\v\f"sv;
+
+    EXPECT_TRUE(ltrim(str).starts_with("hi there"));
+    EXPECT_TRUE(rtrim(str).ends_with("\tm8"));
+    EXPECT_EQ(trim(str), "hi there\tm8"sv);
+  }
+
 }

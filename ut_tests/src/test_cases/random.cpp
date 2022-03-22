@@ -1,88 +1,91 @@
 #include "utils/utils.hpp"
 using namespace utils;
 
-namespace
+namespace ut_tests
 {
-  template <typename T>
-  using series_cont = std::vector<T>;
-
-  template <typename Rng>
-  auto make_series(Rng& r, auto seriesSize)
+  namespace
   {
-    using res_t = series_cont<typename Rng::value_type>;
-    res_t seq;
-    seq.reserve(seriesSize);
+    template <typename T>
+    using series_cont = std::vector<T>;
 
-    for (auto idx = 0ull; idx < seriesSize; ++idx)
+    template <typename Rng>
+    auto make_series(Rng& r, auto seriesSize)
     {
-      seq.emplace_back(r());
+      using res_t = series_cont<typename Rng::value_type>;
+      res_t seq;
+      seq.reserve(seriesSize);
+
+      for (auto idx = 0ull; idx < seriesSize; ++idx)
+      {
+        seq.emplace_back(r());
+      }
+
+      return seq;
     }
 
-    return seq;
-  }
-
-  template <typename T>
-  bool check_series(T min, T max, const series_cont<T>& seq) noexcept
-  {
-    for (auto val : seq)
+    template <typename T>
+    bool check_series(T min, T max, const series_cont<T>& seq) noexcept
     {
-      if (!in_range(val, min, max))
-        return false;
+      for (auto val : seq)
+      {
+        if (!in_range(val, min, max))
+          return false;
+      }
+      return true;
     }
-    return true;
+
+    template <typename T>
+    bool compare_series(const series_cont<T>& s1, const series_cont<T>& s2) noexcept
+    {
+      return std::equal(s1.begin(), s1.end(), s2.begin(), eq<T>);
+    }
+
+    template <typename T>
+    void test_default()
+    {
+      constexpr auto min = T{ 0 };
+      constexpr auto max = T{ 99 };
+
+      rng r{ min, max };
+      auto seq = make_series(r, 100ull);
+      EXPECT_TRUE(check_series(min, max, seq));
+    }
+
+    template <typename T>
+    void test_seed()
+    {
+      constexpr auto min = T{ 0 };
+      constexpr auto max = T{ 99 };
+      constexpr auto seed = 1337;
+
+      rng r1{ min, max };
+      r1.seed(seed);
+      rng r2{ min, max };
+      r2.seed(seed);
+      auto s1 = make_series(r1, 100ull);
+      auto s2 = make_series(r2, 100ull);
+      EXPECT_TRUE(compare_series(s1, s2));
+    }
+
   }
 
-  template <typename T>
-  bool compare_series(const series_cont<T>& s1, const series_cont<T>& s2) noexcept
+  TEST(random, t_default_int)
   {
-    return std::equal(s1.begin(), s1.end(), s2.begin(), eq<T>);
+    test_default<int>();
   }
 
-  template <typename T>
-  void test_default()
+  TEST(random, t_default_float)
   {
-    constexpr auto min = T{ 0 };
-    constexpr auto max = T{ 99 };
-
-    rng r{ min, max };
-    auto seq = make_series(r, 100ull);
-    EXPECT_TRUE(check_series(min, max, seq));
+    test_default<float>();
   }
 
-  template <typename T>
-  void test_seed()
+  TEST(random, t_seed_int)
   {
-    constexpr auto min = T{ 0 };
-    constexpr auto max = T{ 99 };
-    constexpr auto seed = 1337;
-
-    rng r1{ min, max };
-    r1.seed(seed);
-    rng r2{ min, max };
-    r2.seed(seed);
-    auto s1 = make_series(r1, 100ull);
-    auto s2 = make_series(r2, 100ull);
-    EXPECT_TRUE(compare_series(s1, s2));
+    test_seed<int>();
   }
 
-}
-
-TEST(random, t_default_int)
-{
-  test_default<int>();
-}
-
-TEST(random, t_default_float)
-{
-  test_default<float>();
-}
-
-TEST(random, t_seed_int)
-{
-  test_seed<int>();
-}
-
-TEST(random, t_seed_float)
-{
-  test_seed<float>();
+  TEST(random, t_seed_float)
+  {
+    test_seed<float>();
+  }
 }

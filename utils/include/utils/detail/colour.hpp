@@ -24,7 +24,7 @@ namespace utils
   public:
     CLASS_SPECIALS_ALL(colour);
 
-    constexpr colour(byte_type r, byte_type g, byte_type b, byte_type a = 0) noexcept :
+    constexpr colour(byte_type r, byte_type g, byte_type b, byte_type a = 255) noexcept :
       colour{ from_rgba(r, g, b, a) }
     { }
 

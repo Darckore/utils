@@ -6,12 +6,12 @@ namespace ut_tests
   TEST(clrs, t_rgb)
   {
     EXPECT_EQ((colour{}), 0x00000000u);
-    EXPECT_EQ((colour{ 255,   255, 255 }), 0x00FFFFFFu);
-    EXPECT_EQ((colour{ 255,     0,   0 }), 0x000000FFu);
-    EXPECT_EQ((colour{ 0,   255,   0 }), 0x0000FF00u);
-    EXPECT_EQ((colour{ 0,     0, 255 }), 0x00FF0000u);
-    EXPECT_EQ((colour{ 0,   255, 255 }), 0x00FFFF00u);
-    EXPECT_EQ((colour{ 255,     0, 255 }), 0x00FF00FFu);
+    EXPECT_EQ((colour{ 255,   255, 255 }), 0xFFFFFFFFu);
+    EXPECT_EQ((colour{ 255,     0,   0 }), 0xFF0000FFu);
+    EXPECT_EQ((colour{ 0,   255,   0 }),   0xFF00FF00u);
+    EXPECT_EQ((colour{ 0,     0, 255 }),   0xFFFF0000u);
+    EXPECT_EQ((colour{ 0,   255, 255 }),   0xFFFFFF00u);
+    EXPECT_EQ((colour{ 255,     0, 255 }), 0xFFFF00FFu);
 
     EXPECT_EQ((colour{ 255, 10, 15, 128 }), 0x800F0AFFu);
   }
@@ -61,21 +61,21 @@ namespace ut_tests
     constexpr auto alpha = colour{ 0xFF000000u };
     constexpr auto black = colours::black;
     constexpr auto white = colours::white;
-    constexpr auto red = colours::red;
+    constexpr auto red   = colours::red;
     constexpr auto green = colours::lime;
-    constexpr auto blue = colours::blue;
+    constexpr auto blue  = colours::blue;
 
     EXPECT_EQ((black & white), black);
     EXPECT_EQ((black | white), white);
-    EXPECT_EQ((black ^ white), white);
-    EXPECT_EQ((white ^ white), black);
-    EXPECT_EQ(~black, (white | alpha));
+    EXPECT_EQ((black ^ white), (white & ~alpha));
+    EXPECT_EQ((white ^ white), (black & ~alpha));
+    EXPECT_EQ(~black, (white & ~alpha));
 
-    EXPECT_EQ((white & ~blue), colours::yellow);
+    EXPECT_EQ((white & ~blue | alpha), colours::yellow);
 
     EXPECT_EQ((red | blue), colours::chromakey);
 
-    EXPECT_EQ((red | green | blue | alpha), ~black);
+    EXPECT_EQ(((red | green | blue) & ~alpha), ~black);
   }
 
 }

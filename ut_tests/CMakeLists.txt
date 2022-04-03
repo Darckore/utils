@@ -5,7 +5,7 @@ project(${TARGET_NAME} CXX)
 
 collect_sources(SOURCE_FILES HEADERS ADDITIONAL_FILES)
 add_executable(${TARGET_NAME} ${SOURCE_FILES} ${HEADERS} ${OPT_PCH_NAME} ${ADDITIONAL_FILES})
-set_build_opts(${TARGET_NAME})
+set_build_opts(${TARGET_NAME} "${ADDITIONAL_FILES}")
 make_src_groups("${SOURCE_FILES}" "${HEADERS}" "${ADDITIONAL_FILES}")
 
 include(GoogleTest)

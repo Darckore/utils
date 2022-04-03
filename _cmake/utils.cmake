@@ -40,7 +40,7 @@ function(make_src_groups SOURCE_FILES HEADERS ADDITIONAL_FILES)
 endfunction()
 
 # Build options
-function(set_build_opts TARGET_NAME)
+function(set_build_opts TARGET_NAME EXCLUDED_FILES)
   target_compile_features(${TARGET_NAME} PRIVATE ${OPT_STD})
   target_precompile_headers(${TARGET_NAME} PRIVATE ${OPT_PCH_NAME})
   target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
@@ -50,6 +50,7 @@ function(set_build_opts TARGET_NAME)
     target_link_options(${TARGET_NAME} PRIVATE $<$<CONFIG:RELEASE>:/LTCG>)
     set_target_properties( ${TARGET_NAME} PROPERTIES
                            VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET_NAME}>")
+    set_property(SOURCE ${EXCLUDED_FILES} PROPERTY VS_SETTINGS "ExcludedFromBuild=true")
   else()
     target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -pedantic -Werror)
   endif()

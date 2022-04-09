@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.23)
 include("${OPT_UTILS_DIR}/utils.cmake")
 
 project(${TARGET_NAME} CXX)

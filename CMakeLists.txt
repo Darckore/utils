@@ -44,7 +44,7 @@ if(OPT_TESTS AND NOT TARGET gtest)
   add_subdirectory("${OPT_UTILS_DIR}/${THIRD_PARTY_DIR}/gtest" gtest)
 endif()
 
-if(TARGET gtest)
+if(OPT_TESTS AND TARGET gtest)
   enable_testing()
   set(TARGET_NAME ${TESTS_TARGET})
   add_subdirectory("${TARGET_NAME}")

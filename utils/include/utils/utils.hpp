@@ -81,11 +81,16 @@ namespace utils
   clName(clName&&) = delete;\
   clName& operator=(clName&&) = delete
 
-// This is for Visual Studio only
-#if !defined(NDEBUG) && defined(_WIN32) && defined(_MSC_VER)
-#define BREAK(cond) (void)((!(cond)) || ((__debugbreak()), 0))
+#ifndef NDEBUG
+  #ifdef _MSC_VER
+    #define BREAK_ON(cond) (void)((!(cond)) || ((__debugbreak()), 0))
+  #elif __has_builtin(__builtin_debugtrap)
+    #define BREAK_ON(cond) (void)((!(cond)) || ((__builtin_debugtrap()), 0))
+  #else
+    #define BREAK_ON(cond)
+  #endif
 #else
-#define BREAK(cond) static_assert(false, "You can only use this in MSVC under debug")
+  #define BREAK_ON(cond) static_assert(false, "BREAK_ON is only allowed in debug builds")
 #endif
 
 #include "detail/common.hpp"

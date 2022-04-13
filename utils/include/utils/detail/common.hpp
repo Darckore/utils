@@ -58,6 +58,58 @@ namespace utils
       { a != b };
       { a == b };
     };
+  
+
+    using std::begin;
+    using std::end;
+    using std::rbegin;
+    using std::rend;
+
+    //
+    // Checks whether we've got an iterable range
+    //
+    template <typename T>
+    concept iterable = requires(T a)
+    {
+      begin(a);
+      end(a);
+    };
+
+    //
+    // Checks whether we've got a reverse iterable range
+    //
+    template <typename T>
+    concept r_iterable = requires(T a)
+    {
+      rbegin(a);
+      rend(a);
+    };
+
+    //
+    // Checks whether a range can be hashed
+    //
+    template <typename T>
+    concept hashable_range = requires(T rng)
+    {
+      requires iterable<T>;
+      static_cast<unsigned char>(*begin(rng));
+    };
+
+    //
+    // Checks whether we've got an iterator from a hashable range
+    //
+    template <typename I>
+    concept hashable_it = requires(I it)
+    {
+      requires std::is_base_of_v<
+                      std::forward_iterator_tag, 
+                      typename std::iterator_traits<I>::iterator_category
+                    >;
+      static_cast<unsigned char>(std::declval<typename std::iterator_traits<I>::value_type>());
+    };
+
+    inline constexpr auto hash_prime = 1099511628211ull;
+    inline constexpr auto hash_off   = 14695981039346656037ull;
   }
 
   //
@@ -121,5 +173,60 @@ namespace utils
     {
       return const_cast<std::add_lvalue_reference_t<noconst_t>>(val);
     }
+  }
+
+  //
+  // Hashes a range of bytes via some fnv magic
+  //
+  template <detail::hashable_it Beg, typename End>
+  constexpr auto hash(Beg first, End last) noexcept
+  {
+    constexpr auto prime  = detail::hash_prime;
+    constexpr auto offset = detail::hash_off;
+    using hash_type = std::remove_const_t<decltype(offset)>;
+    using byte_type = std::uint8_t;
+
+    constexpr auto cast = [](auto cur)
+    {
+      return static_cast<hash_type>(static_cast<byte_type>(cur));
+    };
+
+    auto hash = offset;
+    while (first != last)
+    {
+      hash = (hash ^ cast(*first++)) * prime;
+    }
+
+    return hash;
+  }
+
+  //
+  // Hashes a range of bytes via some fnv magic
+  //
+  template <detail::hashable_range R>
+  constexpr auto hash(R&& range) noexcept
+  {
+    using std::begin;
+    using std::end;
+    return hash(begin(range), end(range));
+  }
+
+  //
+  // Hashes any arithmetic type
+  //
+  template <typename T> requires (std::is_arithmetic_v<T>)
+  auto hash(T val) noexcept
+  {
+    auto ptr = reinterpret_cast<const std::uint8_t*>(&val);
+    return hash(ptr, ptr + sizeof(val));
+  }
+
+  //
+  // Hashes any enum type
+  //
+  template <typename T> requires (std::is_enum_v<T>)
+  auto hash(T val) noexcept
+  {
+    return hash(static_cast<std::underlying_type_t<T>>(val));
   }
 }

@@ -229,4 +229,19 @@ namespace ut_tests
 
     EXPECT_TRUE(eq(vr, vr0));
   }
+
+  TEST(matr, t_transpose)
+  {
+    constexpr auto m = matrix{ vector{  1,  2,  3 },
+                               vector{  4,  5,  6 },
+                               vector{  7,  8,  9 },
+                               vector{ 10, 11, 12 } };
+
+    constexpr auto mexpr = matrix{ vector { 1, 4, 7, 10 },
+                                   vector { 2, 5, 8, 11 },
+                                   vector { 3, 6, 9, 12 } };
+
+    const auto mt = m.transpose();
+    EXPECT_TRUE(mt == mexpr);
+  }
 }

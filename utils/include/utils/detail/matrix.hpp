@@ -330,6 +330,21 @@ namespace utils
     }
 
   private:
+    template <typename T, T... Seq>
+    constexpr auto transpose_impl(idx_seq<T, Seq...>) const noexcept
+    {
+      return matrix<value_type, height, width>{
+        column<Seq>()...
+      };
+    }
+
+  public:
+    constexpr auto transpose() const noexcept
+    {
+      return transpose_impl(idx_w{});
+    }
+
+  private:
     template <typename U>
     constexpr bool eq(const matrix<U, width, height>& other) const noexcept
     {

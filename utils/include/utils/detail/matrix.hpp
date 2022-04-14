@@ -62,14 +62,14 @@ namespace utils
     }
 
     static consteval auto identity() noexcept
-      requires (is_square())
+      requires (width == height)
     {
       return identity_impl(idx_w{});
     }
 
     // 2D rotation matrix
     static constexpr auto rotation(detail::coordinate auto angle) noexcept
-      requires (is_square() && width == 2)
+      requires (width == 2 && height == 2)
     {
       const auto sinA = sin(angle);
       const auto cosA = cos(angle);
@@ -345,7 +345,7 @@ namespace utils
     }
 
   private:
-    storage_type m_data;
+    storage_type m_data{};
   };
 
   constexpr bool eq(const detail::math_matr auto& m1, const detail::math_matr auto& m2) noexcept

@@ -13,7 +13,7 @@ namespace utils
   //
   // Assertion helper
   //
-  void assertion(bool cond, std::string_view condStr, detail::ostream* ostream, detail::src_loc loc = detail::src_loc::current())
+  inline void assertion(bool cond, std::string_view condStr, detail::ostream* ostream, detail::src_loc loc = detail::src_loc::current())
   {
     if (cond) return;
 

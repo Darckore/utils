@@ -93,6 +93,7 @@ namespace utils
   #define BREAK_ON(cond) static_assert(false, "BREAK_ON is only allowed in debug builds")
 #endif
 
+#include "detail/assert.hpp"
 #include "detail/common.hpp"
 #include "detail/math.hpp"
 #include "detail/vector.hpp"

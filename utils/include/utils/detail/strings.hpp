@@ -118,7 +118,7 @@ namespace utils
   }
 
   //
-  // Trims a string_view from the right
+  // Trims a string_view from the left
   // Removes whitespace chars:
   // ' ', '\f', '\n', '\r', '\t', '\v'
   //
@@ -128,7 +128,7 @@ namespace utils
   }
 
   //
-  // Trims a string_view from the left
+  // Trims a string_view from the right
   // Removes whitespace chars:
   // ' ', '\f', '\n', '\r', '\t', '\v'
   //

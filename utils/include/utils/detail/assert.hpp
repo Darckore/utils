@@ -13,9 +13,9 @@ namespace utils
   //
   // Assertion helper
   //
-  inline void assertion(bool cond, std::string_view condStr, detail::ostream* ostream, detail::src_loc loc = detail::src_loc::current())
+  inline bool assertion(bool cond, std::string_view condStr, detail::ostream* ostream, detail::src_loc loc = detail::src_loc::current())
   {
-    if (cond) return;
+    if (cond) return true;
 
     if (ostream)
     {
@@ -28,12 +28,12 @@ namespace utils
       out << "Stack trace:\n" << std::stacktrace::current() << '\n';
     }
 
-    BREAK_ON(true);
+    return false;
   }
 }
 
 #ifndef NDEBUG
-  #define UTILS_ASSERT(cond) utils::assertion(static_cast<bool>(cond), #cond, &std::cerr)
+  #define UTILS_ASSERT(cond) BREAK_ON(!utils::assertion(static_cast<bool>(cond), #cond, &std::cerr))
 #else
   #define UTILS_ASSERT(cond)
 #endif

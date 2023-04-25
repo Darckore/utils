@@ -42,6 +42,10 @@ namespace utils
     {
       return ratio{ num(), denom(), -sign() };
     }
+    constexpr auto operator+() const noexcept
+    {
+      return *this;
+    }
 
     template <detail::integer I>
     constexpr auto to() const noexcept

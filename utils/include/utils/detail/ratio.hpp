@@ -14,7 +14,7 @@ namespace utils
     using sign_t = std::int8_t;
 
   public:
-    CLASS_SPECIALS_ALL(ratio);
+    CLASS_SPECIALS_NODEFAULT(ratio);
 
     explicit constexpr ratio(value_type num) noexcept :
       ratio{ num, 1, 0 }

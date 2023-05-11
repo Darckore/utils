@@ -16,7 +16,7 @@
 #include <initializer_list>
 
 namespace ranges = std::ranges;
-namespace views = std::views;
+namespace views  = std::views;
 namespace chrono = std::chrono;
 
 namespace utils
@@ -28,58 +28,70 @@ namespace utils
   };
 }
 
+#define CLASS_DEFAULT = default
+
+#define CLASS_DELETE = delete
+
+#define CLASS_DEFAULT_CTOR(clName)   constexpr clName() noexcept
+
+#define CLASS_COPY_CTOR(clName)      constexpr clName(const clName&) noexcept
+#define CLASS_COPY_OPERATOR(clName)  constexpr clName& operator=(const clName&) noexcept
+
+#define CLASS_MOVE_CTOR(clName)      constexpr clName(clName&&) noexcept
+#define CLASS_MOVE_OPERATOR(clName)  constexpr clName& operator=(clName&&) noexcept
+
 #define CLASS_SPECIALS_ALL(clName)\
-  clName() = default;\
-  clName(const clName&) = default;\
-  clName& operator=(const clName&) = default;\
-  clName(clName&&) = default;\
-  clName& operator=(clName&&) = default
+  CLASS_DEFAULT_CTOR(clName)  CLASS_DEFAULT;\
+  CLASS_COPY_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_COPY_OPERATOR(clName) CLASS_DEFAULT;\
+  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
 
 #define CLASS_SPECIALS_ALL_CUSTOM(clName)\
-  clName(const clName&) = default;\
-  clName& operator=(const clName&) = default;\
-  clName(clName&&) = default;\
-  clName& operator=(clName&&) = default
+  CLASS_COPY_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_COPY_OPERATOR(clName) CLASS_DEFAULT;\
+  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
 
 #define CLASS_SPECIALS_NOCOPY(clName)\
-  clName() = default;\
-  clName(const clName&) = delete;\
-  clName& operator=(const clName&) = delete;\
-  clName(clName&&) = default;\
-  clName& operator=(clName&&) = default
+  CLASS_DEFAULT_CTOR(clName)  CLASS_DEFAULT;\
+  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
+  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
+  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
 
 #define CLASS_SPECIALS_NOCOPY_CUSTOM(clName)\
-  clName(const clName&) = delete;\
-  clName& operator=(const clName&) = delete;\
-  clName(clName&&) = default;\
-  clName& operator=(clName&&) = default
+  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
+  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
+  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
 
 #define CLASS_SPECIALS_NODEFAULT(clName)\
-  clName() = delete;\
-  clName(const clName&) = default;\
-  clName& operator=(const clName&) = default;\
-  clName(clName&&) = default;\
-  clName& operator=(clName&&) = default
+  CLASS_DEFAULT_CTOR(clName)  CLASS_DELETE;\
+  CLASS_COPY_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_COPY_OPERATOR(clName) CLASS_DEFAULT;\
+  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
 
 #define CLASS_SPECIALS_NODEFAULT_NOCOPY(clName)\
-  clName() = delete;\
-  clName(const clName&) = delete;\
-  clName& operator=(const clName&) = delete;\
-  clName(clName&&) = default;\
-  clName& operator=(clName&&) = default
+  CLASS_DEFAULT_CTOR(clName)  CLASS_DELETE;\
+  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
+  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
+  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
+  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
 
 #define CLASS_SPECIALS_NONE(clName)\
-  clName() = delete;\
-  clName(const clName&) = delete;\
-  clName& operator=(const clName&) = delete;\
-  clName(clName&&) = delete;\
-  clName& operator=(clName&&) = delete
+  CLASS_DEFAULT_CTOR(clName)  CLASS_DELETE;\
+  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
+  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
+  CLASS_MOVE_CTOR(clName)     CLASS_DELETE;\
+  CLASS_MOVE_OPERATOR(clName) CLASS_DELETE
 
 #define CLASS_SPECIALS_NONE_CUSTOM(clName)\
-  clName(const clName&) = delete;\
-  clName& operator=(const clName&) = delete;\
-  clName(clName&&) = delete;\
-  clName& operator=(clName&&) = delete
+  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
+  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
+  CLASS_MOVE_CTOR(clName)     CLASS_DELETE;\
+  CLASS_MOVE_OPERATOR(clName) CLASS_DELETE
 
 #ifndef NDEBUG
   #ifdef _MSC_VER

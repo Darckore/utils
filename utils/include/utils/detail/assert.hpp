@@ -21,9 +21,7 @@ namespace utils
     {
       constexpr auto fmt = "Assertion '{}' in {} failed at '{}':{}\n"sv;
       auto&& out = *ostream;
-      std::string outStr;
-      std::vformat_to(std::back_inserter(outStr), fmt, 
-                      std::make_format_args(condStr, loc.function_name(), loc.file_name(), loc.line()));
+      auto outStr = std::format(fmt, condStr, loc.function_name(), loc.file_name(), loc.line());
       out << outStr;
       out << "Stack trace:\n" << std::stacktrace::current() << '\n';
     }

@@ -22,6 +22,7 @@
 
 #include <string>
 #include <string_view>
+#include <format>
 #include <array>
 #include <vector>
 #include <map>

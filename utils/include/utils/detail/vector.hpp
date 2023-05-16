@@ -46,7 +46,7 @@ namespace utils
     static consteval auto axis_norm() noexcept
     {
       vector <value_type, dimensions> res;
-      res.get<Axis>() = unit_coord;
+      res.template get<Axis>() = unit_coord;
       return res;
     }
 
@@ -322,7 +322,7 @@ namespace utils
     template <size_type N> requires (N < dimensions)
     constexpr auto& get() noexcept
     {
-      return mutate(std::as_const(*this).get<N>());
+      return mutate(std::as_const(*this).template get<N>());
     }
 
     constexpr auto begin() const noexcept
@@ -397,16 +397,16 @@ namespace utils
 
   using point2d = vec2<int>;
   using point3d = vec3<int>;
-
-  template <typename T, std::size_t N>
-  struct std::tuple_size<utils::vector<T, N>>
-  {
-    static constexpr auto value = N;
-  };
-
-  template <std::size_t I, typename T, std::size_t N>
-  struct std::tuple_element<I, utils::vector<T, N>>
-  {
-    using type = typename utils::vector<T, N>::value_type;
-  };
 }
+
+template <typename T, std::size_t N>
+struct std::tuple_size<utils::vector<T, N>>
+{
+  static constexpr auto value = N;
+};
+
+template <std::size_t I, typename T, std::size_t N>
+struct std::tuple_element<I, utils::vector<T, N>>
+{
+  using type = typename utils::vector<T, N>::value_type;
+};

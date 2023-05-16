@@ -50,11 +50,11 @@ namespace utils
   public:
     CLASS_SPECIALS_NONE(rng);
 
-    template <typename A1, typename ...Args>
-      requires detail::all_convertible<A1, Args...>
-    explicit rng(A1&& val, Args&&... vals) :
+    template <typename A1, typename A2, typename ...Args>
+      requires detail::all_convertible<A1, A2, Args...>
+    explicit rng(A1&& val1, A2&& val2, Args&&... vals) :
       m_rng{ std::random_device{}() },
-      m_dist{ std::forward<A1>(val), std::forward<Args>(vals)... }
+      m_dist{ std::forward<A1>(val1), std::forward<A2>(val2), std::forward<Args>(vals)... }
     {}
 
     template <typename A>

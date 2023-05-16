@@ -39,8 +39,8 @@ namespace utils
     using size_type = storage_type::size_type;
 
   private:
-    template <typename T, T... Seq>
-    using idx_seq = std::integer_sequence<T, Seq...>;
+    template <typename Int, Int... Seq>
+    using idx_seq = std::integer_sequence<Int, Seq...>;
 
     template <size_type N>
     using idx_gen = std::make_index_sequence<N>;
@@ -49,8 +49,8 @@ namespace utils
     using idx_h = idx_gen<height>;
 
   private:
-    template <typename T, T... Seq>
-    static consteval auto identity_impl(idx_seq<T, Seq...>) noexcept
+    template <typename Int, Int... Seq>
+    static consteval auto identity_impl(idx_seq<Int, Seq...>) noexcept
     {
       return matrix{ row_type::template axis_norm<Seq>()... };
     }
@@ -291,8 +291,8 @@ namespace utils
     }
 
   private:
-    template <typename T, T... Seq>
-    constexpr auto column_impl(size_type c, idx_seq<T, Seq...>) const noexcept
+    template <typename Int, Int... Seq>
+    constexpr auto column_impl(size_type c, idx_seq<Int, Seq...>) const noexcept
     {
       return col_type{ ((*this)[Seq][c])... };
     }
@@ -330,8 +330,8 @@ namespace utils
     }
 
   private:
-    template <typename T, T... Seq>
-    constexpr auto transpose_impl(idx_seq<T, Seq...>) const noexcept
+    template <typename Int, Int... Seq>
+    constexpr auto transpose_impl(idx_seq<Int, Seq...>) const noexcept
     {
       return matrix<value_type, height, width>{
         column<Seq>()...
@@ -399,16 +399,16 @@ namespace utils
   using matrd3 = matr3<double>;
   using matri2 = matr2<int>;
   using matri3 = matr3<int>;
-
-  template <typename T, std::size_t W, std::size_t H>
-  struct std::tuple_size<utils::matrix<T, W, H>>
-  {
-    static constexpr auto value = H;
-  };
-
-  template <std::size_t I, typename T, std::size_t W, std::size_t H>
-  struct std::tuple_element<I, utils::matrix<T, W, H>>
-  {
-    using type = typename utils::matrix<T, W, H>::row_type;
-  };
 }
+
+template <typename T, std::size_t W, std::size_t H>
+struct std::tuple_size<utils::matrix<T, W, H>>
+{
+  static constexpr auto value = H;
+};
+
+template <std::size_t I, typename T, std::size_t W, std::size_t H>
+struct std::tuple_element<I, utils::matrix<T, W, H>>
+{
+  using type = typename utils::matrix<T, W, H>::row_type;
+};

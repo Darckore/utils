@@ -23,8 +23,8 @@ namespace utils
         return multiplier * inv(fact);
       }
 
-      template <typename T, T... Seq>
-      static constexpr auto calc_coeffs(std::integer_sequence<T, Seq...>) noexcept
+      template <typename Int, Int... Seq>
+      static constexpr auto calc_coeffs(std::integer_sequence<Int, Seq...>) noexcept
       {
         return array_type{ coeff(Seq + 1)... };
       }

@@ -144,7 +144,7 @@ namespace utils
     }
 
   private:
-    constexpr value_type from_rgba(byte_type r, byte_type g, byte_type b, byte_type a) noexcept
+    static constexpr value_type from_rgba(byte_type r, byte_type g, byte_type b, byte_type a) noexcept
     {
       value_type res{};
       res |= static_cast<value_type>(r) << static_cast<byte_type>(cR);

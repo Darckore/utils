@@ -89,7 +89,9 @@ namespace ut_tests
     EXPECT_EQ(cast_12,  nullptr);
 
     auto cast_22c = utils::try_cast<69>(_2c);
+    using _22_t = std::remove_pointer_t<decltype(cast_22c)>;
     EXPECT_EQ(cast_22c, &_22);
+    EXPECT_TRUE((std::is_const_v<_22_t>));
 
     auto cast_21 = utils::try_cast<42>(_2);
     EXPECT_EQ(cast_21, nullptr);

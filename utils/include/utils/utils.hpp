@@ -23,6 +23,7 @@ namespace utils
 #endif
 
 #include "detail/assert.hpp"
+#include "detail/type_support.hpp"
 #include "detail/common.hpp"
 #include "detail/math.hpp"
 #include "detail/vector.hpp"

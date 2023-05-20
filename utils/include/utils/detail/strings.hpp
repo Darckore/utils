@@ -146,4 +146,48 @@ namespace utils
   {
     return trim(str, ' ', '\f', '\n', '\r', '\t', '\v');
   }
+
+
+  //
+  // A hashed string representation. Contains a string's hash code,
+  // can be used as an 'id' of sorts
+  //
+  class hashed_string
+  {
+  public:
+    using hash_type   = detail::max_int_t;
+    using string_type = std::string_view;
+    using size_type   = string_type::size_type;
+
+  public:
+    CLASS_SPECIALS_ALL_CUSTOM(hashed_string);
+
+    constexpr hashed_string() noexcept = default;
+
+    constexpr hashed_string(string_type str) noexcept :
+      m_hash{ hash(str) }
+    {}
+
+    constexpr hashed_string(const char* str) noexcept :
+      hashed_string{ string_type{ str } }
+    {}
+
+    constexpr hashed_string(const char* str, size_type len) noexcept :
+      hashed_string{ string_type{ str, len } }
+    {}
+
+    constexpr hashed_string(const std::string& str) noexcept :
+      hashed_string{ string_type{ str } }
+    {}
+
+    constexpr auto operator*() const noexcept
+    {
+      return m_hash;
+    }
+
+    constexpr bool operator==(const hashed_string& other) const noexcept = default;
+
+  private:
+    hash_type m_hash{};
+  };
 }

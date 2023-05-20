@@ -1,5 +1,4 @@
 #include "utils/utils.hpp"
-using namespace utils;
 
 namespace ut_tests
 {
@@ -28,7 +27,7 @@ namespace ut_tests
     {
       for (auto val : seq)
       {
-        if (!in_range(val, min, max))
+        if (!utils::in_range(val, min, max))
           return false;
       }
       return true;
@@ -37,7 +36,7 @@ namespace ut_tests
     template <typename T>
     bool compare_series(const series_cont<T>& s1, const series_cont<T>& s2) noexcept
     {
-      return std::equal(s1.begin(), s1.end(), s2.begin(), eq<T>);
+      return std::equal(s1.begin(), s1.end(), s2.begin(), utils::eq<T>);
     }
 
     template <typename T>
@@ -46,7 +45,7 @@ namespace ut_tests
       constexpr auto min = T{ 0 };
       constexpr auto max = T{ 99 };
 
-      rng r{ min, max };
+      utils::rng r{ min, max };
       auto seq = make_series(r, 100ull);
       EXPECT_TRUE(check_series(min, max, seq));
     }
@@ -54,6 +53,8 @@ namespace ut_tests
     template <typename T>
     void test_seed()
     {
+      using utils::rng;
+
       constexpr auto min = T{ 0 };
       constexpr auto max = T{ 99 };
       constexpr auto seed = 1337;

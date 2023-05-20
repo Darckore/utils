@@ -1,10 +1,10 @@
 #include "utils/utils.hpp"
-using namespace utils;
 
 namespace ut_tests
 {
   TEST(clrs, t_rgb)
   {
+    using utils::colour;
     EXPECT_EQ((colour{}), 0x00000000u);
     EXPECT_EQ((colour{ 255,   255, 255 }), 0xFFFFFFFFu);
     EXPECT_EQ((colour{ 255,     0,   0 }), 0xFF0000FFu);
@@ -18,6 +18,7 @@ namespace ut_tests
 
   TEST(clrs, t_components)
   {
+    using utils::colour;
     colour clr{};
     EXPECT_EQ(clr.red(), 0u);
     EXPECT_EQ(clr.green(), 0u);
@@ -37,6 +38,7 @@ namespace ut_tests
 
   TEST(clrs, t_conv)
   {
+    using utils::colour;
     colour clr{ 0x0A0B0C0D };
     EXPECT_EQ(clr.red(), 13u);
     EXPECT_EQ(clr.green(), 12u);
@@ -58,6 +60,9 @@ namespace ut_tests
 
   TEST(clrs, t_bitwise)
   {
+    using utils::colour;
+    namespace colours = utils::colours;
+
     constexpr auto alpha = colour{ 0xFF000000u };
     constexpr auto black = colours::black;
     constexpr auto white = colours::white;

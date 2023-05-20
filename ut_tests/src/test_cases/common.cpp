@@ -1,13 +1,12 @@
 #include "utils/utils.hpp"
 #include <variant>
-using namespace utils;
 
 namespace ut_tests
 {
   TEST(common, t_visit)
   {
     std::variant <int, bool, float> var;
-    constexpr auto visitor = utils::visitor{
+    constexpr auto visitor = utils::visitor {
       [](int i)
       {
         return static_cast<double>(i + 228);
@@ -42,6 +41,7 @@ namespace ut_tests
     constexpr auto valIn = 5.0f;
     constexpr auto valOut = 20.0;
 
+    using utils::in_range;
     EXPECT_TRUE(in_range(valIn, rngStart, rngEnd));
     EXPECT_FALSE(in_range(valOut, rngStart, rngEnd));
   }
@@ -54,6 +54,7 @@ namespace ut_tests
     constexpr auto ok3 = 42ll;
     constexpr auto nope = 69.0;
 
+    using utils::eq_all;
     EXPECT_TRUE(eq_all(baseline, ok1));
     EXPECT_TRUE(eq_all(baseline, ok1, ok2));
     EXPECT_TRUE(eq_all(baseline, ok1, ok2, ok3));
@@ -70,6 +71,7 @@ namespace ut_tests
     constexpr auto nope2 = 69ll;
     constexpr auto nope3 = 0.5;
 
+    using utils::eq_any;
     EXPECT_TRUE(eq_any(baseline, eq));
     EXPECT_TRUE(eq_any(baseline, eq, nope1));
     EXPECT_TRUE(eq_any(baseline, eq, nope1, nope2));
@@ -86,6 +88,7 @@ namespace ut_tests
     constexpr auto nope2 = 69ll;
     constexpr auto nope3 = 0.5;
 
+    using utils::eq_none;
     EXPECT_TRUE(eq_none(baseline, nope1));
     EXPECT_TRUE(eq_none(baseline, nope1, nope2));
     EXPECT_TRUE(eq_none(baseline, nope1, nope2, nope3));

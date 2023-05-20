@@ -1,6 +1,6 @@
 #pragma once
 
-namespace utils::testing
+namespace ut_tests
 {
   template <typename T>
   struct vec_test

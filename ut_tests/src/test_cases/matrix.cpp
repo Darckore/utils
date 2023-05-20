@@ -1,15 +1,17 @@
 #include "utils/utils.hpp"
 #include "tests/helpers.hpp"
-using namespace utils;
 
 namespace ut_tests
 {
   TEST(matr, t_deduction)
   {
+    using utils::matrix;
+    using utils::vector;
+
     constexpr matrix m2i{
       vector{ 1,   2.0 },
       vector{ 3ll, 4.0f } };
-    EXPECT_TRUE((utils::testing::test_type<int, 2, 2>(m2i)));
+    EXPECT_TRUE((test_type<int, 2, 2>(m2i)));
 
     constexpr matrix m34d{
       vector{ 1.0,  2,  3},
@@ -17,52 +19,55 @@ namespace ut_tests
       vector{  7,   8,  9},
       vector{ 10,  11, 12}
     };
-    EXPECT_TRUE((utils::testing::test_type<double, 3, 4>(m34d)));
+    EXPECT_TRUE((test_type<double, 3, 4>(m34d)));
   }
 
   TEST(matr, t_aliases)
   {
-    constexpr matrf2 m2f;
-    EXPECT_TRUE((utils::testing::test_type<float, 2, 2>(m2f)));
+    constexpr utils::matrf2 m2f;
+    EXPECT_TRUE((test_type<float, 2, 2>(m2f)));
 
-    constexpr matrf3 m3f;
-    EXPECT_TRUE((utils::testing::test_type<float, 3, 3>(m3f)));
+    constexpr utils::matrf3 m3f;
+    EXPECT_TRUE((test_type<float, 3, 3>(m3f)));
 
-    constexpr matrd2 m2d;
-    EXPECT_TRUE((utils::testing::test_type<double, 2, 2>(m2d)));
+    constexpr utils::matrd2 m2d;
+    EXPECT_TRUE((test_type<double, 2, 2>(m2d)));
 
-    constexpr matrd3 m3d;
-    EXPECT_TRUE((utils::testing::test_type<double, 3, 3>(m3d)));
+    constexpr utils::matrd3 m3d;
+    EXPECT_TRUE((test_type<double, 3, 3>(m3d)));
 
-    constexpr matri2 m2i;
-    EXPECT_TRUE((utils::testing::test_type<int, 2, 2>(m2i)));
+    constexpr utils::matri2 m2i;
+    EXPECT_TRUE((test_type<int, 2, 2>(m2i)));
 
-    constexpr matri3 m3i;
-    EXPECT_TRUE((utils::testing::test_type<int, 3, 3>(m3i)));
+    constexpr utils::matri3 m3i;
+    EXPECT_TRUE((test_type<int, 3, 3>(m3i)));
   }
 
   TEST(matr, t_conv)
   {
+    using utils::matrf2;
+    using utils::vecf2;
+
     constexpr matrf2 m{
       vecf2{ 1, 2 },
       vecf2{ 3, 4 } };
 
     constexpr auto m2f = m;
-    EXPECT_TRUE((utils::testing::test_type<float, 2, 2>(m2f)));
+    EXPECT_TRUE((test_type<float, 2, 2>(m2f)));
     EXPECT_FLOAT_EQ(m2f[0][0], 1.0f);
     EXPECT_FLOAT_EQ(m2f[0][1], 2.0f);
     EXPECT_FLOAT_EQ(m2f[1][0], 3.0f);
     EXPECT_FLOAT_EQ(m2f[1][1], 4.0f);
 
     constexpr auto m2i = m.to<int, 2, 2>();
-    EXPECT_TRUE((utils::testing::test_type<int, 2, 2>(m2i)));
+    EXPECT_TRUE((test_type<int, 2, 2>(m2i)));
     EXPECT_EQ(m2i[0][0], 1);
     EXPECT_EQ(m2i[0][1], 2);
     EXPECT_EQ(m2i[1][0], 3);
     EXPECT_EQ(m2i[1][1], 4);
 
-    constexpr matrd3 m3d = m2i;
-    EXPECT_TRUE((utils::testing::test_type<double, 3, 3>(m3d)));
+    constexpr utils::matrd3 m3d = m2i;
+    EXPECT_TRUE((test_type<double, 3, 3>(m3d)));
     EXPECT_DOUBLE_EQ(m3d[0][0], 1.0);
     EXPECT_DOUBLE_EQ(m3d[0][1], 2.0);
     EXPECT_DOUBLE_EQ(m3d[0][2], 0.0);
@@ -76,6 +81,10 @@ namespace ut_tests
 
   TEST(matr, t_compare)
   {
+    using utils::matrix;
+    using utils::vector;
+    using utils::matri3;
+
     constexpr auto m3f = matrix{
       vector{ 69.0f, 42,  228 },
       vector{    -1,  5,   19 },
@@ -96,14 +105,14 @@ namespace ut_tests
     EXPECT_TRUE(m3d != m3i);
     EXPECT_FALSE(m3d == m3i);
 
-    constexpr matri2 m2i = m3f;
+    constexpr utils::matri2 m2i = m3f;
     EXPECT_TRUE(m2i != m3f);
     EXPECT_FALSE(m2i == m3f);
   }
 
   TEST(matr, t_identity)
   {
-    constexpr auto id3d = matrd3::identity();
+    constexpr auto id3d = utils::matrd3::identity();
     EXPECT_DOUBLE_EQ((id3d.get<0, 0>()), 1.0);
     EXPECT_DOUBLE_EQ((id3d.get<0, 1>()), 0.0);
     EXPECT_DOUBLE_EQ((id3d.get<0, 2>()), 0.0);
@@ -117,6 +126,9 @@ namespace ut_tests
 
   TEST(matr, t_scale)
   {
+    using utils::matrd2;
+    using utils::vecd2;
+
     constexpr auto mul = 10.0;
     constexpr auto div = 20.0;
 
@@ -155,6 +167,9 @@ namespace ut_tests
 
   TEST(matr, t_arithmetic)
   {
+    using utils::matrix;
+    using utils::vector;
+
     matrix m1{ vector{ 1.0,   2.0 },
                vector{ 5.0,  -6.0 } };
     matrix m2{ vector{ 3.0f, -4.0f },
@@ -172,7 +187,7 @@ namespace ut_tests
                            vector{  0.0, 0.0 } };
     EXPECT_TRUE(mdif == (m1 - m2));
 
-    matrd2 m3 = m2;
+    utils::matrd2 m3 = m2;
 
     m3 += m1;
     EXPECT_TRUE(m3 == msum);
@@ -182,6 +197,9 @@ namespace ut_tests
 
   TEST(matr, t_column)
   {
+    using utils::matrix;
+    using utils::vector;
+
     constexpr matrix m{
       vector{ 1, 2 },
       vector{ 3, 4 },
@@ -196,6 +214,9 @@ namespace ut_tests
 
   TEST(matr, t_mul)
   {
+    using utils::matrix;
+    using utils::vector;
+
     constexpr matrix m1{
       vector{ 0,   4, -2 },
       vector{ -4, -3,  0 } };
@@ -206,10 +227,10 @@ namespace ut_tests
       vector{   2,  3 } };
 
     constexpr auto mmul = m1 * m2;
-    EXPECT_TRUE((utils::testing::test_type<double, 2, 2>(mmul)));
+    EXPECT_TRUE((test_type<double, 2, 2>(mmul)));
 
     constexpr auto rmul = m2 * m1;
-    EXPECT_TRUE((utils::testing::test_type<double, 3, 3>(rmul)));
+    EXPECT_TRUE((test_type<double, 3, 3>(rmul)));
     EXPECT_FALSE(rmul == mmul);
 
     // Calculated elsewhere
@@ -220,18 +241,22 @@ namespace ut_tests
 
   TEST(matr, t_rotation2d)
   {
-    constexpr vecd2 v{ 1.0, 2.0 };
-    constexpr auto angle = deg_to_rad(60.0);
+    constexpr utils::vecd2 v{ 1.0, 2.0 };
+    constexpr auto angle = utils::deg_to_rad(60.0);
     constexpr auto vr0 = v.get_rotated(angle);
 
-    constexpr auto rm = matrd2::rotation(angle);
+    constexpr auto rm = utils::matrd2::rotation(angle);
     constexpr auto vr = rm * v;
 
+    using utils::eq;
     EXPECT_TRUE(eq(vr, vr0));
   }
 
   TEST(matr, t_transpose)
   {
+    using utils::matrix;
+    using utils::vector;
+
     constexpr auto m = matrix{ vector{  1,  2,  3 },
                                vector{  4,  5,  6 },
                                vector{  7,  8,  9 },

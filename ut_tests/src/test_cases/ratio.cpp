@@ -1,10 +1,14 @@
 #include "utils/utils.hpp"
-using namespace utils;
 
 namespace ut_tests
 {
   TEST(ratios, t_basics)
   {
+    using utils::ratio;
+    using utils::abs;
+    using utils::sign;
+    using utils::inv;
+
     constexpr ratio r0{ 1, 2 };
     EXPECT_EQ(r0.num(), 1);
     EXPECT_EQ(r0.denom(), 2);
@@ -24,6 +28,8 @@ namespace ut_tests
 
   TEST(ratios, t_modifications)
   {
+    using utils::ratio;
+
     auto r = ratio{ 12, 36 };
     EXPECT_EQ(r.num(), 12);
     EXPECT_EQ(r.denom(), 36);
@@ -61,6 +67,8 @@ namespace ut_tests
 
   TEST(ratios, t_zero_infinity)
   {
+    using utils::ratio;
+
     constexpr auto r0 = ratio{ 1, 0 };
     EXPECT_TRUE(r0.is_infinity());
     constexpr auto infP = r0.to<float>();
@@ -96,6 +104,8 @@ namespace ut_tests
 
   TEST(ratios, t_arithmetics)
   {
+    using utils::ratio;
+
     constexpr auto r0 = ratio{ 1, 2 };
     constexpr auto r1 = ratio{ 3ull, 7ull, -1 };
 
@@ -120,6 +130,8 @@ namespace ut_tests
 
   TEST(ratios, t_arithmetics_neg)
   {
+    using utils::ratio;
+
     constexpr auto r0 = ratio{ -1, 2 };
     constexpr auto r1 = ratio{ -5, 8 };
 

@@ -1,5 +1,4 @@
 #include "utils/utils.hpp"
-using namespace utils;
 
 namespace ut_tests
 {
@@ -8,7 +7,7 @@ namespace ut_tests
   //
   TEST(math, t_inv_sqrt)
   {
-    constexpr std::array data{
+    constexpr std::array data {
       0.000234,
       0.001,
       0.05,
@@ -25,6 +24,9 @@ namespace ut_tests
       374890.982661993
     };
 
+    using utils::inv;
+    using utils::inv_sqrt;
+
     constexpr auto precision = 1e6;
     for (auto val : data)
     {
@@ -38,6 +40,9 @@ namespace ut_tests
 
   TEST(math, t_abs)
   {
+    using utils::eq_all;
+    using utils::abs;
+
     constexpr auto ip = 42;
     constexpr auto in = -42;
     EXPECT_TRUE(eq_all(ip, abs(ip), abs(in)));
@@ -53,6 +58,8 @@ namespace ut_tests
 
   TEST(math, t_sign)
   {
+    using utils::sign;
+
     constexpr auto zero = 0;
     constexpr auto zeroU = 0u;
     EXPECT_EQ(sign(zero), zero);
@@ -74,6 +81,8 @@ namespace ut_tests
 
   TEST(math, t_eq)
   {
+    using utils::eq;
+
     constexpr auto epsD = std::numeric_limits<double>::epsilon();
     constexpr auto baseD = 0.0;
     constexpr auto lessD = baseD - epsD;
@@ -93,6 +102,8 @@ namespace ut_tests
 
   TEST(math, t_inv)
   {
+    using utils::inv;
+
     constexpr auto zero = -0.0;
     constexpr auto pos = 2.0;
     constexpr auto neg = -2.0;
@@ -105,7 +116,7 @@ namespace ut_tests
 
   TEST(math, t_factorial)
   {
-    using int_t = detail::max_int_t;
+    using int_t = utils::detail::max_int_t;
     constexpr std::array results{
       int_t{ 1 },
       int_t{ 1 },
@@ -130,6 +141,7 @@ namespace ut_tests
       int_t{ 2432902008176640000 }
     };
 
+    using utils::factorial;
     using sz_t = decltype(results)::size_type;
     for (auto idx = sz_t{}; idx < results.size(); ++idx)
     {

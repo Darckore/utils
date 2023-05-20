@@ -1,13 +1,16 @@
 #include "utils/utils.hpp"
-using namespace utils;
 
 namespace ut_tests
 {
+  using namespace std::literals;
+
   TEST(strings, t_to_string_view)
   {
+    using utils::detail::to_string_view;
+
     constexpr std::array arr{ 'l', 'o', 'l', ' ', 'k', 'e', 'k' };
     constexpr auto baseline = "lol kek"sv;
-    auto res = detail::to_string_view(arr);
+    auto res = to_string_view(arr);
 
     EXPECT_EQ(baseline, res);
   }
@@ -15,7 +18,7 @@ namespace ut_tests
   TEST(strings, t_split)
   {
     constexpr auto str = "eeny#$%meeny#$%miny#$%moe"sv;
-    auto splitRng = split(str, "#$%"sv);
+    auto splitRng = utils::split(str, "#$%"sv);
     constexpr std::array baseline{ "eeny"sv, "meeny"sv, "miny"sv, "moe"sv };
     using sz_t = decltype(baseline)::size_type;
 
@@ -30,6 +33,10 @@ namespace ut_tests
 
   TEST(strings, t_trim)
   {
+    using utils::trim;
+    using utils::ltrim;
+    using utils::rtrim;
+
     constexpr auto baseline = "lorem ipsum"sv;
 
     constexpr auto curlys = "{{lorem ipsum}}"sv;
@@ -62,6 +69,10 @@ namespace ut_tests
 
   TEST(strings, t_trim_spaces)
   {
+    using utils::trim;
+    using utils::ltrim;
+    using utils::rtrim;
+
     constexpr auto str = " \r\n\rhi there\tm8\v\f"sv;
 
     EXPECT_TRUE(ltrim(str).starts_with("hi there"));

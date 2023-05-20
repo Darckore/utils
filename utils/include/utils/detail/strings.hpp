@@ -191,3 +191,13 @@ namespace utils
     hash_type m_hash{};
   };
 }
+
+
+template <>
+struct std::hash<utils::hashed_string>
+{
+  constexpr auto operator()(const utils::hashed_string& s) const noexcept
+  {
+    return *s;
+  }
+};

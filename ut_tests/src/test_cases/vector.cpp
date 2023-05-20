@@ -1,80 +1,86 @@
 #include "utils/utils.hpp"
 #include "tests/helpers.hpp"
-using namespace utils;
 
 namespace ut_tests
 {
   TEST(vect, t_deduction)
   {
+    using utils::vector;
+
     constexpr vector v2i{ 1, 2 };
-    EXPECT_TRUE((utils::testing::test_type<int, 2>(v2i)));
+    EXPECT_TRUE((test_type<int, 2>(v2i)));
 
     constexpr vector v3f{ 1.0f, 2.0f, 3.0f };
-    EXPECT_TRUE((utils::testing::test_type<float, 3>(v3f)));
+    EXPECT_TRUE((test_type<float, 3>(v3f)));
 
     constexpr vector v4d{ 1.0, 2.0, 3.0, 4.0 };
-    EXPECT_TRUE((utils::testing::test_type<double, 4>(v4d)));
+    EXPECT_TRUE((test_type<double, 4>(v4d)));
 
     constexpr vector v2if{ 1, 2.0f };
-    EXPECT_TRUE((utils::testing::test_type<int, 2>(v2if)));
+    EXPECT_TRUE((test_type<int, 2>(v2if)));
 
     constexpr vector v3fdi{ 1.0f, 2.0, 3 };
-    EXPECT_TRUE((utils::testing::test_type<float, 3>(v3fdi)));
+    EXPECT_TRUE((test_type<float, 3>(v3fdi)));
 
     constexpr vector v4difll{ 1.0, 2, 3.0f, 4ll };
-    EXPECT_TRUE((utils::testing::test_type<double, 4>(v4difll)));
+    EXPECT_TRUE((test_type<double, 4>(v4difll)));
   }
 
   TEST(vect, t_aliases)
   {
-    constexpr vecf2 v2f;
-    EXPECT_TRUE((utils::testing::test_type<float, 2>(v2f)));
+    constexpr utils::vecf2 v2f;
+    EXPECT_TRUE((test_type<float, 2>(v2f)));
 
-    constexpr vecf3 v3f;
-    EXPECT_TRUE((utils::testing::test_type<float, 3>(v3f)));
+    constexpr utils::vecf3 v3f;
+    EXPECT_TRUE((test_type<float, 3>(v3f)));
 
-    constexpr vecd2 v2d;
-    EXPECT_TRUE((utils::testing::test_type<double, 2>(v2d)));
+    constexpr utils::vecd2 v2d;
+    EXPECT_TRUE((test_type<double, 2>(v2d)));
 
-    constexpr vecd3 v3d;
-    EXPECT_TRUE((utils::testing::test_type<double, 3>(v3d)));
+    constexpr utils::vecd3 v3d;
+    EXPECT_TRUE((test_type<double, 3>(v3d)));
 
-    constexpr point2d v2i;
-    EXPECT_TRUE((utils::testing::test_type<int, 2>(v2i)));
+    constexpr utils::point2d v2i;
+    EXPECT_TRUE((test_type<int, 2>(v2i)));
 
-    constexpr point3d v3i;
-    EXPECT_TRUE((utils::testing::test_type<int, 3>(v3i)));
+    constexpr utils::point3d v3i;
+    EXPECT_TRUE((test_type<int, 3>(v3i)));
   }
 
   TEST(vect, t_conv)
   {
-    constexpr vecf2 v{ 1, 2 };
+    constexpr utils::vecf2 v{ 1, 2 };
 
     constexpr auto v2f = v;
-    EXPECT_TRUE((utils::testing::test_type<float, 2>(v2f)));
+    EXPECT_TRUE((test_type<float, 2>(v2f)));
     EXPECT_FLOAT_EQ(v2f[0], 1.0f);
     EXPECT_FLOAT_EQ(v2f[1], 2.0f);
 
-    constexpr auto v3i = static_cast<point3d>(v);
-    EXPECT_TRUE((utils::testing::test_type<int, 3>(v3i)));
+    constexpr auto v3i = static_cast<utils::point3d>(v);
+    EXPECT_TRUE((test_type<int, 3>(v3i)));
     EXPECT_EQ(v3i[0], 1);
     EXPECT_EQ(v3i[1], 2);
     EXPECT_EQ(v3i[2], 0);
 
     constexpr auto v4d = v3i.to<double, 4>();
-    EXPECT_TRUE((utils::testing::test_type<double, 4>(v4d)));
+    EXPECT_TRUE((test_type<double, 4>(v4d)));
     EXPECT_DOUBLE_EQ(v4d[0], 1.0);
     EXPECT_DOUBLE_EQ(v4d[1], 2.0);
     EXPECT_DOUBLE_EQ(v4d[2], 0.0);
     EXPECT_DOUBLE_EQ(v4d[3], 0.0);
 
-    constexpr point2d v2i = v4d;
+    constexpr utils::point2d v2i = v4d;
     EXPECT_EQ(v2i[0], 1);
     EXPECT_EQ(v2i[1], 2);
   }
 
   TEST(vect, t_compare)
   {
+    using utils::vector;
+    using utils::point2d;
+    using utils::point3d;
+    using utils::eq;
+
     constexpr auto v3f = vector{ 69.0f, 42.0f, 228.0f };
 
     constexpr point3d v3i{ 69, 42, 228 };
@@ -93,7 +99,7 @@ namespace ut_tests
 
   TEST(vect, t_axes)
   {
-    using vt = vector<float, 4>;
+    using vt = utils::vector<float, 4>;
 
     constexpr auto n0 = vt::axis_norm<0>();
     EXPECT_TRUE((n0 == vt{ 1 }));
@@ -119,7 +125,7 @@ namespace ut_tests
     constexpr auto z = 4.3773f;
     constexpr auto exLSQ = x * x + y * y + z * z;
 
-    constexpr vecf3 v3f{ x, y, z };
+    constexpr utils::vecf3 v3f{ x, y, z };
 
     constexpr auto lenSq = v3f.len_sq();
     EXPECT_FLOAT_EQ(lenSq, exLSQ);
@@ -136,7 +142,7 @@ namespace ut_tests
     constexpr auto mul = 10.0;
     constexpr auto div = 20.0;
 
-    vector v{ 1.0, 2.0, 0.5 };
+    utils::vector v{ 1.0, 2.0, 0.5 };
     const auto vc = v;
     auto&& [x, y, z] = v;
 
@@ -172,6 +178,8 @@ namespace ut_tests
 
   TEST(vect, t_arithmetic)
   {
+    using utils::vector;
+
     vector v1{ 1.0,   2.0 };
     vector v2{ 3.0f, -4.0f };
 
@@ -189,7 +197,7 @@ namespace ut_tests
     const auto dot = x1 * x2 + y1 * y2;
     EXPECT_DOUBLE_EQ(dot, (v1 * v2));
 
-    vecd2 v3 = v2;
+    utils::vecd2 v3 = v2;
 
     v3 += v1;
     EXPECT_TRUE(v3 == vsum);
@@ -200,6 +208,9 @@ namespace ut_tests
 
   TEST(vect, t_cross)
   {
+    using utils::vector;
+    using utils::vecd3;
+
     constexpr vector v21{ 10, 2 };
     constexpr vector v22{ 3, 42 };
 
@@ -220,6 +231,9 @@ namespace ut_tests
 
   TEST(vect, t_rotate2d)
   {
+    using utils::deg_to_rad;
+    using utils::vecd2;
+
     constexpr auto ninetyDeg = deg_to_rad(90.0);
     constexpr auto vx = vecd2::axis_norm<0>();
     constexpr auto vy = vecd2::axis_norm<1>();
@@ -236,6 +250,9 @@ namespace ut_tests
 
   TEST(vect, t_rotate3d)
   {
+    using utils::deg_to_rad;
+    using utils::vecd3;
+
     constexpr auto ninetyDeg = deg_to_rad(90.0);
     constexpr auto vx = vecd3::axis_norm<0>();
     constexpr auto vy = vecd3::axis_norm<1>();

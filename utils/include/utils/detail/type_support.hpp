@@ -4,6 +4,12 @@ namespace utils
 {
   namespace detail
   {
+    template <typename From, typename To>
+    concept static_convertible = requires(From& from, To& to)
+    {
+      static_cast<To&>(from);
+    };
+
     template <typename T> struct type_to_id;
     template <auto TypeId> struct id_to_type;
   }
@@ -18,7 +24,7 @@ namespace utils
 
   template <typename To>
   decltype(auto) cast(const auto& src) noexcept
-    requires (std::is_base_of_v<std::remove_cvref_t<decltype(src)>, To>)
+    requires (detail::static_convertible<std::remove_cvref_t<decltype(src)>, To>)
   {
     return static_cast<const To&>(src);
   }

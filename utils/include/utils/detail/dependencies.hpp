@@ -33,15 +33,12 @@
 #include <filesystem>
 #include <memory>
 
-namespace utils
-{
-  // just because it is often needed everywhere
-  using namespace std::literals;
 
-  namespace ranges = std::ranges;
-  namespace views  = std::views;
-  namespace chrono = std::chrono;
-}
+using namespace std::literals;
+
+namespace ranges = std::ranges;
+namespace views  = std::views;
+namespace chrono = std::chrono;
 
 // Class boilerplate reduction
 

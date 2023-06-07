@@ -63,9 +63,6 @@ if(OPT_TESTS AND TARGET gtest)
   set(INSTALL_GTEST OFF CACHE BOOL "" FORCE)
 endif()
 
-set(TARGET_NAME docs)
-add_subdirectory("${TARGET_NAME}")
-
 if(UTILS_BUILT_FROM_ROOT)
   set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}/_bin" CACHE PATH "Install dir" FORCE)
 endif()

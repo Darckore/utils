@@ -4,9 +4,6 @@ namespace utils
 {
   namespace detail
   {
-    //
-    // Basic numerics and the like
-    //
     using max_real_t = long double;
     using max_int_t = std::uintmax_t;
 

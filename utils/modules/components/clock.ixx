@@ -1,12 +1,21 @@
-#pragma once
+module;
 
-namespace utils
+#include <chrono>
+#include <atomic>
+#include <future>
+#include "utils/macros.hpp"
+
+export module utils:clock;
+import :definitions;
+
+namespace chrono = std::chrono;
+
+export namespace utils
 {
   //
   // A simple clock
   //
-  template <detail::real T,
-            typename Clock = chrono::steady_clock>
+  template <real T, typename Clock = chrono::steady_clock>
   class clock
   {
   public:
@@ -131,10 +140,10 @@ namespace utils
         {
           tick();
         });
-      
+
       m_execution = std::move(new_exec);
     }
-    void stop() 
+    void stop()
     {
       m_active = false;
     }

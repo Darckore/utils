@@ -108,4 +108,16 @@ export namespace utils
       static_cast<unsigned char>(std::declval<typename std::iterator_traits<I>::value_type>());
   };
 
+
+  //
+  // Basic numerics and the like
+  //
+
+  using max_real_t = long double;
+  using max_int_t = std::uintmax_t;
+
+  template <typename T>
+  concept integer = std::is_integral_v<T> && !std::is_same_v<T, bool>;
+  template <typename T>
+  concept real = std::is_floating_point_v<T>;
 }

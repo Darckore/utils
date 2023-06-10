@@ -1,6 +1,11 @@
-#pragma once
+module;
 
-namespace utils
+#include "utils/macros.hpp"
+#include <cstdint>
+
+export module utils:colour;
+
+export namespace utils
 {
   //
   // RGBA colour
@@ -9,7 +14,7 @@ namespace utils
   {
   public:
     using value_type = std::uint32_t;
-    using byte_type  = std::uint8_t;
+    using byte_type = std::uint8_t;
 
     enum class component : byte_type
     {
@@ -31,7 +36,7 @@ namespace utils
     constexpr explicit colour(value_type c) noexcept :
       m_val{ c }
     { }
-    
+
     constexpr colour& operator=(value_type c) noexcept
     {
       m_val = c;
@@ -95,7 +100,7 @@ namespace utils
     constexpr auto get() const noexcept
     {
       constexpr auto shift = static_cast<byte_type>(CMP);
-      constexpr auto mask = value_type{ 0xFF }  << shift;
+      constexpr auto mask = value_type{ 0xFF } << shift;
       return static_cast<byte_type>((m_val & mask) >> shift);
     }
     constexpr auto red() const noexcept
@@ -118,8 +123,8 @@ namespace utils
     template <component CMP>
     constexpr colour& set(byte_type c) noexcept
     {
-      constexpr auto shift   = static_cast<uint8_t>(CMP);
-      constexpr auto ones    = value_type{ 0xFFFFFFFF };
+      constexpr auto shift = static_cast<uint8_t>(CMP);
+      constexpr auto ones = value_type{ 0xFFFFFFFF };
       constexpr auto cmpFlag = value_type{ 0x000000FF };
       constexpr auto mask = ~(ones & (cmpFlag << shift));
       m_val &= mask;
@@ -160,19 +165,19 @@ namespace utils
 
   namespace colours
   {
-    inline constexpr auto white     = colour{ 255, 255, 255 };
-    inline constexpr auto black     = colour{   0,   0,   0 };
-    inline constexpr auto gray      = colour{ 128, 128, 128 };
-    inline constexpr auto silver    = colour{ 192, 192, 192 };
-    inline constexpr auto red       = colour{ 255,   0,   0 };
-    inline constexpr auto orange    = colour{ 255, 165,   0 };
-    inline constexpr auto lime      = colour{   0, 255,   0 };
-    inline constexpr auto green     = colour{   0, 128,   0 };
-    inline constexpr auto olive     = colour{ 128, 128,   0 };
-    inline constexpr auto blue      = colour{   0,   0, 255 };
-    inline constexpr auto darkBlue  = colour{   0,   0, 160 };
-    inline constexpr auto yellow    = colour{ 255, 255,   0 };
-    inline constexpr auto purple    = colour{ 128,   0, 128 };
+    inline constexpr auto white    = colour{ 255, 255, 255 };
+    inline constexpr auto black    = colour{ 0,   0,   0 };
+    inline constexpr auto gray     = colour{ 128, 128, 128 };
+    inline constexpr auto silver   = colour{ 192, 192, 192 };
+    inline constexpr auto red      = colour{ 255,   0,   0 };
+    inline constexpr auto orange   = colour{ 255, 165,   0 };
+    inline constexpr auto lime     = colour{ 0, 255,   0 };
+    inline constexpr auto green    = colour{ 0, 128,   0 };
+    inline constexpr auto olive    = colour{ 128, 128,   0 };
+    inline constexpr auto blue     = colour{ 0,   0, 255 };
+    inline constexpr auto darkBlue = colour{ 0,   0, 160 };
+    inline constexpr auto yellow   = colour{ 255, 255,   0 };
+    inline constexpr auto purple   = colour{ 128,   0, 128 };
 
     inline constexpr auto magenta   = colour{ 255,   0, 255 };
     inline constexpr auto chromakey = magenta;

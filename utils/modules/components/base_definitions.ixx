@@ -9,6 +9,15 @@ export module utils:definitions;
 export namespace utils
 {
   //
+  // Base visitor for variant-like things
+  //
+  template<typename... Bases>
+  struct visitor : Bases...
+  {
+    using Bases::operator()...;
+  };
+
+  //
   // Checks that the parameter pack is not empty
   //
   template <typename ...Pack>

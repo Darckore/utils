@@ -24,9 +24,11 @@ export namespace utils
     using time_point_t = typename clock_t::time_point;
     using duration_t = chrono::duration<value_type>;
 
-    clock() = default;
-    ~clock() = default;
     CLASS_SPECIALS_NONE_CUSTOM(clock);
+
+    clock() noexcept = default;
+
+    ~clock() noexcept = default;
 
     auto operator()() noexcept
     {

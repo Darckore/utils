@@ -30,9 +30,3 @@ namespace utils
   }
 }
 
-#ifndef NDEBUG
-  #define UTILS_ASSERT(cond) BREAK_ON(!utils::assertion(static_cast<bool>(cond), #cond, &std::cerr))
-#else
-  #define UTILS_ASSERT(cond)
-#endif
-

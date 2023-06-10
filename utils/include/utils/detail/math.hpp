@@ -101,7 +101,7 @@ namespace utils
   // This is mostly for floats
   // To avoid dealing with the epsilon bs on comparing them
   //
-  template <detail::comparable T> requires std::is_arithmetic_v<T>
+  template <comparable T> requires std::is_arithmetic_v<T>
   constexpr bool eq(T left, T right) noexcept
   {
     constexpr auto max_diff = std::numeric_limits<T>::epsilon();

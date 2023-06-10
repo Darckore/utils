@@ -2,29 +2,26 @@
 
 namespace utils
 {
-  namespace detail
+  template <typename From, typename To>
+  concept static_convertible = requires(From& from, To& to)
   {
-    template <typename From, typename To>
-    concept static_convertible = requires(From& from, To& to)
-    {
-      static_cast<To&>(from);
-    };
+    static_cast<To&>(from);
+  };
 
-    template <typename T> struct type_to_id;
-    template <auto TypeId> struct id_to_type;
-  }
+  template <typename T> struct type_to_id;
+  template <auto TypeId> struct id_to_type;
 
   template <typename T>
-  inline constexpr auto type_to_id_v = detail::type_to_id<T>::value;
+  inline constexpr auto type_to_id_v = type_to_id<T>::value;
 
   template <auto TypeId>
-  using id_to_type_t = typename detail::id_to_type<TypeId>::type;
+  using id_to_type_t = typename id_to_type<TypeId>::type;
 
   template <typename T> auto get_id(const T&) noexcept;
 
   template <typename To>
   decltype(auto) cast(const auto& src) noexcept
-    requires (detail::static_convertible<std::remove_cvref_t<decltype(src)>, To>)
+    requires (static_convertible<std::remove_cvref_t<decltype(src)>, To>)
   {
     return static_cast<const To&>(src);
   }
@@ -78,7 +75,3 @@ namespace utils
     return try_cast<id_to_type_t<Id>>(src);
   }
 }
-
-#define TYPE_TO_ID_ASSOCIATION(TYPE, ID) \
-template <> struct utils::detail::type_to_id<TYPE> { static constexpr auto value = ID; };\
-template <> struct utils::detail::id_to_type<ID> { using type = TYPE; }

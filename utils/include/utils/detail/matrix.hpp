@@ -81,7 +81,7 @@ namespace utils
   public:
     CLASS_SPECIALS_ALL(matrix);
 
-    template <detail::math_vec... R> requires detail::homogenous_pack<row_type, R...>
+    template <detail::math_vec... R> requires homogenous_pack<row_type, R...>
     constexpr matrix(row_type first, R... rows) noexcept :
       m_data{ first, rows... }
     { }

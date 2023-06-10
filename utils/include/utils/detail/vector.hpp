@@ -53,7 +53,7 @@ namespace utils
   public:
     CLASS_SPECIALS_ALL(vector);
 
-    template <detail::coordinate... V> requires detail::homogenous_pack<value_type, V...>
+    template <detail::coordinate... V> requires homogenous_pack<value_type, V...>
     constexpr vector(value_type first, V... values) noexcept :
       m_coords{ first, values... }
     { }

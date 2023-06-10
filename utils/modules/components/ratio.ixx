@@ -1,7 +1,14 @@
-#pragma once
-import utils;
+module;
 
-namespace utils
+#include <compare>
+#include <numeric>
+#include "utils/macros.hpp"
+
+export module utils:ratio;
+import :definitions;
+import :math;
+
+export namespace utils
 {
   //
   // A ratio (ordinary fraction)
@@ -93,9 +100,9 @@ namespace utils
       const auto r = other.get_simplified().template to<common_t>();
       return ratio<common_t>
       {
-        l.num() * r.num(),
-        l.denom() * r.denom(),
-        static_cast<sign_t>(l.sign() * r.sign())
+        l.num()* r.num(),
+          l.denom()* r.denom(),
+          static_cast<sign_t>(l.sign()* r.sign())
       }.get_simplified();
     }
     template <integer I>
@@ -251,9 +258,9 @@ namespace utils
     const auto l = lhs.get_simplified().template to<common_t>();
     const auto r = rhs.get_simplified().template to<common_t>();
 
-    return l.sign()  == r.sign()
-        && l.num()   == r.num()
-        && l.denom() == r.denom();
+    return l.sign() == r.sign()
+      && l.num() == r.num()
+      && l.denom() == r.denom();
   }
   template <integer L, integer R>
   constexpr bool operator==(const ratio<L>& lhs, const R& rhs) noexcept

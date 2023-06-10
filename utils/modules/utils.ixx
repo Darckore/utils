@@ -10,6 +10,7 @@ export import :colour;
 export import :clock;
 export import :random;
 export import :strings;
+export import :math;
 
 export
 {

@@ -1,4 +1,5 @@
 #pragma once
+import utils;
 
 namespace utils
 {
@@ -6,7 +7,7 @@ namespace utils
   // A ratio (ordinary fraction)
   // Supports all basic math operations
   //
-  template <detail::integer T>
+  template <integer T>
   class ratio
   {
   public:
@@ -47,13 +48,13 @@ namespace utils
       return *this;
     }
 
-    template <detail::integer I>
+    template <integer I>
     constexpr auto to() const noexcept
     {
       return ratio<I>{ static_cast<I>(num()), static_cast<I>(denom()), sign() };
     }
 
-    template <detail::real R>
+    template <real R>
     constexpr auto to() const noexcept
     {
       return sign() * (is_infinity()
@@ -61,7 +62,7 @@ namespace utils
         : static_cast<R>(num()) / denom());
     }
 
-    template <detail::integer I>
+    template <integer I>
     constexpr auto add(const ratio<I>& other) const noexcept
     {
       using common_t = std::common_type_t<value_type, I>;
@@ -79,12 +80,12 @@ namespace utils
           static_cast<sign_t>(utils::sign(res_num))
       }.simplify();
     }
-    template <detail::integer I>
+    template <integer I>
     constexpr auto sub(const ratio<I>& other) const noexcept
     {
       return add(-other);
     }
-    template <detail::integer I>
+    template <integer I>
     constexpr auto mul(const ratio<I>& other) const noexcept
     {
       using common_t = std::common_type_t<value_type, I>;
@@ -97,58 +98,58 @@ namespace utils
         static_cast<sign_t>(l.sign() * r.sign())
       }.get_simplified();
     }
-    template <detail::integer I>
+    template <integer I>
     constexpr auto div(const ratio<I>& other) const noexcept
     {
       return mul(other.get_flipped());
     }
 
-    template <detail::integer I>
+    template <integer I>
     constexpr ratio& operator+=(const ratio<I>& other) noexcept
     {
       *this = (*this + other).template to<value_type>();
       return *this;
     }
-    template <detail::integer I>
+    template <integer I>
     constexpr ratio& operator+=(const I& other) noexcept
     {
       *this = (*this + other).template to<value_type>();
       return *this;
     }
 
-    template <detail::integer I>
+    template <integer I>
     constexpr ratio& operator-=(const ratio<I>& other) noexcept
     {
       *this = (*this - other).template to<value_type>();
       return *this;
     }
-    template <detail::integer I>
+    template <integer I>
     constexpr ratio& operator-=(const I& other) noexcept
     {
       *this = (*this - other).template to<value_type>();
       return *this;
     }
 
-    template <detail::integer I>
+    template <integer I>
     constexpr ratio& operator*=(const ratio<I>& other) noexcept
     {
       *this = (*this * other).template to<value_type>();
       return *this;
     }
-    template <detail::integer I>
+    template <integer I>
     constexpr ratio& operator*=(const I& other) noexcept
     {
       *this = (*this * other).template to<value_type>();
       return *this;
     }
 
-    template <detail::integer I>
+    template <integer I>
     constexpr ratio& operator/=(const ratio<I>& other) noexcept
     {
       *this = (*this / other).template to<value_type>();
       return *this;
     }
-    template <detail::integer I>
+    template <integer I>
     constexpr ratio& operator/=(const I& other) noexcept
     {
       *this = (*this / other).template to<value_type>();
@@ -222,25 +223,25 @@ namespace utils
     sign_t m_sign{};
   };
 
-  template <detail::integer I>
+  template <integer I>
   constexpr auto sign(ratio<I> r) noexcept
   {
     return r.sign();
   }
 
-  template <detail::integer I>
+  template <integer I>
   constexpr auto abs(ratio<I> r) noexcept
   {
     return ratio<I>{ r.num(), r.denom() };
   }
 
-  template <detail::integer I>
+  template <integer I>
   constexpr auto inv(ratio<I> r) noexcept
   {
     return r.get_flipped();
   }
 
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr bool operator==(const ratio<L>& lhs, const ratio<R>& rhs) noexcept
   {
     if (lhs.sign() != rhs.sign())
@@ -254,18 +255,18 @@ namespace utils
         && l.num()   == r.num()
         && l.denom() == r.denom();
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr bool operator==(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs == ratio<R>{ rhs };
   }
-  template <detail::integer L, detail::real R>
+  template <integer L, real R>
   constexpr bool operator==(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return eq(lhs.template to<R>(), rhs);
   }
 
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr std::strong_ordering operator<=>(const ratio<L>& lhs, const ratio<R>& rhs) noexcept
   {
     if (const auto cmp = lhs.sign() <=> rhs.sign(); cmp != 0)
@@ -276,7 +277,7 @@ namespace utils
     const auto r = rhs.get_simplified().template to<common_t>();
     return (l.num() * r.denom()) <=> (r.num() * l.denom());
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr std::strong_ordering operator<=>(const ratio<L>& lhs, const R& rhs) noexcept
   {
     if (const auto lsign = lhs.sign(); rhs == 0)
@@ -284,111 +285,111 @@ namespace utils
 
     return lhs <=> ratio<R>{ rhs };
   }
-  template <detail::integer L, detail::real R>
+  template <integer L, real R>
   constexpr auto operator<=>(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.template to<R>() <=> rhs;
   }
 
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator+(const ratio<L>& lhs, const ratio<R>& rhs) noexcept
   {
     return lhs.add(rhs);
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator+(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.add(ratio<R>{ rhs });
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator+(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return ratio<L>{ lhs }.add(rhs);
   }
-  template <detail::integer L, detail::real R>
+  template <integer L, real R>
   constexpr auto operator+(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.template to<R>() + rhs;
   }
-  template <detail::real L, detail::integer R>
+  template <real L, integer R>
   constexpr auto operator+(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return lhs + rhs.template to<L>();
   }
 
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator-(const ratio<L>& lhs, const ratio<R>& rhs) noexcept
   {
     return lhs.sub(rhs);
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator-(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.sub(ratio<R>{ rhs });
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator-(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return ratio<L>{ lhs }.sub(rhs);
   }
-  template <detail::integer L, detail::real R>
+  template <integer L, real R>
   constexpr auto operator-(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.template to<R>() - rhs;
   }
-  template <detail::real L, detail::integer R>
+  template <real L, integer R>
   constexpr auto operator-(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return lhs - rhs.template to<L>();
   }
 
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator*(const ratio<L>& lhs, const ratio<R>& rhs) noexcept
   {
     return lhs.mul(rhs);
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator*(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.mul(ratio<R>{ rhs });
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator*(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return ratio<L>{ lhs }.mul(rhs);
   }
-  template <detail::integer L, detail::real R>
+  template <integer L, real R>
   constexpr auto operator*(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.template to<R>() * rhs;
   }
-  template <detail::real L, detail::integer R>
+  template <real L, integer R>
   constexpr auto operator*(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return lhs * rhs.template to<L>();
   }
 
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator/(const ratio<L>& lhs, const ratio<R>& rhs) noexcept
   {
     return lhs.div(rhs);
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator/(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.div(ratio<R>{ rhs });
   }
-  template <detail::integer L, detail::integer R>
+  template <integer L, integer R>
   constexpr auto operator/(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return ratio<L>{ lhs }.div(rhs);
   }
-  template <detail::integer L, detail::real R>
+  template <integer L, real R>
   constexpr auto operator/(const ratio<L>& lhs, const R& rhs) noexcept
   {
     return lhs.template to<R>() / rhs;
   }
-  template <detail::real L, detail::integer R>
+  template <real L, integer R>
   constexpr auto operator/(const L& lhs, const ratio<R>& rhs) noexcept
   {
     return lhs / rhs.template to<L>();

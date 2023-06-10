@@ -4,9 +4,11 @@ module;
 #include <concepts>
 #include <iterator>
 #include <random>
+#include <array>
+#include <utility>
+#include <numbers>
 
 export module utils:definitions;
-
 
 export namespace utils
 {
@@ -155,4 +157,19 @@ export namespace utils
   //
   template <typename T>
   using random_distribution_t = detail::rnd_distr<T>::type;
+}
+
+export namespace utils
+{
+  template <real R>
+  inline constexpr auto pi = std::numbers::template pi_v<R>;
+
+  template <real R>
+  inline constexpr auto piHalf = pi<R> / 2;
+
+  template <real R>
+  inline constexpr auto piQuarter = pi<R> / 4;
+
+  template <real R>
+  inline constexpr auto piDouble = pi<R> *2;
 }

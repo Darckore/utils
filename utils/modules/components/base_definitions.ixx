@@ -3,8 +3,10 @@ module;
 #include <type_traits>
 #include <concepts>
 #include <iterator>
+#include <random>
 
 export module utils:definitions;
+
 
 export namespace utils
 {
@@ -120,4 +122,37 @@ export namespace utils
   concept integer = std::is_integral_v<T> && !std::is_same_v<T, bool>;
   template <typename T>
   concept real = std::is_floating_point_v<T>;
+}
+
+namespace utils::detail
+{
+  template <typename T>
+  struct rnd_distr;
+
+  template <integer T>
+  struct rnd_distr<T>
+  {
+    using type = std::uniform_int_distribution<T>;
+  };
+
+  template <real T>
+  struct rnd_distr<T>
+  {
+    using type = std::uniform_real_distribution<T>;
+  };
+
+  template <>
+  struct rnd_distr<bool>
+  {
+    using type = std::bernoulli_distribution;
+  };
+}
+
+export namespace utils
+{
+  //
+  // Random distribution type
+  //
+  template <typename T>
+  using random_distribution_t = detail::rnd_distr<T>::type;
 }

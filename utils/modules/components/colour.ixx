@@ -1,7 +1,7 @@
 module;
 
-#include "utils/macros.hpp"
 #include <cstdint>
+#include "utils/macros.hpp"
 
 export module utils:colour;
 

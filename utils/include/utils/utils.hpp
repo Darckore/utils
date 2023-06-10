@@ -15,7 +15,5 @@ namespace utils::detail
 
 }
 
-#include "detail/assert.hpp"
-#include "detail/type_support.hpp"
 #include "detail/vector.hpp"
 #include "detail/matrix.hpp"

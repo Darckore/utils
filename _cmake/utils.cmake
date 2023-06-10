@@ -1,11 +1,19 @@
 # Collect suitable source and header files inside the specified dir
-function(collect_sources SOURCE_FILES HEADERS ADDITIONAL_FILES)
+function(collect_sources SOURCE_FILES MODULE_INTERFACES HEADERS ADDITIONAL_FILES)
   file( GLOB_RECURSE SRC
         LIST_DIRECTORIES false
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c*"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/*/*.c*")
 
   set(SOURCE_FILES "${SRC}" PARENT_SCOPE)
+  set(SRC)
+
+  file( GLOB_RECURSE SRC
+      LIST_DIRECTORIES false      
+      "${CMAKE_CURRENT_SOURCE_DIR}/modules/*.ixx"
+      "${CMAKE_CURRENT_SOURCE_DIR}/modules/*/*.ixx" )
+
+  set(MODULE_INTERFACES "${SRC}" PARENT_SCOPE)
   set(SRC)
 
   file( GLOB_RECURSE SRC
@@ -25,24 +33,17 @@ function(collect_sources SOURCE_FILES HEADERS ADDITIONAL_FILES)
 endfunction()
 
 # Group items according to their locations and purpose (for IDEs)
-function(make_src_groups SOURCE_FILES HEADERS ADDITIONAL_FILES)
+function(make_src_groups SOURCE_FILES MODULE_INTERFACES HEADERS ADDITIONAL_FILES)
   set(PCH_FILTER pch)
   source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SOURCE_FILES})
+  source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${MODULE_INTERFACES})
   source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${HEADERS})
   source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${ADDITIONAL_FILES})
-  source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX ${PCH_FILTER} FILES ${OPT_PCH_NAME})
-  
-  file( GLOB_RECURSE GENERATED_PCH_FILES 
-        LIST_DIRECTORIES false
-        "${CMAKE_CURRENT_BINARY_DIR}/*pch.c*"
-        "${CMAKE_CURRENT_BINARY_DIR}/*pch.h*")
-  source_group(TREE ${CMAKE_CURRENT_BINARY_DIR} PREFIX ${PCH_FILTER} FILES ${GENERATED_PCH_FILES})
 endfunction()
 
 # Build options
 function(set_build_opts TARGET_NAME EXCLUDED_FILES)
   target_compile_features(${TARGET_NAME} PRIVATE ${OPT_STD})
-  target_precompile_headers(${TARGET_NAME} PRIVATE ${OPT_PCH_NAME})
   target_include_directories(${TARGET_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
   if(MSVC)

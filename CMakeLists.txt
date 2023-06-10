@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
 
-set(OPT_PCH_NAME "pch.h")
 set(OPT_STD "cxx_std_23")
 set(OPT_UTILS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/_cmake")
 set(OPT_DATA_DIR "data")

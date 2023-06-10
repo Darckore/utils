@@ -1,19 +1,27 @@
-#pragma once
+module;
 
-namespace utils
+#include <ranges>
+#include <string_view>
+#include "utils/macros.hpp"
+
+export module utils:strings;
+import :definitions;
+import :common;
+
+namespace ranges = std::ranges;
+namespace views  = std::views;
+
+export namespace utils
 {
-  namespace detail
+  //
+  // Converts a range into a string_view
+  //
+  template <ranges::range R>
+  constexpr auto to_string_view(R&& range) noexcept
+    requires std::is_convertible_v<decltype(*range.begin()), std::string_view::value_type>
   {
-    //
-    // Converts a range into a string_view
-    //
-    template <ranges::range R>
-    constexpr auto to_string_view(R&& range) noexcept
-      requires std::is_convertible_v<decltype(*range.begin()), std::string_view::value_type>
-    {
-      using size_type = std::string_view::size_type;
-      return std::string_view{ &*range.begin(), static_cast<size_type>(ranges::distance(range)) };
-    }
+    using size_type = std::string_view::size_type;
+    return std::string_view{ &*range.begin(), static_cast<size_type>(ranges::distance(range)) };
   }
 
   //
@@ -23,7 +31,7 @@ namespace utils
   {
     return str | views::split(pattern) | views::transform([](auto&& part)
       {
-        return detail::to_string_view(part);
+        return to_string_view(part);
       });
   }
 
@@ -69,12 +77,12 @@ namespace utils
   //
   template <typename C1, typename ...CN>
     requires (all_convertible<std::string_view::value_type, C1, CN...>)
-  constexpr auto ltrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
+  constexpr auto ltrim(std::string_view str, C1 c1, CN ...cn) noexcept
   {
     auto offset = 0ull;
     for (auto c : str)
     {
-      if (eq_none(c, std::forward<C1>(c1), std::forward<CN>(cn)...))
+      if (eq_none(c, c1, cn...))
         break;
 
       ++offset;
@@ -90,12 +98,12 @@ namespace utils
   //
   template <typename C1, typename ...CN>
     requires (all_convertible<std::string_view::value_type, C1, CN...>)
-  constexpr auto rtrim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
+  constexpr auto rtrim(std::string_view str, C1 c1, CN ...cn) noexcept
   {
     auto offset = 0ull;
     for (auto c : str | views::reverse)
     {
-      if (eq_none(c, std::forward<C1>(c1), std::forward<CN>(cn)...))
+      if (eq_none(c, c1, cn...))
         break;
 
       ++offset;
@@ -111,10 +119,10 @@ namespace utils
   //
   template <typename C1, typename ...CN>
     requires (all_convertible<std::string_view::value_type, C1, CN...>)
-  constexpr auto trim(std::string_view str, C1&& c1, CN&& ...cn) noexcept
+  constexpr auto trim(std::string_view str, C1 c1, CN ...cn) noexcept
   {
-    str = ltrim(str, std::forward<C1>(c1), std::forward<CN>(cn)...);
-    return rtrim(str, std::forward<C1>(c1), std::forward<CN>(cn)...);
+    str = ltrim(str, c1, cn...);
+    return rtrim(str, c1, cn...);
   }
 
   //
@@ -155,9 +163,9 @@ namespace utils
   class hashed_string
   {
   public:
-    using hash_type   = detail::max_int_t;
+    using hash_type   = max_int_t;
     using string_type = std::string_view;
-    using size_type   = string_type::size_type;
+    using size_type = string_type::size_type;
 
   public:
     CLASS_SPECIALS_ALL_CUSTOM(hashed_string);
@@ -191,13 +199,3 @@ namespace utils
     hash_type m_hash{};
   };
 }
-
-
-template <>
-struct std::hash<utils::hashed_string>
-{
-  constexpr auto operator()(const utils::hashed_string& s) const noexcept
-  {
-    return *s;
-  }
-};

@@ -8,4 +8,3 @@ import utils;
 #include "detail/math.hpp"
 #include "detail/vector.hpp"
 #include "detail/matrix.hpp"
-#include "detail/strings.hpp"

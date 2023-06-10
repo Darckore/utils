@@ -7,7 +7,7 @@ namespace ut_tests
 
   TEST(strings, t_to_string_view)
   {
-    using utils::detail::to_string_view;
+    using utils::to_string_view;
 
     constexpr std::array arr{ 'l', 'o', 'l', ' ', 'k', 'e', 'k' };
     constexpr auto baseline = "lol kek"sv;
@@ -81,4 +81,14 @@ namespace ut_tests
     EXPECT_EQ(trim(str), "hi there\tm8"sv);
   }
 
+  TEST(strings, t_hash)
+  {
+    auto str  = "hai I'm hashed"sv;
+    const auto hash = std::hash<std::string_view>{}(str);
+    
+    utils::hashed_string hs{ str };
+    const auto hshash = std::hash<utils::hashed_string>{}(hs);
+
+    EXPECT_EQ(hash, hshash);
+  }
 }

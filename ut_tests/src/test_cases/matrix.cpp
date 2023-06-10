@@ -1,3 +1,4 @@
+#include "gtest/gtest.h"
 #include "utils/utils.hpp"
 #include "tests/helpers.hpp"
 

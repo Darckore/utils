@@ -100,5 +100,5 @@
 // Type support associations
 //
 #define TYPE_TO_ID_ASSOCIATION(TYPE, ID) \
-template <> struct utils::detail::type_to_id<TYPE> { static constexpr auto value = ID; };\
-template <> struct utils::detail::id_to_type<ID> { using type = TYPE; }
+template <> struct utils::type_to_id<TYPE> { static constexpr auto value = ID; };\
+template <> struct utils::id_to_type<ID> { using type = TYPE; }

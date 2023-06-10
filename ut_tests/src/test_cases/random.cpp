@@ -1,3 +1,4 @@
+#include "gtest/gtest.h"
 #include "utils/utils.hpp"
 
 namespace ut_tests

@@ -96,6 +96,57 @@ namespace utils
     iters m_iters{};
   };
 
+
+  namespace detail
+  {
+    template <iterable ...Ranges>
+    class iterator_pair
+    {
+    private:
+      template <iterable Range>
+      using range_beg = decltype(std::begin(std::declval<Range&>()));
+
+      template <iterable Range>
+      using range_end = decltype(std::end(std::declval<Range&>()));
+
+    public:
+      using iterator = multiple_it<range_beg<Ranges>...>;
+      using sentinel = multiple_it<range_end<Ranges>...>;
+
+    public:
+      CLASS_SPECIALS_NODEFAULT(iterator_pair);
+
+      constexpr iterator_pair(Ranges& ...ranges) noexcept :
+        m_beg{ std::begin(ranges)... },
+        m_end{ std::end(ranges)... }
+      {}
+
+      constexpr bool operator==(const iterator_pair&) const noexcept = default;
+
+    public:
+      auto begin() const noexcept
+      {
+        return m_beg;
+      }
+      auto end() const noexcept
+      {
+        return m_end;
+      }
+
+    private:
+      iterator m_beg{};
+      sentinel m_end{};
+    };
+  }
+
+  //
+  // Makes an iterable range out of multiple collections
+  //
+  template <detail::iterable ...Ranges>
+  constexpr auto make_iterators(Ranges& ...ranges) noexcept
+  {
+    return detail::iterator_pair{ ranges... };
+  }
 }
 
 template <typename ...T>

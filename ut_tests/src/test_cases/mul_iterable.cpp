@@ -55,4 +55,38 @@ namespace ut_tests
       ++itCount;
     ASSERT_EQ(itCount, 3);
   }
+
+  TEST(mul_iter, t_iter_pair)
+  {
+    using utils::detail::iterator_pair;
+    std::array a1{ 1, 2 };
+    const std::array a2{ 1, 2, 3 };
+
+    iterator_pair ip{ a1, a2 };
+    auto itCount = 0;
+    for (auto&& _ : ip)
+    {
+      utils::unused(_);
+      ++itCount;
+    }
+
+    ASSERT_EQ(itCount, 2);
+  }
+
+  TEST(mul_iter, t_make_pair)
+  {
+    using utils::detail::iterator_pair;
+    using utils::make_iterators;
+    std::array a1{ 1, 2 };
+    std::array a2{ 1, 2, 3 };
+
+    auto iters = make_iterators(a1, a2);
+    using iters_t = decltype(iters);
+
+    iterator_pair ip{ a1, a2 };
+    using pair_t = decltype(ip);
+
+    ASSERT_TRUE((std::is_same_v<iters_t, pair_t>));
+    ASSERT_EQ(iters, ip);
+  }
 }

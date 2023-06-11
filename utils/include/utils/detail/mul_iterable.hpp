@@ -45,6 +45,12 @@ namespace utils
       return { (*std::get<Seq>(m_iters))... };
     }
 
+    template <typename Int, Int... Seq>
+    constexpr bool eq_compare(const multiple_it& other, idx_seq<Int, Seq...>) const noexcept
+    {
+      return ((std::get<Seq>(m_iters) == std::get<Seq>(other.m_iters)) || ...);
+    }
+
   public:
     CLASS_SPECIALS_ALL(multiple_it);
 
@@ -52,7 +58,10 @@ namespace utils
       m_iters{ iters... }
     {}
 
-    constexpr bool operator==(const multiple_it&) const noexcept = default;
+    constexpr bool operator==(const multiple_it& other) const noexcept
+    {
+      return eq_compare(other, idx_gen<iter_count>{});
+    }
 
     constexpr multiple_it& operator++() noexcept
     {

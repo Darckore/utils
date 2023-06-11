@@ -80,4 +80,14 @@ namespace ut_tests
     EXPECT_EQ(trim(str), "hi there\tm8"sv);
   }
 
+  TEST(strings, t_hashed_str)
+  {
+    using utils::hashed_string;
+    constexpr auto str = "I am a string to be hashed"sv;
+    const auto hstr = hashed_string{ str };
+
+    const auto shash = std::hash<hashed_string>{}(hstr);
+    ASSERT_EQ(shash, *hstr);
+  }
+
 }

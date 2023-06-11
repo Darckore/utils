@@ -78,7 +78,3 @@ namespace utils
     return try_cast<id_to_type_t<Id>>(src);
   }
 }
-
-#define TYPE_TO_ID_ASSOCIATION(TYPE, ID) \
-template <> struct utils::detail::type_to_id<TYPE> { static constexpr auto value = ID; };\
-template <> struct utils::detail::id_to_type<ID> { using type = TYPE; }

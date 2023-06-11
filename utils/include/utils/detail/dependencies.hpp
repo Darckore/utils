@@ -33,76 +33,12 @@
 #include <filesystem>
 #include <memory>
 
+#include <source_location>
+#include <stacktrace>
+
 
 using namespace std::literals;
 
 namespace ranges = std::ranges;
 namespace views  = std::views;
 namespace chrono = std::chrono;
-
-// Class boilerplate reduction
-
-#define CLASS_DEFAULT = default
-
-#define CLASS_DELETE = delete
-
-#define CLASS_DEFAULT_CTOR(clName)   constexpr clName() noexcept
-
-#define CLASS_COPY_CTOR(clName)      constexpr clName(const clName&) noexcept
-#define CLASS_COPY_OPERATOR(clName)  constexpr clName& operator=(const clName&) noexcept
-
-#define CLASS_MOVE_CTOR(clName)      constexpr clName(clName&&) noexcept
-#define CLASS_MOVE_OPERATOR(clName)  constexpr clName& operator=(clName&&) noexcept
-
-#define CLASS_SPECIALS_ALL(clName)\
-  CLASS_DEFAULT_CTOR(clName)  CLASS_DEFAULT;\
-  CLASS_COPY_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_COPY_OPERATOR(clName) CLASS_DEFAULT;\
-  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
-
-#define CLASS_SPECIALS_ALL_CUSTOM(clName)\
-  CLASS_COPY_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_COPY_OPERATOR(clName) CLASS_DEFAULT;\
-  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
-
-#define CLASS_SPECIALS_NOCOPY(clName)\
-  CLASS_DEFAULT_CTOR(clName)  CLASS_DEFAULT;\
-  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
-  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
-  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
-
-#define CLASS_SPECIALS_NOCOPY_CUSTOM(clName)\
-  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
-  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
-  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
-
-#define CLASS_SPECIALS_NODEFAULT(clName)\
-  CLASS_DEFAULT_CTOR(clName)  CLASS_DELETE;\
-  CLASS_COPY_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_COPY_OPERATOR(clName) CLASS_DEFAULT;\
-  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
-
-#define CLASS_SPECIALS_NODEFAULT_NOCOPY(clName)\
-  CLASS_DEFAULT_CTOR(clName)  CLASS_DELETE;\
-  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
-  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
-  CLASS_MOVE_CTOR(clName)     CLASS_DEFAULT;\
-  CLASS_MOVE_OPERATOR(clName) CLASS_DEFAULT
-
-#define CLASS_SPECIALS_NONE(clName)\
-  CLASS_DEFAULT_CTOR(clName)  CLASS_DELETE;\
-  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
-  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
-  CLASS_MOVE_CTOR(clName)     CLASS_DELETE;\
-  CLASS_MOVE_OPERATOR(clName) CLASS_DELETE
-
-#define CLASS_SPECIALS_NONE_CUSTOM(clName)\
-  CLASS_COPY_CTOR(clName)     CLASS_DELETE;\
-  CLASS_COPY_OPERATOR(clName) CLASS_DELETE;\
-  CLASS_MOVE_CTOR(clName)     CLASS_DELETE;\
-  CLASS_MOVE_OPERATOR(clName) CLASS_DELETE

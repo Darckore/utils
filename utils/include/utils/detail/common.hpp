@@ -101,10 +101,7 @@ namespace utils
     template <typename I>
     concept hashable_it = requires(I it)
     {
-      requires std::is_base_of_v<
-                      std::forward_iterator_tag, 
-                      typename std::iterator_traits<I>::iterator_category
-                    >;
+      requires std::forward_iterator<I>;
       static_cast<unsigned char>(std::declval<typename std::iterator_traits<I>::value_type>());
     };
 

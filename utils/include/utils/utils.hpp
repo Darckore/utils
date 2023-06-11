@@ -21,3 +21,4 @@ namespace utils
 #include "detail/random.hpp"
 #include "detail/clock.hpp"
 #include "detail/colour.hpp"
+#include "detail/mul_iterable.hpp"

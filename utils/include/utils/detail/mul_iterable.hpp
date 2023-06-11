@@ -19,6 +19,8 @@ namespace utils
   {
   public:
     using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
+    using value_type = std::tuple<typename Iters::value_type...>;
     using iters = std::tuple<Iters...>;
     using ptrs  = std::tuple<typename Iters::pointer...>;
     using refs  = std::tuple<typename Iters::reference...>;

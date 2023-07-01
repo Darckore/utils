@@ -2,16 +2,8 @@
 #include "macros.hpp"
 #include "detail/dependencies.hpp"
 
-namespace utils
-{
-  template<typename... Bases>
-  struct visitor : Bases...
-  { 
-    using Bases::operator()...;
-  };
-}
-
 #include "detail/assert.hpp"
+#include "detail/sys_handler.hpp"
 #include "detail/type_support.hpp"
 #include "detail/common.hpp"
 #include "detail/math.hpp"

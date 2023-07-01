@@ -3,6 +3,25 @@
 namespace utils
 {
   //
+  // A visitor for std::variant and the like
+  // 
+  // Usage:
+  // utils::visitor v{
+  //   [](type1 t1) { .... },
+  //   [](type2 t2) { .... }.
+  //   ....
+  // };
+  // 
+  // std::visit(&var, v);
+  //
+  template<typename... Bases>
+  struct visitor : Bases...
+  {
+    using Bases::operator()...;
+  };
+
+
+  //
   // A simple way to shut up the compiler when something is unused.
   // Just a convenience for debugging
   //

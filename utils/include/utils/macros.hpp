@@ -2,6 +2,8 @@
 
 // Class boilerplate reduction
 
+#define FROM_CONST(func, ...) utils::mutate(std::as_const(*this).func(__VA_ARGS__))
+
 #define CLASS_DEFAULT = default
 
 #define CLASS_DELETE = delete

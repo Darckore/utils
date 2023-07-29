@@ -2,30 +2,14 @@
 
 namespace utils
 {
-  namespace detail
-  {
-    //
-    // Defines a math matrix type
-    //
-    template <typename T>
-    concept math_matr = requires (T a)
-    {
-      requires coordinate<typename T::value_type>;
-      requires integer<decltype(a.width)>;
-      requires integer<decltype(a.height)>;
-      requires math_vec<typename T::row_type>;
-      requires math_vec<typename T::col_type>;
-    };
-  }
-
   //
   // Matrix of arbitrary dimensions
   //
-  template <detail::coordinate T, std::size_t W, std::size_t H>
+  template <coordinate T, std::size_t W, std::size_t H>
   class matrix
   {
   private:
-    template <detail::coordinate C, std::size_t N>
+    template <coordinate C, std::size_t N>
     using rc_helper = vector<C, N>;
 
   public:
@@ -68,7 +52,7 @@ namespace utils
     }
 
     // 2D rotation matrix
-    static constexpr auto rotation(detail::coordinate auto angle) noexcept
+    static constexpr auto rotation(coordinate auto angle) noexcept
       requires (width == 2 && height == 2)
     {
       const auto sinA = sin(angle);
@@ -81,17 +65,17 @@ namespace utils
   public:
     CLASS_SPECIALS_ALL(matrix);
 
-    template <detail::math_vec... R> requires detail::homogenous_pack<row_type, R...>
+    template <math_vec... R> requires homogenous_pack<row_type, R...>
     constexpr matrix(row_type first, R... rows) noexcept :
       m_data{ first, rows... }
     { }
 
-    template <detail::math_vec First, detail::math_vec... Rest> requires (sizeof...(Rest) <= height - 1)
+    template <math_vec First, math_vec... Rest> requires (sizeof...(Rest) <= height - 1)
     constexpr matrix(First first, Rest ...values) noexcept :
       m_data{ static_cast<row_type>(first), static_cast<row_type>(values)... }
     { }
 
-    template <detail::coordinate U, size_type NC, size_type NR>
+    template <coordinate U, size_type NC, size_type NR>
     constexpr bool operator==(const matrix<U, NC, NR>& other) const noexcept
     {
       if constexpr (NC != width || NR != height)
@@ -121,7 +105,7 @@ namespace utils
       return get_scaled(value_type{ -1 });
     }
 
-    template <detail::coordinate U, size_type C, size_type R>
+    template <coordinate U, size_type C, size_type R>
     constexpr auto operator+(const matrix<U, C, R>& other) const noexcept
       requires (C == width && R == height)
     {
@@ -137,7 +121,7 @@ namespace utils
       return dest;
     }
 
-    template <detail::coordinate U, size_type C, size_type R>
+    template <coordinate U, size_type C, size_type R>
       requires (std::is_same_v<U, value_type> && C == width && R == height)
     constexpr auto& operator+=(const matrix<U, C, R>& other) noexcept
     {
@@ -145,7 +129,7 @@ namespace utils
       return *this;
     }
 
-    template <detail::coordinate U, size_type C, size_type R>
+    template <coordinate U, size_type C, size_type R>
     constexpr auto operator-(const matrix<U, C, R>& other) const noexcept
       requires (C == width && R == height)
     {
@@ -161,7 +145,7 @@ namespace utils
       return dest;
     }
 
-    template <detail::coordinate U, size_type C, size_type R>
+    template <coordinate U, size_type C, size_type R>
       requires (std::is_same_v<U, value_type> && C == width && R == height)
     constexpr auto& operator-=(const matrix<U, C, R>& other) noexcept
     {
@@ -169,7 +153,7 @@ namespace utils
       return *this;
     }
 
-    template <detail::coordinate U, size_type D>
+    template <coordinate U, size_type D>
     constexpr auto operator*(const vector<U, D>& vec) const noexcept
       requires (D == width)
     {
@@ -183,16 +167,16 @@ namespace utils
       return result;
     }
 
-    constexpr auto& operator*=(detail::coordinate auto scalar) noexcept
+    constexpr auto& operator*=(coordinate auto scalar) noexcept
     {
       return scale(scalar);
     }
-    constexpr auto& operator/=(detail::coordinate auto scalar) noexcept
+    constexpr auto& operator/=(coordinate auto scalar) noexcept
     {
       return scale_inv(scalar);
     }
 
-    template <detail::coordinate U, size_type C, size_type R>
+    template <coordinate U, size_type C, size_type R>
       requires (C == height && R == width)
     constexpr auto operator*(const matrix<U, C, R>& other) const noexcept
     {
@@ -211,7 +195,7 @@ namespace utils
       return dest;
     }
 
-    template <detail::coordinate U, size_type C, size_type R>
+    template <coordinate U, size_type C, size_type R>
     constexpr auto to() const noexcept
     {
       if constexpr (C == width && R == height && std::is_same_v<value_type, U>)
@@ -230,14 +214,14 @@ namespace utils
       }
     }
 
-    template <detail::coordinate U, size_type C, size_type R>
+    template <coordinate U, size_type C, size_type R>
     constexpr operator matrix<U, C, R>() const noexcept
     {
       return to<U, C, R>();
     }
 
   public:
-    constexpr auto get_scaled(detail::coordinate auto scalar) const noexcept
+    constexpr auto get_scaled(coordinate auto scalar) const noexcept
     {
       matrix result;
       std::transform(begin(), end(), result.begin(),
@@ -247,12 +231,12 @@ namespace utils
                      });
       return result;
     }
-    constexpr auto& scale(detail::coordinate auto scalar) noexcept
+    constexpr auto& scale(coordinate auto scalar) noexcept
     {
       *this = get_scaled(scalar);
       return *this;
     }
-    constexpr auto get_scaled_inv(detail::coordinate auto scalar) const noexcept
+    constexpr auto get_scaled_inv(coordinate auto scalar) const noexcept
     {
       matrix result;
       std::transform(begin(), end(), result.begin(),
@@ -262,7 +246,7 @@ namespace utils
                      });
       return result;
     }
-    constexpr auto& scale_inv(detail::coordinate auto scalar) noexcept
+    constexpr auto& scale_inv(coordinate auto scalar) noexcept
     {
       *this = get_scaled_inv(scalar);
       return *this;
@@ -363,22 +347,22 @@ namespace utils
     storage_type m_data{};
   };
 
-  constexpr bool eq(const detail::math_matr auto& m1, const detail::math_matr auto& m2) noexcept
+  constexpr bool eq(const math_matr auto& m1, const math_matr auto& m2) noexcept
   {
     return m1 == m2;
   }
 
-  template <detail::coordinate T, std::size_t C, std::size_t R, detail::coordinate S>
+  template <coordinate T, std::size_t C, std::size_t R, coordinate S>
   constexpr auto operator*(const matrix<T, C, R>& mat, const S& scalar) noexcept
   {
     return mat.get_scaled(scalar);
   }
-  template <detail::coordinate T, std::size_t C, std::size_t R, detail::coordinate S>
+  template <coordinate T, std::size_t C, std::size_t R, coordinate S>
   constexpr auto operator*(const S& scalar, const matrix<T, C, R>& mat) noexcept
   {
     return mat * scalar;
   }
-  template <detail::coordinate T, std::size_t C, std::size_t R, detail::coordinate S>
+  template <coordinate T, std::size_t C, std::size_t R, coordinate S>
   constexpr auto operator/(const matrix<T, C, R>& mat, const S& scalar) noexcept
   {
     return mat.get_scaled_inv(scalar);
@@ -387,10 +371,10 @@ namespace utils
   template <typename ValT, std::size_t W, typename... Rest>
   matrix(vector<ValT, W>, Rest...)->matrix<ValT, W, sizeof...(Rest) + 1>;
 
-  template <detail::coordinate T>
+  template <coordinate T>
   using matr2 = matrix<T, 2, 2>;
 
-  template <detail::coordinate T>
+  template <coordinate T>
   using matr3 = matrix<T, 3, 3>;
 
   using matrf2 = matr2<float>;

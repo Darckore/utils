@@ -2,16 +2,11 @@
 
 namespace utils
 {
-  namespace detail
-  {
-    using src_loc = std::source_location;
-    using ostream = std::ostream;
-  }
 
   //
   // Assertion helper
   //
-  inline bool assertion(bool cond, std::string_view condStr, detail::ostream* ostream, detail::src_loc loc = detail::src_loc::current())
+  inline bool assertion(bool cond, std::string_view condStr, ostream* ostream, src_loc loc = src_loc::current())
   {
     if (cond) return true;
 

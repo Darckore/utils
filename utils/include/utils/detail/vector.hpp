@@ -2,34 +2,12 @@
 
 namespace utils
 {
-  namespace detail
-  {
-    //
-    // Coordinate type accepted by vectors and matrices
-    //
-    template <typename T>
-    concept coordinate = integer<T> || real<T>;
-
-    //
-    // Defines a math vector type
-    //
-    template <typename T>
-    concept math_vec = requires (T a)
-    {
-      requires coordinate<typename T::value_type>;
-      requires integer<typename T::size_type>;
-      requires integer<decltype(a.dimensions)>;
-      requires coordinate<decltype(a.zero_coord)>;
-      requires coordinate<decltype(a.unit_coord)>;
-    };
-  }
-
   //
   // Vector of arbitrary dimensions
   // This is the math vector representing
   // a point in space relative to the origin
   //
-  template <detail::coordinate T, std::size_t D>
+  template <coordinate T, std::size_t D>
   class vector
   {
   public:
@@ -53,17 +31,17 @@ namespace utils
   public:
     CLASS_SPECIALS_ALL(vector);
 
-    template <detail::coordinate... V> requires detail::homogenous_pack<value_type, V...>
+    template <coordinate... V> requires homogenous_pack<value_type, V...>
     constexpr vector(value_type first, V... values) noexcept :
       m_coords{ first, values... }
     { }
 
-    template <detail::coordinate First, detail::coordinate... Rest> requires (sizeof...(Rest) <= dimensions - 1)
+    template <coordinate First, coordinate... Rest> requires (sizeof...(Rest) <= dimensions - 1)
     constexpr vector(First first, Rest ...values) noexcept :
       m_coords{ static_cast<value_type>(first), static_cast<value_type>(values)... }
     { }
 
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
     constexpr bool operator==(const vector<U, N>& other) const noexcept
     {
       if constexpr (N != dimensions)
@@ -93,7 +71,7 @@ namespace utils
       return get_scaled(value_type{ -1 });
     }
 
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
     constexpr auto operator+(const vector<U, N>& other) const noexcept
       requires (N == dimensions)
     {
@@ -109,7 +87,7 @@ namespace utils
       return dest;
     }
 
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
       requires (std::is_same_v<U, value_type> && N == dimensions)
     constexpr auto& operator+=(const vector<U, N>& other) noexcept
     {
@@ -117,7 +95,7 @@ namespace utils
       return *this;
     }
 
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
     constexpr auto operator-(const vector<U, N>& other) const noexcept
       requires (N == dimensions)
     {
@@ -133,7 +111,7 @@ namespace utils
       return dest;
     }
 
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
       requires (std::is_same_v<U, value_type> && N == dimensions)
     constexpr auto& operator-=(const vector<U, N>& other) noexcept
     {
@@ -141,7 +119,7 @@ namespace utils
       return *this;
     }
 
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
     constexpr auto operator*(const vector<U, N>& other) const noexcept
       requires (N == dimensions)
     {
@@ -154,16 +132,16 @@ namespace utils
                              });
     }
 
-    constexpr auto& operator*=(detail::coordinate auto scalar) noexcept
+    constexpr auto& operator*=(coordinate auto scalar) noexcept
     {
       return scale(scalar);
     }
-    constexpr auto& operator/=(detail::coordinate auto scalar) noexcept
+    constexpr auto& operator/=(coordinate auto scalar) noexcept
     {
       return scale_inv(scalar);
     }
 
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
     constexpr auto to() const noexcept
     {
       if constexpr (N == dimensions && std::is_same_v<value_type, U>)
@@ -183,7 +161,7 @@ namespace utils
       }
     }
 
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
     constexpr operator vector<U, N>() const noexcept
     {
       return to<U, N>();
@@ -209,7 +187,7 @@ namespace utils
       return lsq * inv_sqrt(lsq);
     }
 
-    constexpr auto get_scaled(detail::coordinate auto scalar) const noexcept
+    constexpr auto get_scaled(coordinate auto scalar) const noexcept
     {
       vector result;
       std::transform(begin(), end(), result.begin(),
@@ -219,12 +197,12 @@ namespace utils
                      });
       return result;
     }
-    constexpr auto& scale(detail::coordinate auto scalar) noexcept
+    constexpr auto& scale(coordinate auto scalar) noexcept
     {
       *this = get_scaled(scalar);
       return *this;
     }
-    constexpr auto get_scaled_inv(detail::coordinate auto scalar) const noexcept
+    constexpr auto get_scaled_inv(coordinate auto scalar) const noexcept
     {
       vector result;
       std::transform(begin(), end(), result.begin(),
@@ -234,14 +212,14 @@ namespace utils
                      });
       return result;
     }
-    constexpr auto& scale_inv(detail::coordinate auto scalar) noexcept
+    constexpr auto& scale_inv(coordinate auto scalar) noexcept
     {
       *this = get_scaled_inv(scalar);
       return *this;
     }
 
     // 2D rotation
-    constexpr auto get_rotated(detail::real auto angle) const noexcept
+    constexpr auto get_rotated(real auto angle) const noexcept
       requires (dimensions == 2)
     {
       vector<value_type, dimensions> res;
@@ -253,7 +231,7 @@ namespace utils
       res.template get<1>() = x * sinA + y * cosA;
       return res;
     }
-    constexpr auto& rotate(detail::real auto angle) noexcept
+    constexpr auto& rotate(real auto angle) noexcept
       requires (dimensions == 2)
     {
       *this = get_rotated(angle);
@@ -261,8 +239,8 @@ namespace utils
     }
 
     // 3D rotation around an axis (don't have to normalise that)
-    template <detail::coordinate U, size_type N>
-    constexpr auto get_rotated(detail::real auto angle, const vector<U, N>& axis) const noexcept
+    template <coordinate U, size_type N>
+    constexpr auto get_rotated(real auto angle, const vector<U, N>& axis) const noexcept
       requires (N == dimensions && N == 3)
     {
       auto aNorm = axis.get_normalised();
@@ -273,8 +251,8 @@ namespace utils
            + (aNorm.cross(self) * sinA)
            + (aNorm * (aNorm * self) * (unit_coord - cosA));
     }
-    template <detail::coordinate U, size_type N>
-    constexpr auto& rotate(detail::real auto angle, const vector<U, N>& axis) noexcept
+    template <coordinate U, size_type N>
+    constexpr auto& rotate(real auto angle, const vector<U, N>& axis) noexcept
       requires (N == dimensions && N == 3)
     {
       *this = get_rotated(angle, axis);
@@ -295,7 +273,7 @@ namespace utils
     // Cross product
     // Only supported in 2 and 3 dimensions
     //
-    template <detail::coordinate U, size_type N>
+    template <coordinate U, size_type N>
     constexpr auto cross(const vector<U, N>& other) const noexcept
       requires (N == dimensions && eq_any(dimensions, 2, 3))
     {
@@ -360,34 +338,34 @@ namespace utils
     storage_type m_coords{};
   };
 
-  constexpr bool eq(const detail::math_vec auto& v1, const detail::math_vec auto& v2) noexcept
+  constexpr bool eq(const math_vec auto& v1, const math_vec auto& v2) noexcept
   {
     return v1 == v2;
   }
 
-  template <detail::coordinate T, std::size_t N, detail::coordinate S>
+  template <coordinate T, std::size_t N, coordinate S>
   constexpr auto operator*(const vector<T, N>& vec, const S& scalar) noexcept
   {
     return vec.get_scaled(scalar);
   }
-  template <detail::coordinate T, std::size_t N, detail::coordinate S>
+  template <coordinate T, std::size_t N, coordinate S>
   constexpr auto operator*(const S& scalar, const vector<T, N>& vec) noexcept
   {
     return vec * scalar;
   }
-  template <detail::coordinate T, std::size_t N, detail::coordinate S>
+  template <coordinate T, std::size_t N, coordinate S>
   constexpr auto operator/(const vector<T, N>& vec, const S& scalar) noexcept
   {
     return vec.get_scaled_inv(scalar);
   }
 
-  template <detail::coordinate First, detail::coordinate... Rest>
+  template <coordinate First, coordinate... Rest>
   vector(First, Rest...)->vector<First, sizeof...(Rest) + 1>;
 
-  template <detail::coordinate T>
+  template <coordinate T>
   using vec2 = vector<T, 2>;
 
-  template <detail::coordinate T>
+  template <coordinate T>
   using vec3 = vector<T, 3>;
 
   using vecf2 = vec2<float>;

@@ -11,7 +11,7 @@ namespace utils
     struct taylor_gen
     {
     private:
-      static constexpr auto size = detail::max_factorial_v<sizeof(detail::max_int_t)> / 2;
+      static constexpr auto size = detail::max_factorial_v<sizeof(max_int_t)> / 2;
       using array_type = std::array<T, size>;
       using size_type = array_type::size_type;
       using iter = array_type::const_iterator;
@@ -44,22 +44,22 @@ namespace utils
 
   }
 
-  template <detail::real R>
+  template <real R>
   inline constexpr auto pi = std::numbers::pi_v<R>;
 
-  template <detail::real R>
+  template <real R>
   inline constexpr auto piHalf = pi<R> / 2;
 
-  template <detail::real R>
+  template <real R>
   inline constexpr auto piQuarter = pi<R> / 4;
 
-  template <detail::real R>
+  template <real R>
   inline constexpr auto piDouble = pi<R> * 2;
 
   //
   // Converts degrees to radians
   //
-  template <detail::real Angle>
+  template <real Angle>
   constexpr auto deg_to_rad(Angle angle) noexcept
   {
     return angle * pi<Angle> / 180;
@@ -68,7 +68,7 @@ namespace utils
   //
   // Converts radians to degrees
   //
-  template <detail::real Angle>
+  template <real Angle>
   constexpr auto rad_to_deg(Angle angle) noexcept
   {
     return angle * 180 / pi<Angle>;
@@ -77,7 +77,7 @@ namespace utils
   //
   // Calculates sine
   //
-  template <detail::real Angle>
+  template <real Angle>
   constexpr auto sin(Angle angle) noexcept
   {
     auto pow = angle;
@@ -96,7 +96,7 @@ namespace utils
   //
   // Calculates cosine
   //
-  template <detail::real Angle>
+  template <real Angle>
   constexpr auto cos(Angle angle) noexcept
   {
     return sin(piHalf<Angle> - angle);

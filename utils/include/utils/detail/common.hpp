@@ -30,55 +30,6 @@ namespace utils
 
   namespace detail
   {
-    //
-    // Checks that the parameter pack is not empty
-    //
-    template <typename ...Pack>
-    concept not_empty = (sizeof...(Pack) != 0);
-
-    //
-    // Checks that all types in the pack are the same
-    //
-    template <typename Arg1, typename ...Args>
-    concept all_same = std::conjunction_v<std::is_same<Arg1, Args>...>;
-
-    //
-    // Checks that all types in a pack are the same, and the pack is larger than 1 element
-    //
-    template <typename Arg1, typename ...Args>
-    concept homogenous_pack = not_empty<Args...> && all_same<Arg1, Args...>;
-
-    //
-    // Checks whether types can be comared by value
-    //
-    template <typename Arg1, typename Arg2, typename ...Args>
-    concept equ_comparable = requires (Arg1 a, Arg2 b, Args... args)
-    {
-      { ((a == b), ..., (a == args)) };
-    };
-
-    //
-    // Checks whether all provided types are convertible to the first type
-    //
-    template <typename To, typename From1, typename ...FromN>
-    concept all_convertible = std::conjunction_v<std::is_convertible<From1, To>,
-                              std::is_convertible<FromN, To>...>;
-
-    //
-    // A concept for any comparable type
-    //
-    template <typename T>
-    concept comparable = requires (T a, T b)
-    {
-      { a < b };
-      { a > b };
-      { a <= b };
-      { a >= b };
-      { a != b };
-      { a == b };
-    };
-  
-
     using std::begin;
     using std::end;
     using std::rbegin;
@@ -131,7 +82,7 @@ namespace utils
   //
   // Checks whether a value is in the specified range
   //
-  template <detail::comparable T1, detail::comparable T2, detail::comparable T3>
+  template <comparable T1, comparable T2, comparable T3>
   inline constexpr bool in_range(T1&& val, T2&& low, T3&& high) noexcept
   {
     return val >= low && val <= high;
@@ -140,7 +91,7 @@ namespace utils
   //
   // Checks whether the first arg equals ALL of subsequent args
   //
-  template <typename T1, typename T2, typename ...Ts> requires detail::equ_comparable<T1, T2, Ts... >
+  template <typename T1, typename T2, typename ...Ts> requires equ_comparable<T1, T2, Ts... >
   inline constexpr bool eq_all(T1&& val, T2&& arg1, Ts&& ...args) noexcept
   {
     return ((val == arg1) && ... && (val == args));
@@ -149,7 +100,7 @@ namespace utils
   //
   // Checks whether the first arg equals ANY of subsequent args
   //
-  template <typename T1, typename T2, typename ...Ts> requires detail::equ_comparable<T1, T2, Ts... >
+  template <typename T1, typename T2, typename ...Ts> requires equ_comparable<T1, T2, Ts... >
   inline constexpr bool eq_any(T1&& val, T2&& arg1, Ts&& ...args) noexcept
   {
     return ((val == arg1) || ... || (val == args));
@@ -158,7 +109,7 @@ namespace utils
   //
   // Checks whether the first arg equals NONE of subsequent args
   //
-  template <typename T1, typename T2, typename ...Ts> requires detail::equ_comparable<T1, T2, Ts... >
+  template <typename T1, typename T2, typename ...Ts> requires equ_comparable<T1, T2, Ts... >
   inline constexpr bool eq_none(T1&& val, T2&& arg1, Ts&& ...args) noexcept
   {
     return ((val != arg1) && ... && (val != args));

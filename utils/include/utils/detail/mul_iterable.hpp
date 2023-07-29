@@ -2,19 +2,13 @@
 
 namespace utils
 {
-  namespace detail
-  {
-    template <typename I>
-    concept fwd_it = std::forward_iterator<I>;
-  }
-
   //
   // An iterator which incorporates multiple iterators
   // into different ranges and allows iterating through all
   // of them simultaneously
   //
-  template <detail::fwd_it ...Iters>
-    requires (detail::not_empty<Iters...>)
+  template <fwd_it ...Iters>
+    requires (not_empty<Iters...>)
   class multiple_it
   {
   public:

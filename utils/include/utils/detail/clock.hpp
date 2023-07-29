@@ -5,7 +5,7 @@ namespace utils
   //
   // A simple clock
   //
-  template <detail::real T,
+  template <real T,
             typename Clock = chrono::steady_clock>
   class clock
   {

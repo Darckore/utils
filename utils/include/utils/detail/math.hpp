@@ -5,17 +5,6 @@ namespace utils
   namespace detail
   {
     //
-    // Basic numerics and the like
-    //
-    using max_real_t = long double;
-    using max_int_t = std::uintmax_t;
-
-    template <typename T>
-    concept integer = std::is_integral_v<T> && !std::is_same_v<T, bool>;
-    template <typename T>
-    concept real = std::is_floating_point_v<T>;
-
-    //
     // For Quake's fast inverse square root
     //
     template <real T>
@@ -101,7 +90,7 @@ namespace utils
   // This is mostly for floats
   // To avoid dealing with the epsilon bs on comparing them
   //
-  template <detail::comparable T> requires std::is_arithmetic_v<T>
+  template <comparable T> requires std::is_arithmetic_v<T>
   constexpr bool eq(T left, T right) noexcept
   {
     constexpr auto max_diff = std::numeric_limits<T>::epsilon();
@@ -111,7 +100,7 @@ namespace utils
   //
   // Inverts the value ( 1 / val )
   //
-  template <detail::real T>
+  template <real T>
   constexpr auto inv(T val) noexcept
   {
     if (val == T{})
@@ -123,7 +112,7 @@ namespace utils
   //
   // Quake's fast inverse square root
   //
-  template <detail::real T>
+  template <real T>
   constexpr auto inv_sqrt(T number) noexcept
   {
     using detail::sqrt_magic_t;
@@ -156,10 +145,10 @@ namespace utils
   // Factorial
   // Returns 0 if overflown
   //
-  template <detail::integer I> requires std::is_unsigned_v<I>
+  template <integer I> requires std::is_unsigned_v<I>
   constexpr auto factorial(I value) noexcept
   {
-    using result_type = detail::max_int_t;
+    using result_type = max_int_t;
     if (!value)
       return result_type{ 1 };
 

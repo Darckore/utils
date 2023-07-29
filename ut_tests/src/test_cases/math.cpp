@@ -116,7 +116,7 @@ namespace ut_tests
 
   TEST(math, t_factorial)
   {
-    using int_t = utils::detail::max_int_t;
+    using int_t = utils::max_int_t;
     constexpr std::array results{
       int_t{ 1 },
       int_t{ 1 },

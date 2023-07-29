@@ -97,3 +97,45 @@ template <> struct utils::detail::id_to_type<ID> { using type = TYPE; }
 #else
   #define UTILS_ASSERT(cond)
 #endif
+
+
+// Scope exit gen
+
+#define UTILS_CONCAT(first, second) first##second
+#define UTILS_NAMEGEN(postfix) UTILS_CONCAT(_, postfix) 
+
+//
+// Generates a scope_terminator instance with a lambda to be called at the
+// exit from the current scope
+// Usage:
+// 
+// void f(some_t param) noexcept { do_something(param); }
+// 
+// void g()
+// {
+//   some_t optionalThing{};
+//   SCOPE_GUARD(f(optionalThing));
+// } // f is called here
+//
+#define SCOPE_GUARD(...) utils::scope_terminator UTILS_NAMEGEN(__COUNTER__) { [&]()noexcept { __VA_ARGS__; } }
+
+//
+// Stores a value of a variable and restores it when the current scope ends
+// Takes at least 1, and at most 2 args (old value, new value)
+// Usage:
+// 
+// void func()
+// {
+//   some_t var{};
+// 
+//   {
+//     VALUE_GUARD(var);
+//     var = someValue; // var is overwritten
+//   } // var is restored here
+// 
+//   {
+//     VALUE_GUARD(var, some_t{ anotherVal }); // var is set to anotherVal
+//   } // var is restored here
+// }
+//
+#define VALUE_GUARD(...) utils::value_guard UTILS_NAMEGEN(__COUNTER__) { __VA_ARGS__ }

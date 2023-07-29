@@ -199,6 +199,6 @@ Can chain multiple of them to be called one after the other.
 
 `type_support.hpp` is about associating types with ids.
 Useful to cast stuff. Take a look at
-[this file](/ut_tests/src/type_support.cpp)
+[this test](/ut_tests/src/test_cases/type_support.cpp)
 It will explain things better than I would hope to.
 

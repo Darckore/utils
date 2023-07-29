@@ -16,6 +16,30 @@ namespace ut_tests
     EXPECT_EQ((colour{ 255, 10, 15, 128 }), 0x800F0AFFu);
   }
 
+  TEST(clrs, t_norm)
+  {
+    using utils::colour;
+
+    auto clr = colour{ 255, 0, 255 / 5 }.to_float_norm();
+    EXPECT_FLOAT_EQ(1.0f, clr[0]);
+    EXPECT_FLOAT_EQ(0.0f, clr[1]);
+    EXPECT_FLOAT_EQ(0.2f, clr[2]);
+    EXPECT_FLOAT_EQ(1.0f, clr[3]);
+  }
+
+  TEST(clrs, t_denorm)
+  {
+    using utils::colour;
+
+    constexpr auto ref = colour{ 255, 0, 51 };
+    
+    auto clr1 = colour::from_rgba(1.0f, 0.0f, 0.2f, 1.0f);
+    EXPECT_EQ(clr1, ref);
+
+    auto clr2 = colour::from_norm({ 1.0f, 0.0f, 0.2f, 1.0f });
+    EXPECT_EQ(clr1, clr2);
+  }
+
   TEST(clrs, t_components)
   {
     using utils::colour;

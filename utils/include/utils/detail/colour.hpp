@@ -10,6 +10,8 @@ namespace utils
   public:
     using value_type = std::uint32_t;
     using byte_type  = std::uint8_t;
+    using float_type = float;
+    using cmp_array  = std::array<float_type, 4>;
 
     enum class component : byte_type
     {
@@ -26,7 +28,7 @@ namespace utils
 
     constexpr colour(byte_type r, byte_type g, byte_type b, byte_type a = 255) noexcept :
       colour{ from_rgba(r, g, b, a) }
-    { }
+    {}
 
     constexpr explicit colour(value_type c) noexcept :
       m_val{ c }
@@ -116,6 +118,12 @@ namespace utils
     }
 
     template <component CMP>
+    constexpr auto norm() const noexcept
+    {
+      return static_cast<float_type>(get<CMP>()) / 0xFF;
+    }
+
+    template <component CMP>
     constexpr colour& set(byte_type c) noexcept
     {
       constexpr auto shift   = static_cast<uint8_t>(CMP);
@@ -143,15 +151,33 @@ namespace utils
       return set<cA>(c);
     }
 
-  private:
-    static constexpr value_type from_rgba(byte_type r, byte_type g, byte_type b, byte_type a) noexcept
+    constexpr auto to_float_norm() const noexcept
+    {
+      return std::array { norm<cR>(), norm<cG>(), norm<cB>(), norm<cA>() };
+    }
+
+  public:
+    static constexpr colour from_rgba(byte_type r, byte_type g, byte_type b, byte_type a) noexcept
     {
       value_type res{};
       res |= static_cast<value_type>(r) << static_cast<byte_type>(cR);
       res |= static_cast<value_type>(g) << static_cast<byte_type>(cG);
       res |= static_cast<value_type>(b) << static_cast<byte_type>(cB);
       res |= static_cast<value_type>(a) << static_cast<byte_type>(cA);
-      return res;
+      return colour{ res };
+    }
+    static constexpr colour from_rgba(float_type r, float_type g, float_type b, float_type a) noexcept
+    {
+      constexpr auto denorm = [](float_type cmp) noexcept
+      {
+        return static_cast<byte_type>(cmp * 0xFF);
+      };
+
+      return colour{ denorm(r), denorm(g), denorm(b), denorm(a) };
+    }
+    static constexpr colour from_norm(cmp_array components) noexcept
+    {
+      return from_rgba(components[0], components[1], components[2], components[3]);
     }
 
   private:

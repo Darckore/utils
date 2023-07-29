@@ -147,4 +147,16 @@ namespace utils
     requires math_vec<typename T::row_type>;
     requires math_vec<typename T::col_type>;
   };
+
+  //
+  // Index sequence shorthand
+  //
+  template <typename Int, Int... Seq>
+  using idx_seq = std::integer_sequence<Int, Seq...>;
+
+  //
+  // Index generator (pass to functions templated on integer sequences)
+  //
+  template <std::size_t N>
+  using idx_gen = std::make_index_sequence<N>;
 }

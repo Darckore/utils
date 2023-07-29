@@ -7,26 +7,18 @@ namespace utils
   // into different ranges and allows iterating through all
   // of them simultaneously
   //
-  template <fwd_it ...Iters>
-    requires (not_empty<Iters...>)
+  template <fwd_it ...Iters> requires (not_empty<Iters...>)
   class multiple_it
   {
   public:
-    using size_type = std::size_t;
+    using size_type       = std::size_t;
     using difference_type = std::ptrdiff_t;
-    using value_type = std::tuple<typename Iters::value_type...>;
-    using iters = std::tuple<Iters...>;
-    using ptrs  = std::tuple<typename Iters::pointer...>;
-    using refs  = std::tuple<typename Iters::reference...>;
+    using value_type      = std::tuple<typename Iters::value_type...>;
+    using iters           = std::tuple<Iters...>;
+    using ptrs            = std::tuple<typename Iters::pointer...>;
+    using refs            = std::tuple<typename Iters::reference...>;
 
     static constexpr auto iter_count = std::tuple_size_v<iters>;
-
-  private:
-    template <typename Int, Int... Seq>
-    using idx_seq = std::integer_sequence<Int, Seq...>;
-
-    template <size_type N>
-    using idx_gen = std::make_index_sequence<N>;
 
   private:
     template <typename Int, Int... Seq>
@@ -79,8 +71,7 @@ namespace utils
     }
 
   public:
-    template <size_type Idx>
-      requires (Idx < iter_count)
+    template <size_type Idx> requires (Idx < iter_count)
     constexpr auto get() const noexcept
     {
       return std::get<Idx>(m_iters);

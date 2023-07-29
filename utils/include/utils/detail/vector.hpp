@@ -13,9 +13,9 @@ namespace utils
   public:
     static constexpr auto dimensions = D;
 
-    using value_type = T;
+    using value_type   = T;
     using storage_type = std::array<value_type, dimensions>;
-    using size_type = storage_type::size_type;
+    using size_type    = storage_type::size_type;
 
     static constexpr auto zero_coord = value_type{ 0 };
     static constexpr auto unit_coord = value_type{ 1 };
@@ -34,12 +34,12 @@ namespace utils
     template <coordinate... V> requires homogenous_pack<value_type, V...>
     constexpr vector(value_type first, V... values) noexcept :
       m_coords{ first, values... }
-    { }
+    {}
 
     template <coordinate First, coordinate... Rest> requires (sizeof...(Rest) <= dimensions - 1)
     constexpr vector(First first, Rest ...values) noexcept :
       m_coords{ static_cast<value_type>(first), static_cast<value_type>(values)... }
-    { }
+    {}
 
     template <coordinate U, size_type N>
     constexpr bool operator==(const vector<U, N>& other) const noexcept
@@ -63,7 +63,7 @@ namespace utils
     }
     constexpr auto& operator[](size_type idx) noexcept
     {
-      return utils::mutate(std::as_const(*this).operator[](idx));
+      return FROM_CONST(operator[], idx);
     }
 
     constexpr auto operator-() const noexcept
@@ -72,8 +72,7 @@ namespace utils
     }
 
     template <coordinate U, size_type N>
-    constexpr auto operator+(const vector<U, N>& other) const noexcept
-      requires (N == dimensions)
+    constexpr auto operator+(const vector<U, N>& other) const noexcept requires (N == dimensions)
     {
       using ct = std::common_type_t<U, value_type>;
       vector<ct, dimensions> dest;
@@ -88,7 +87,7 @@ namespace utils
     }
 
     template <coordinate U, size_type N>
-      requires (std::is_same_v<U, value_type> && N == dimensions)
+      requires (std::same_as<U, value_type> && N == dimensions)
     constexpr auto& operator+=(const vector<U, N>& other) noexcept
     {
       *this = *this + other;
@@ -112,7 +111,7 @@ namespace utils
     }
 
     template <coordinate U, size_type N>
-      requires (std::is_same_v<U, value_type> && N == dimensions)
+      requires (std::same_as<U, value_type> && N == dimensions)
     constexpr auto& operator-=(const vector<U, N>& other) noexcept
     {
       *this = *this - other;
@@ -144,7 +143,7 @@ namespace utils
     template <coordinate U, size_type N>
     constexpr auto to() const noexcept
     {
-      if constexpr (N == dimensions && std::is_same_v<value_type, U>)
+      if constexpr (N == dimensions && std::same_as<value_type, U>)
       {
         return *this;
       }

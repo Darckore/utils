@@ -16,19 +16,13 @@ namespace utils
     static constexpr auto width  = W;
     static constexpr auto height = H;
 
-    using value_type = T;
-    using row_type = rc_helper<value_type, width>;
-    using col_type = rc_helper<value_type, height>;
+    using value_type   = T;
+    using row_type     = rc_helper<value_type, width>;
+    using col_type     = rc_helper<value_type, height>;
     using storage_type = std::array<row_type, height>;
-    using size_type = storage_type::size_type;
+    using size_type    = storage_type::size_type;
 
   private:
-    template <typename Int, Int... Seq>
-    using idx_seq = std::integer_sequence<Int, Seq...>;
-
-    template <size_type N>
-    using idx_gen = std::make_index_sequence<N>;
-
     using idx_w = idx_gen<width>;
     using idx_h = idx_gen<height>;
 
@@ -97,7 +91,7 @@ namespace utils
     }
     constexpr auto& operator[](size_type idx) noexcept
     {
-      return utils::mutate(std::as_const(*this).operator[](idx));
+      return FROM_CONST(operator[], idx);
     }
 
     constexpr auto operator-() const noexcept
@@ -122,7 +116,7 @@ namespace utils
     }
 
     template <coordinate U, size_type C, size_type R>
-      requires (std::is_same_v<U, value_type> && C == width && R == height)
+      requires (std::same_as<U, value_type> && C == width && R == height)
     constexpr auto& operator+=(const matrix<U, C, R>& other) noexcept
     {
       *this = *this + other;
@@ -146,7 +140,7 @@ namespace utils
     }
 
     template <coordinate U, size_type C, size_type R>
-      requires (std::is_same_v<U, value_type> && C == width && R == height)
+      requires (std::same_as<U, value_type> && C == width && R == height)
     constexpr auto& operator-=(const matrix<U, C, R>& other) noexcept
     {
       *this = *this - other;
@@ -176,8 +170,7 @@ namespace utils
       return scale_inv(scalar);
     }
 
-    template <coordinate U, size_type C, size_type R>
-      requires (C == height && R == width)
+    template <coordinate U, size_type C, size_type R> requires (C == height && R == width)
     constexpr auto operator*(const matrix<U, C, R>& other) const noexcept
     {
       using ct = std::common_type_t<value_type, U>;
@@ -198,7 +191,7 @@ namespace utils
     template <coordinate U, size_type C, size_type R>
     constexpr auto to() const noexcept
     {
-      if constexpr (C == width && R == height && std::is_same_v<value_type, U>)
+      if constexpr (C == width && R == height && std::same_as<value_type, U>)
       {
         return *this;
       }

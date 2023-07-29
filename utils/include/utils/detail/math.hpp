@@ -66,7 +66,7 @@ namespace utils
   template <typename T> requires std::is_arithmetic_v<T>
   constexpr auto abs(T val) noexcept
   {
-    if constexpr (std::is_unsigned_v<T>)
+    if constexpr (std::unsigned_integral<T>)
       return val;
     else
       return val < 0 ? -val : val;
@@ -78,7 +78,7 @@ namespace utils
   template <typename T> requires std::is_arithmetic_v<T>
   constexpr auto sign(T val) noexcept
   {
-    if constexpr (std::is_unsigned_v<T>)
+    if constexpr (std::unsigned_integral<T>)
       return val != 0 ? T{ 1 } : T{ 0 };
     else
       return val < 0
@@ -145,7 +145,7 @@ namespace utils
   // Factorial
   // Returns 0 if overflown
   //
-  template <integer I> requires std::is_unsigned_v<I>
+  template <std::unsigned_integral I>
   constexpr auto factorial(I value) noexcept
   {
     using result_type = max_int_t;

@@ -11,7 +11,7 @@ namespace utils
   {
   public:
     using value_type = T;
-    using sign_t = std::int8_t;
+    using sign_t     = std::int8_t;
 
   public:
     CLASS_SPECIALS_NODEFAULT(ratio);

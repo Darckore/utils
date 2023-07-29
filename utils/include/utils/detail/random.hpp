@@ -4,29 +4,22 @@ namespace utils
 {
   namespace detail
   {
-    template <typename T>
-    struct rnd_distr;
+    template <typename T> struct rnd_distr;
 
-    template <integer T>
-    struct rnd_distr<T>
+    template <integer T> struct rnd_distr<T>
     {
       using type = std::uniform_int_distribution<T>;
     };
-
-    template <real T>
-    struct rnd_distr<T>
+    template <real T> struct rnd_distr<T>
     {
       using type = std::uniform_real_distribution<T>;
     };
-
-    template <>
-    struct rnd_distr<bool>
+    template <> struct rnd_distr<bool>
     {
       using type = std::bernoulli_distribution;
     };
 
-    template <typename T>
-    using random_distribution_t = rnd_distr<T>::type;
+    template <typename T> using random_distribution_t = rnd_distr<T>::type;
   }
 
   //
@@ -50,8 +43,7 @@ namespace utils
   public:
     CLASS_SPECIALS_NONE(rng);
 
-    template <typename A1, typename A2, typename ...Args>
-      requires all_convertible<A1, A2, Args...>
+    template <typename A1, typename A2, typename ...Args> requires all_convertible<A1, A2, Args...>
     explicit rng(A1&& val1, A2&& val2, Args&&... vals) :
       m_rng{ std::random_device{}() },
       m_dist{ std::forward<A1>(val1), std::forward<A2>(val2), std::forward<Args>(vals)... }

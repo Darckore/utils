@@ -9,7 +9,7 @@ namespace utils
     //
     template <ranges::range R>
     constexpr auto to_string_view(R&& range) noexcept
-      requires std::is_convertible_v<decltype(*range.begin()), std::string_view::value_type>
+      requires std::convertible_to<decltype(*range.begin()), std::string_view::value_type>
     {
       using size_type = std::string_view::size_type;
       return std::string_view{ &*range.begin(), static_cast<size_type>(ranges::distance(range)) };

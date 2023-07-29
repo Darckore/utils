@@ -11,7 +11,7 @@ namespace utils
     struct taylor_gen
     {
     private:
-      static constexpr auto size = detail::max_factorial_v<sizeof(max_int_t)> / 2;
+      static constexpr auto size = max_factorial_v<sizeof(max_int_t)> / 2;
       using array_type = std::array<T, size>;
       using size_type = array_type::size_type;
       using iter = array_type::const_iterator;
@@ -24,12 +24,12 @@ namespace utils
       }
 
       template <typename Int, Int... Seq>
-      static constexpr auto calc_coeffs(std::integer_sequence<Int, Seq...>) noexcept
+      static constexpr auto calc_coeffs(idx_seq<Int, Seq...>) noexcept
       {
         return array_type{ coeff(Seq + 1)... };
       }
 
-      static constexpr auto data = calc_coeffs(std::make_index_sequence<size>{});
+      static constexpr auto data = calc_coeffs(idx_gen<size>{});
 
     public:
       static constexpr iter begin()
@@ -44,17 +44,10 @@ namespace utils
 
   }
 
-  template <real R>
-  inline constexpr auto pi = std::numbers::pi_v<R>;
-
-  template <real R>
-  inline constexpr auto piHalf = pi<R> / 2;
-
-  template <real R>
-  inline constexpr auto piQuarter = pi<R> / 4;
-
-  template <real R>
-  inline constexpr auto piDouble = pi<R> * 2;
+  template <real R> inline constexpr auto pi = std::numbers::pi_v<R>;
+  template <real R> inline constexpr auto piHalf = pi<R> / 2;
+  template <real R> inline constexpr auto piQuarter = pi<R> / 4;
+  template <real R> inline constexpr auto piDouble = pi<R> * 2;
 
   //
   // Converts degrees to radians

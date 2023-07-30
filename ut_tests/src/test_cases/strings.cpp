@@ -90,4 +90,20 @@ namespace ut_tests
     ASSERT_EQ(shash, *hstr);
   }
 
+  TEST(strings, t_read_file)
+  {
+    using utils::read_file;
+    static constexpr auto okValue = "this file has no purpose in life"sv;
+    auto existing = "data/test_file.txt"sv;
+    auto wrong    = "somewhere/test_file"sv;
+
+    auto bad = read_file(wrong);
+    EXPECT_FALSE(bad.has_value());
+
+    auto good = read_file(existing);
+    ASSERT_TRUE(good.has_value());
+    auto contents = utils::trim(std::string_view{ *good });
+    EXPECT_EQ(okValue, contents);
+  }
+
 }

@@ -147,6 +147,33 @@ namespace utils
     return trim(str, ' ', '\f', '\n', '\r', '\t', '\v');
   }
 
+  //
+  // Reads contents of a file into a string
+  //
+  inline auto read_file(const fsys::path& fname) noexcept -> std::expected<std::string, std::error_code>
+  {
+    std::error_code errc;
+    auto at = fsys::canonical(fname, errc);
+    if (errc)
+    {
+      return std::unexpected{ errc };
+    }
+
+    std::string buf;
+    std::ifstream in{ at.string() };
+    if (!in)
+    {
+      return std::unexpected{ std::make_error_code(std::io_errc::stream) };
+    }
+
+    in.seekg(0, std::ios::end);
+    buf.reserve(in.tellg());
+    in.seekg(0, std::ios::beg);
+
+    using it = std::istreambuf_iterator<std::string::value_type>;
+    buf.assign(it{ in }, it{});
+    return buf;
+  }
 
   //
   // A hashed string representation. Contains a string's hash code,

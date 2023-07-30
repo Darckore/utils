@@ -32,6 +32,10 @@
 #include <stack>
 #include <queue>
 
+#include <optional>
+#include <variant>
+#include <expected>
+
 #include <stdexcept>
 #include <functional>
 
@@ -47,6 +51,7 @@ using namespace std::literals;
 namespace ranges = std::ranges;
 namespace views  = std::views;
 namespace chrono = std::chrono;
+namespace fsys   = std::filesystem;
 
 namespace utils
 {

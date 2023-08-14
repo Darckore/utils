@@ -40,7 +40,7 @@ namespace utils
 
     constexpr auto operator-() const noexcept
     {
-      return ratio{ num(), denom(), -sign() };
+      return ratio{ num(), denom(), static_cast<sign_t>(-sign()) };
     }
     constexpr auto operator+() const noexcept
     {

@@ -7,7 +7,7 @@ namespace utils
   //
   inline constexpr auto split(std::string_view str, std::string_view pattern) noexcept
   {
-    return str | views::split(pattern) | views::transform([](auto&& part)
+    return str | views::split(pattern) | views::transform([](auto&& part) noexcept
       {
         return std::string_view{ part };
       });

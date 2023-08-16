@@ -4,17 +4,6 @@ namespace ut_tests
 {
   using namespace std::literals;
 
-  TEST(strings, t_to_string_view)
-  {
-    using utils::detail::to_string_view;
-
-    constexpr std::array arr{ 'l', 'o', 'l', ' ', 'k', 'e', 'k' };
-    constexpr auto baseline = "lol kek"sv;
-    auto res = to_string_view(arr);
-
-    EXPECT_EQ(baseline, res);
-  }
-
   TEST(strings, t_split)
   {
     constexpr auto str = "eeny#$%meeny#$%miny#$%moe"sv;

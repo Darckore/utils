@@ -2,20 +2,6 @@
 
 namespace utils
 {
-  namespace detail
-  {
-    //
-    // Converts a range into a string_view
-    //
-    template <ranges::range R>
-    constexpr auto to_string_view(R&& range) noexcept
-      requires std::convertible_to<decltype(*range.begin()), std::string_view::value_type>
-    {
-      using size_type = std::string_view::size_type;
-      return std::string_view{ &*range.begin(), static_cast<size_type>(ranges::distance(range)) };
-    }
-  }
-
   //
   // Splits a string_view into an iterable range
   //
@@ -23,7 +9,7 @@ namespace utils
   {
     return str | views::split(pattern) | views::transform([](auto&& part)
       {
-        return detail::to_string_view(part);
+        return std::string_view{ part };
       });
   }
 

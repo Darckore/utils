@@ -69,10 +69,22 @@ namespace utils
   concept not_empty = (sizeof...(Pack) != 0);
 
   //
+  // Checks that two types are the same, disregarding cv-ref qualifiers
+  //
+  template <typename T1, typename T2>
+  concept same_noquals = std::same_as<std::remove_cvref_t<T1>, std::remove_cvref_t<T2>>;
+
+  //
   // Checks that all types in the pack are the same
   //
   template <typename Arg1, typename ...Args>
-  concept all_same = std::conjunction_v<std::is_same<Arg1, Args>...>;
+  concept all_same = (same_noquals<Arg1, Args> && ...);
+
+  //
+  // Checks that any of types in the pack are the same as the first provided type
+  //
+  template <typename Arg1, typename ...Args>
+  concept any_same_as = (same_noquals<Arg1, Args> || ...);
 
   //
   // Checks that all types in a pack are the same, and the pack is larger than 1 element

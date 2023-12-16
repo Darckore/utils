@@ -10,7 +10,7 @@ file(GLOB_RECURSE DOC_FILES
      "${DOCS_DIR}/*/*.md" )
 
 collect_sources(SOURCE_FILES HEADERS ADDITIONAL_FILES)
-add_library(${TARGET_NAME} ${SOURCE_FILES} ${HEADERS} ${OPT_PCH_NAME} ${ADDITIONAL_FILES} ${DOC_FILES})
+add_library(${TARGET_NAME} ${SOURCE_FILES} ${HEADERS} ${OPT_PCH_NAME} ${ADDITIONAL_FILES} ${DOC_FILES} utils.natvis utils.natstepfilter)
 set_build_opts(${TARGET_NAME} "${ADDITIONAL_FILES}")
 make_src_groups("${SOURCE_FILES}" "${HEADERS}" "${ADDITIONAL_FILES}")
 source_group(TREE ${DOCS_DIR}/.. FILES ${DOC_FILES})

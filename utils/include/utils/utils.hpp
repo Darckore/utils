@@ -10,6 +10,7 @@
 #include "detail/vector.hpp"
 #include "detail/matrix.hpp"
 #include "detail/strings.hpp"
+#include "detail/string_pool.hpp"
 #include "detail/random.hpp"
 #include "detail/clock.hpp"
 #include "detail/colour.hpp"

@@ -161,6 +161,12 @@ Yet another wrapper for various standard random-number algorithms.
 `strings.hpp` has functions for string manipulation (trimming, mostly),
 and hashed string representation.
 
+### String pool
+
+It's a very basic and simple string pool kinda thing. You can make it intern strings
+and format AND intern strings.
+Mostly needed to keep those strings alive for later use as string views.
+
 ### Multi-iter
 
 Aah, this one deserves a little explanation.

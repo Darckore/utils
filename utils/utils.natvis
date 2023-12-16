@@ -15,6 +15,13 @@
     </Expand>
   </Type>
 
+  <Type Name="utils::prefixed_pool">
+    <DisplayString>prefixed string pool</DisplayString>
+    <Expand>
+      <Item Name="[data]">m_pools</Item>
+    </Expand>
+  </Type>
+
   <Type Name="utils::hashed_string">
     <DisplayString>hashed string: {m_hash,Xb}</DisplayString>
   </Type>

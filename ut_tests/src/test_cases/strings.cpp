@@ -103,6 +103,7 @@ namespace ut_tests
     auto intr1 = pool.intern(s1).data();
     auto intr2 = pool.intern(s2).data();
 
+    EXPECT_EQ(pool.count(), 1ull);
     ASSERT_EQ(intr1, intr2);
   }
 
@@ -114,6 +115,7 @@ namespace ut_tests
     auto intr1 = pool.intern(s1).data();
     auto intr2 = pool.intern(s2).data();
 
+    EXPECT_EQ(pool.count(), 2ull);
     ASSERT_NE(intr1, intr2);
   }
 
@@ -125,6 +127,21 @@ namespace ut_tests
     auto intr1 = pool.intern(s).data();
     auto intr2 = pool.format(fmt, "hello"sv, "world"sv, 111).data();
 
+    EXPECT_EQ(pool.count(), 1ull);
     ASSERT_EQ(intr1, intr2);
+  }
+
+  TEST(strings, t_pref_pool)
+  {
+    utils::prefixed_pool pp;
+    auto l0 = pp.next_indexed("lol."sv);
+    auto l1 = pp.next_indexed("lol."sv);
+    EXPECT_EQ(l0, "lol.0"sv);
+    EXPECT_EQ(l1, "lol.1"sv);
+
+    auto k0 = pp.next_indexed("kek."sv);
+    auto k1 = pp.next_indexed("kek."sv);
+    EXPECT_EQ(k0, "kek.0"sv);
+    EXPECT_EQ(k1, "kek.1"sv);
   }
 }

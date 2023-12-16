@@ -7,4 +7,73 @@
     <DisplayString Condition="m_sign == 0">0</DisplayString>
   </Type>
 
+  <Type Name="utils::string_pool">
+    <DisplayString>string pool</DisplayString>
+    <Expand>
+      <Item Name="[data]">m_data</Item>
+      <Item Name="[buf">m_buffer</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::hashed_string">
+    <DisplayString>hashed string: {m_hash,Xb}</DisplayString>
+  </Type>
+
+  <Type Name="utils::colour">
+    <DisplayString>colour: {m_val,Xb}</DisplayString>
+    <Expand>
+      <Item Name="[R]">(char)(0xFF &amp; m_val),Xb</Item>
+      <Item Name="[G]">(char)(((0xFF &lt;&lt; 8) &amp; m_val) &gt;&gt; 8),Xb</Item>
+      <Item Name="[B]">(char)(((0xFF &lt;&lt; 16) &amp; m_val) &gt;&gt; 16),Xb</Item>
+      <Item Name="[A]">(char)(((0xFF &lt;&lt; 24) &amp; m_val) &gt;&gt; 24),Xb</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::vector&lt;*&gt;">
+    <DisplayString>vector{dimensions}</DisplayString>
+    <Expand>
+      <Item Name="[x]" Condition="dimensions > 0">m_coords._Elems[0]</Item>
+      <Item Name="[y]" Condition="dimensions > 1">m_coords._Elems[1]</Item>
+      <Item Name="[z]" Condition="dimensions > 2">m_coords._Elems[2]</Item>
+      <Item Name="[coords]">m_coords</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::matrix&lt;*&gt;">
+    <DisplayString>matrix{width}x{height}</DisplayString>
+    <Expand>
+      <Item Name="[rows]">m_data</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::multiple_it&lt;*&gt;">
+    <DisplayString>multi-iter</DisplayString>
+    <Expand>
+      <Item Name="[iterators]">m_iters</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::detail::iterator_pair&lt;*&gt;">
+    <DisplayString>iterator pair</DisplayString>
+    <Expand>
+      <Item Name="[begin]">m_beg</Item>
+      <Item Name="[end]">m_end</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::value_guard&lt;*&gt;">
+    <DisplayString>value guard ({m_old})</DisplayString>
+    <Expand>
+      <Item Name="[original]">m_old</Item>
+      <Item Name="[current]">m_ref</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::clock&lt;*&gt;">
+    <DisplayString>clock</DisplayString>
+    <Expand>
+      <Item Name="[mark]">m_mark</Item>
+    </Expand>
+  </Type>
+
 </AutoVisualizer>

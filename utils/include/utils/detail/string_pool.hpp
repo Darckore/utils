@@ -24,7 +24,7 @@ namespace utils
     //
     // Interns a string
     //
-    str_t intern(buf_t str) noexcept
+    str_t intern(str_t str) noexcept
     {
       m_buffer.reserve(str.length());
       m_buffer.append(str);

@@ -95,4 +95,36 @@ namespace ut_tests
     EXPECT_EQ(okValue, contents);
   }
 
+  TEST(strings, t_pool_same)
+  {
+    utils::string_pool pool;
+    auto s1 = "hello world"sv;
+    auto s2 = "hello "s + "world"s;
+    auto intr1 = pool.intern(s1).data();
+    auto intr2 = pool.intern(s2).data();
+
+    ASSERT_EQ(intr1, intr2);
+  }
+
+  TEST(strings, t_pool_diff)
+  {
+    utils::string_pool pool;
+    auto s1 = "hello world"sv;
+    auto s2 = "goodbye world"sv;
+    auto intr1 = pool.intern(s1).data();
+    auto intr2 = pool.intern(s2).data();
+
+    ASSERT_NE(intr1, intr2);
+  }
+
+  TEST(strings, t_pool_fmt)
+  {
+    utils::string_pool pool;
+    auto s   = "hello world 111"sv;
+    auto fmt = "{} {} {}"sv;
+    auto intr1 = pool.intern(s).data();
+    auto intr2 = pool.format(fmt, "hello"sv, "world"sv, 111).data();
+
+    ASSERT_EQ(intr1, intr2);
+  }
 }

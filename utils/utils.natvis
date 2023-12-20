@@ -15,6 +15,14 @@
     </Expand>
   </Type>
 
+  <Type Name="utils::prefixed_pool::index">
+    <DisplayString>pool index ({m_idx})</DisplayString>
+    <Expand>
+      <Item Name="[pool]">m_pool</Item>
+      <Item Name="[index]">m_idx</Item>
+    </Expand>
+  </Type>
+  
   <Type Name="utils::prefixed_pool">
     <DisplayString>prefixed string pool</DisplayString>
     <Expand>

@@ -144,4 +144,48 @@ namespace ut_tests
     EXPECT_EQ(k0, "kek.0"sv);
     EXPECT_EQ(k1, "kek.1"sv);
   }
+
+  TEST(strings, t_pref_reset_all)
+  {
+    utils::prefixed_pool pp;
+    auto l0 = pp.next_indexed("lol."sv);
+    auto k0 = pp.next_indexed("kek."sv);
+    EXPECT_EQ(l0, "lol.0"sv);
+    EXPECT_EQ(k0, "kek.0"sv);
+
+    pp.reset();
+    auto l1 = pp.next_indexed("lol."sv);
+    auto k1 = pp.next_indexed("kek."sv);
+    EXPECT_EQ(l1, "lol.0"sv);
+    EXPECT_EQ(k1, "kek.0"sv);
+
+    auto l0d = l0.data();
+    auto l1d = l1.data();
+    auto k0d = k0.data();
+    auto k1d = k1.data();
+    ASSERT_EQ(l0d, l1d);
+    ASSERT_EQ(k0d, k1d);
+  }
+
+  TEST(strings, t_pref_reset_one)
+  {
+    utils::prefixed_pool pp;
+    auto l0 = pp.next_indexed("lol."sv);
+    auto k0 = pp.next_indexed("kek."sv);
+    EXPECT_EQ(l0, "lol.0"sv);
+    EXPECT_EQ(k0, "kek.0"sv);
+
+    pp.reset("lol."sv);
+    auto l1 = pp.next_indexed("lol."sv);
+    auto k1 = pp.next_indexed("kek."sv);
+    EXPECT_EQ(l1, "lol.0"sv);
+    EXPECT_EQ(k1, "kek.1"sv);
+
+    auto l0d = l0.data();
+    auto l1d = l1.data();
+    auto k0d = k0.data();
+    auto k1d = k1.data();
+    ASSERT_EQ(l0d, l1d);
+    ASSERT_NE(k0d, k1d);
+  }
 }

@@ -98,7 +98,20 @@ namespace utils
     using str_t     = pool_t::str_t;
     using size_type = pool_t::size_type;
 
-    using store_t = std::unordered_map<key_t, pool_t>;
+  private:
+    struct index
+    {
+      void reset() noexcept
+      {
+        m_idx = {};
+      }
+
+      pool_t m_pool{};
+      size_type m_idx{};
+    };
+
+  public:
+    using store_t = std::unordered_map<key_t, index>;
 
   public:
     CLASS_SPECIALS_NONE_CUSTOM(prefixed_pool);
@@ -114,8 +127,26 @@ namespace utils
     str_t next_indexed(str_t prefix) noexcept
     {
       auto&& pool = get_pool(prefix);
-      const auto idx = pool.count();
-      return pool.format("{}{}", prefix, idx);
+      const auto idx = pool.m_idx;
+      ++pool.m_idx;
+      return pool.m_pool.format("{}{}", prefix, idx);
+    }
+
+    //
+    // Resets the index for the given prefix
+    //
+    void reset(str_t prefix) noexcept
+    {
+      get_pool(prefix).reset();
+    }
+
+    //
+    // Resets all indicies
+    //
+    void reset() noexcept
+    {
+      for (auto&& pool : m_pools)
+        pool.second.reset();
     }
 
     //
@@ -126,14 +157,14 @@ namespace utils
     str_t format(str_t prefix, str_t fmt, Args&& ...args) noexcept
     {
       auto&& pool = get_pool(prefix);
-      return pool.format(fmt, prefix, std::forward<Args>(args)...);
+      return pool.m_pool.format(fmt, prefix, std::forward<Args>(args)...);
     }
 
   private:
     //
     // Returns a string pool for the given prefix
     //
-    pool_t& get_pool(str_t prefix) noexcept
+    index& get_pool(str_t prefix) noexcept
     {
       auto it = m_pools.try_emplace(prefix);
       return it.first->second;

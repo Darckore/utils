@@ -131,16 +131,19 @@ namespace ut_tests
     ASSERT_EQ(intr1, intr2);
   }
 
+  static constexpr auto lol = "lol."sv;
+  static constexpr auto kek = "kek."sv;
+
   TEST(strings, t_pref_pool)
   {
     utils::prefixed_pool pp;
-    auto l0 = pp.next_indexed("lol."sv);
-    auto l1 = pp.next_indexed("lol."sv);
-    EXPECT_EQ(l0, "lol.0"sv);
-    EXPECT_EQ(l1, "lol.1"sv);
+    auto l0 = pp.next_indexed(lol);
+    auto l1 = pp.next_indexed(lol);
+    EXPECT_EQ(l0, "lol.0"s);
+    EXPECT_EQ(l1, "lol.1"s);
 
-    auto k0 = pp.next_indexed("kek."sv);
-    auto k1 = pp.next_indexed("kek."sv);
+    auto k0 = pp.next_indexed(kek);
+    auto k1 = pp.next_indexed(kek);
     EXPECT_EQ(k0, "kek.0"sv);
     EXPECT_EQ(k1, "kek.1"sv);
   }
@@ -148,14 +151,14 @@ namespace ut_tests
   TEST(strings, t_pref_reset_all)
   {
     utils::prefixed_pool pp;
-    auto l0 = pp.next_indexed("lol."sv);
-    auto k0 = pp.next_indexed("kek."sv);
+    auto l0 = pp.next_indexed(lol);
+    auto k0 = pp.next_indexed(kek);
     EXPECT_EQ(l0, "lol.0"sv);
     EXPECT_EQ(k0, "kek.0"sv);
 
     pp.reset();
-    auto l1 = pp.next_indexed("lol."sv);
-    auto k1 = pp.next_indexed("kek."sv);
+    auto l1 = pp.next_indexed(lol);
+    auto k1 = pp.next_indexed(kek);
     EXPECT_EQ(l1, "lol.0"sv);
     EXPECT_EQ(k1, "kek.0"sv);
 
@@ -170,14 +173,14 @@ namespace ut_tests
   TEST(strings, t_pref_reset_one)
   {
     utils::prefixed_pool pp;
-    auto l0 = pp.next_indexed("lol."sv);
-    auto k0 = pp.next_indexed("kek."sv);
+    auto l0 = pp.next_indexed(lol);
+    auto k0 = pp.next_indexed(kek);
     EXPECT_EQ(l0, "lol.0"sv);
     EXPECT_EQ(k0, "kek.0"sv);
 
-    pp.reset("lol."sv);
-    auto l1 = pp.next_indexed("lol."sv);
-    auto k1 = pp.next_indexed("kek."sv);
+    pp.reset(lol);
+    auto l1 = pp.next_indexed(lol);
+    auto k1 = pp.next_indexed(kek);
     EXPECT_EQ(l1, "lol.0"sv);
     EXPECT_EQ(k1, "kek.1"sv);
 
@@ -187,5 +190,32 @@ namespace ut_tests
     auto k1d = k1.data();
     ASSERT_EQ(l0d, l1d);
     ASSERT_NE(k0d, k1d);
+  }
+
+  TEST(string, t_pref_restore)
+  {
+    utils::prefixed_pool pp;
+    auto l0 = pp.next_indexed(lol);
+    auto l1 = pp.next_indexed(lol);
+    (void)pp.next_indexed(kek);
+    (void)pp.next_indexed(kek);
+    (void)pp.next_indexed(kek);
+    (void)pp.next_indexed(kek);
+
+    auto cache = pp.cache_and_reset();
+    EXPECT_EQ(cache.size(), 2ull);
+
+    auto ll0 = pp.next_indexed(lol);
+    EXPECT_EQ(ll0, l0);
+
+    auto kk = pp.next_indexed(kek);
+    EXPECT_EQ(kk, "kek.0"sv);
+
+    pp.restore(std::move(cache));
+    auto l2 = pp.next_indexed(lol);
+    EXPECT_EQ(l2, "lol.2"sv);
+    
+    auto k4 = pp.next_indexed(kek);
+    EXPECT_EQ(k4, "kek.4"sv);
   }
 }

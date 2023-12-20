@@ -111,7 +111,13 @@ namespace utils
     };
 
   public:
-    using store_t = std::unordered_map<key_t, index>;
+    using store_t  = std::unordered_map<key_t, index>;
+    struct idx_pair
+    {
+      size_type m_saved{};
+      size_type* m_cur{};
+    };
+    using idx_cache = std::vector<idx_pair>;
 
   public:
     CLASS_SPECIALS_NONE_CUSTOM(prefixed_pool);
@@ -147,6 +153,34 @@ namespace utils
     {
       for (auto&& pool : m_pools)
         pool.second.reset();
+    }
+
+    //
+    // Resets all indices and returns values of the old ones
+    //
+    auto cache_and_reset() noexcept
+    {
+      idx_cache ret;
+      ret.reserve(m_pools.size());
+
+      for (auto&& pool : m_pools)
+      {
+        auto&& poolData = pool.second;
+        auto&& idx = poolData.m_idx;
+        ret.emplace_back(idx, &idx);
+        poolData.reset();
+      }
+
+      return ret;
+    }
+
+    //
+    // Restores previous indices from the cache
+    //
+    void restore(idx_cache&& cache) noexcept
+    {
+      for (auto [saved, cur] : cache)
+        *cur = saved;
     }
 
     //

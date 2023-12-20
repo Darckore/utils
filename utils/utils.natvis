@@ -22,6 +22,14 @@
       <Item Name="[index]">m_idx</Item>
     </Expand>
   </Type>
+
+  <Type Name="utils::prefixed_pool::idx_pair">
+    <DisplayString>index pair</DisplayString>
+    <Expand>
+      <Item Name="[saved]">m_saved</Item>
+      <Item Name="[current]">m_cur</Item>
+    </Expand>
+  </Type>
   
   <Type Name="utils::prefixed_pool">
     <DisplayString>prefixed string pool</DisplayString>

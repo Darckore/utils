@@ -9,12 +9,12 @@ namespace utils
   {
   public:
     using value_type = Derived;
-    using this_type = ilist_node<value_type>;
-    using list_type = ilist<value_type>;
+    using this_type  = ilist_node<value_type>;
+    using list_type  = ilist<value_type>;
 
-    using pointer = value_type*;
-    using const_pointer = const value_type*;
-    using reference = value_type&;
+    using pointer         = value_type*;
+    using const_pointer   = const value_type*;
+    using reference       = value_type&;
     using const_reference = const value_type&;
 
     friend list_type;
@@ -119,7 +119,7 @@ namespace utils
     }
 
     template <typename ...Args> requires (std::constructible_from<value_type, list_type&, Args...>)
-      static reference alloc(pointer l, pointer r, list_type& owner, Args&& ...args) noexcept
+    static reference alloc(pointer l, pointer r, list_type& owner, Args&& ...args) noexcept
     {
       auto newVal = new value_type{ owner, std::forward<Args>(args)... };
       newVal->m_prev = l;
@@ -145,12 +145,12 @@ namespace utils
   class ilist_iter final
   {
   public:
-    using node_type = ilist_node<std::remove_const_t<T>>;
-    using value_type = T;
-    using pointer = node_type::pointer;
-    using const_pointer = node_type::const_pointer;
-    using reference = node_type::reference;
-    using const_reference = node_type::const_reference;
+    using node_type       = ilist_node<std::remove_const_t<T>>;
+    using value_type      = T;
+    using pointer         = value_type*;
+    using const_pointer   = const value_type*;
+    using reference       = value_type&;
+    using const_reference = const value_type&;
 
   public:
     CLASS_SPECIALS_ALL(ilist_iter);
@@ -210,13 +210,13 @@ namespace utils
   class ilist final
   {
   public:
-    using iterator = ilist_iter<T>;
-    using const_iterator = ilist_iter<const T>;
-    using node_type = iterator::node_type;
-    using value_type = iterator::value_type;
-    using pointer = iterator::pointer;
-    using const_pointer = iterator::const_pointer;
-    using reference = iterator::reference;
+    using iterator        = ilist_iter<T>;
+    using const_iterator  = ilist_iter<const T>;
+    using node_type       = iterator::node_type;
+    using value_type      = iterator::value_type;
+    using pointer         = iterator::pointer;
+    using const_pointer   = iterator::const_pointer;
+    using reference       = iterator::reference;
     using const_reference = iterator::const_reference;
 
   public:

@@ -4,14 +4,17 @@ namespace utils
 {
   template <typename T> class ilist;
 
+  //
+  // Intrusive list node
+  // Used as a CRTP base class for anything stored in the list
+  //
   template <typename Derived>
   class ilist_node
   {
   public:
-    using value_type = Derived;
-    using this_type  = ilist_node<value_type>;
-    using list_type  = ilist<value_type>;
-
+    using value_type      = Derived;
+    using base_type       = ilist_node<value_type>;
+    using list_type       = ilist<value_type>;
     using pointer         = value_type*;
     using const_pointer   = const value_type*;
     using reference       = value_type&;
@@ -34,7 +37,7 @@ namespace utils
     ilist_node(list_type& owner) noexcept :
       m_list{ &owner }
     {
-      static_assert(std::derived_from<value_type, this_type>);
+      static_assert(std::derived_from<value_type, base_type>);
     }
 
   public:
@@ -141,8 +144,11 @@ namespace utils
   };
 
 
+  //
+  // Base class for list iterators
+  //
   template <typename T>
-  class ilist_iter final
+  class ilist_iter
   {
   public:
     using node_type       = ilist_node<std::remove_const_t<T>>;
@@ -177,28 +183,14 @@ namespace utils
       return m_node;
     }
 
-    ilist_iter& operator++() noexcept
+  protected:
+    void next() noexcept
     {
       m_node = m_node->next();
-      return *this;
     }
-    ilist_iter operator++(int) noexcept
+    void prev() noexcept
     {
-      auto copy = *this;
-      ++(*this);
-      return copy;
-    }
-
-    ilist_iter& operator--() noexcept
-    {
-      m_node = m_node->prev();
-      return *this;
-    }
-    ilist_iter operator--(int) noexcept
-    {
-      auto copy = *this;
-      --(*this);
-      return copy;
+      m_node = m_node->next();
     }
 
   private:
@@ -206,18 +198,111 @@ namespace utils
   };
 
 
+  //
+  // Forward iterator
+  //
+  template <typename T>
+  class ilist_fwd_iter final : public ilist_iter<T>
+  {
+  public:
+    using base_type = ilist_iter<T>;
+
+  public:
+    CLASS_SPECIALS_ALL(ilist_fwd_iter);
+    ~ilist_fwd_iter() noexcept = default;
+
+    explicit ilist_fwd_iter(base_type::pointer node) noexcept :
+      base_type{ node }
+    {}
+
+    ilist_fwd_iter& operator++() noexcept
+    {
+      base_type::next();
+      return *this;
+    }
+    ilist_fwd_iter operator++(int) noexcept
+    {
+      auto copy = *this;
+      ++(*this);
+      return copy;
+    }
+
+    ilist_fwd_iter& operator--() noexcept
+    {
+      base_type::prev();
+      return *this;
+    }
+    ilist_fwd_iter operator--(int) noexcept
+    {
+      auto copy = *this;
+      --(*this);
+      return copy;
+    }
+  };
+
+
+  //
+  // Reverse iterator
+  //
+  template <typename T>
+  class ilist_rev_iter final : public ilist_iter<T>
+  {
+  public:
+    using base_type = ilist_iter<T>;
+
+  public:
+    CLASS_SPECIALS_ALL(ilist_rev_iter);
+    ~ilist_rev_iter() noexcept = default;
+
+    explicit ilist_rev_iter(base_type::pointer node) noexcept :
+      base_type{ node }
+    {}
+
+    ilist_rev_iter& operator++() noexcept
+    {
+      base_type::prev();
+      return *this;
+    }
+    ilist_rev_iter operator++(int) noexcept
+    {
+      auto copy = *this;
+      ++(*this);
+      return copy;
+    }
+
+    ilist_rev_iter& operator--() noexcept
+    {
+      base_type::next();
+      return *this;
+    }
+    ilist_rev_iter operator--(int) noexcept
+    {
+      auto copy = *this;
+      --(*this);
+      return copy;
+    }
+  };
+
+
+  //
+  // An doubly-linked intrusive list
+  // Allows elements to know their locations within the container
+  // The elements combine pointer to adjacent nodes with data
+  //
   template <typename T>
   class ilist final
   {
   public:
-    using iterator        = ilist_iter<T>;
-    using const_iterator  = ilist_iter<const T>;
-    using node_type       = iterator::node_type;
-    using value_type      = iterator::value_type;
-    using pointer         = iterator::pointer;
-    using const_pointer   = iterator::const_pointer;
-    using reference       = iterator::reference;
-    using const_reference = iterator::const_reference;
+    using iterator               = ilist_fwd_iter<T>;
+    using const_iterator         = ilist_fwd_iter<const T>;
+    using reverse_iterator       = ilist_rev_iter<T>;
+    using const_reverse_iterator = ilist_rev_iter<const T>;
+    using node_type              = iterator::node_type;
+    using value_type             = iterator::value_type;
+    using pointer                = iterator::pointer;
+    using const_pointer          = iterator::const_pointer;
+    using reference              = iterator::reference;
+    using const_reference        = iterator::const_reference;
 
   public:
     CLASS_SPECIALS_NONE_CUSTOM(ilist);
@@ -296,7 +381,6 @@ namespace utils
 
       node.kill_prev();
     }
-
     void remove_after(reference node) noexcept
     {
       UTILS_ASSERT(&node.list() == this);
@@ -306,7 +390,6 @@ namespace utils
 
       node.kill_next();
     }
-
     void remove(reference node) noexcept
     {
       UTILS_ASSERT(&node.list() == this);
@@ -362,7 +445,6 @@ namespace utils
         m_tail = {};
       }
     }
-
     void pop_back() noexcept
     {
       if (empty())
@@ -462,6 +544,24 @@ namespace utils
     auto end() noexcept
     {
       return iterator{};
+    }
+
+    auto rbegin() const noexcept
+    {
+      return const_reverse_iterator{ m_head };
+    }
+    auto rend() const noexcept
+    {
+      return const_reverse_iterator{};
+    }
+
+    auto rbegin() noexcept
+    {
+      return reverse_iterator{ m_head };
+    }
+    auto rend() noexcept
+    {
+      return reverse_iterator{};
     }
 
   private:

@@ -62,7 +62,8 @@ namespace ut_tests
       }
 
       const auto baseSz = baseline.size();
-      for (auto idx = 0ull; auto&& node : list)
+      auto idx = 0ull;
+      for (auto&& node : list)
       {
         ASSERT_LT(idx, baseSz);
 
@@ -70,6 +71,8 @@ namespace ut_tests
         const auto exp = baseline[idx++];
         EXPECT_EQ(val, exp);
       }
+
+      ASSERT_EQ(idx, baseSz);
     }
   }
 
@@ -139,5 +142,93 @@ namespace ut_tests
     lw.list.emplace_after(anchor, 42);
     lw.list.emplace_after(anchor, 69);
     verify_list(lw, std::array{ 0, 1, 2, 3, 4, 69, 42 });
+  }
+
+  TEST(ilist, t_remove_before)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto kill = lw.list.front().next()->next(); // element 2
+    lw.list.remove_before(*kill);
+    verify_list(lw, std::array{ 0, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_remove_before_front)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& kill = lw.list.front();
+    lw.list.remove_before(kill);
+    verify_list(lw, std::array{ 0, 1, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_remove_before_back)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& kill = lw.list.back();
+    lw.list.remove_before(kill);
+    verify_list(lw, std::array{ 0, 1, 2, 4 });
+  }
+
+  TEST(ilist, t_remove_after)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto kill = lw.list.front().next()->next(); // element 2
+    lw.list.remove_after(*kill);
+    verify_list(lw, std::array{ 0, 1, 2, 4 });
+  }
+
+  TEST(ilist, t_remove_after_front)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& kill = lw.list.front();
+    lw.list.remove_after(kill);
+    verify_list(lw, std::array{ 0, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_remove_after_back)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& kill = lw.list.back();
+    lw.list.remove_after(kill);
+    verify_list(lw, std::array{ 0, 1, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_remove)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto kill = lw.list.front().next()->next(); // element 2
+    lw.list.remove(*kill);
+    verify_list(lw, std::array{ 0, 1, 3, 4 });
+  }
+
+  TEST(ilist, t_remove_front)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& kill = lw.list.front();
+    lw.list.remove(kill);
+    verify_list(lw, std::array{ 1, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_remove_back)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& kill = lw.list.back();
+    lw.list.remove(kill);
+    verify_list(lw, std::array{ 0, 1, 2, 3 });
+  }
+
+  TEST(ilist, t_pop_front)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    lw.list.pop_front();
+    lw.list.pop_front();
+    verify_list(lw, std::array{ 2, 3, 4 });
+  }
+
+  TEST(ilist, t_pop_back)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    lw.list.pop_back();
+    lw.list.pop_back();
+    verify_list(lw, std::array{ 0, 1, 2 });
   }
 }

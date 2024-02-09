@@ -452,27 +452,6 @@ namespace utils
       node_type::dealloc(&node);
     }
 
-    void reorder(reference l, reference r) noexcept
-    {
-      UTILS_ASSERT(&l.list() == this);
-      UTILS_ASSERT(&r.list() == this);
-      l.reorder_with(r);
-      auto newHead = m_head;
-      auto newTail = m_tail;
-
-      if (&l == m_head)
-        newHead = &r;
-      if (&l == m_tail)
-        newTail = &r;
-      if (&r == m_head)
-        newHead = &l;
-      if (&r == m_tail)
-        newTail = &l;
-
-      m_head = newHead;
-      m_tail = newTail;
-    }
-
     void pop_front() noexcept
     {
       if (empty())
@@ -510,33 +489,6 @@ namespace utils
       }
     }
 
-    ilist split_at(reference from) noexcept
-    {
-      UTILS_ASSERT(&from.list() == this);
-      auto newHead = &from;
-      auto newTail = m_tail;
-
-      auto fp = from.m_prev;
-      from.m_prev = {};
-
-      if (fp)
-        fp->m_next = {};
-
-      if (&from == m_head)
-      {
-        m_head = {};
-        m_tail = {};
-      }
-      if (&from == m_tail)
-      {
-        m_tail = fp;
-      }
-      if (!m_tail)
-        m_tail = m_head;
-
-      return { newHead, newTail };
-    }
-
     const_reference front() const noexcept
     {
       return *m_head;
@@ -571,6 +523,54 @@ namespace utils
       m_tail = {};
       node_type::dealloc(m_head);
       m_head = {};
+    }
+
+    void reorder(reference l, reference r) noexcept
+    {
+      UTILS_ASSERT(&l.list() == this);
+      UTILS_ASSERT(&r.list() == this);
+      l.reorder_with(r);
+      auto newHead = m_head;
+      auto newTail = m_tail;
+
+      if (&l == m_head)
+        newHead = &r;
+      if (&l == m_tail)
+        newTail = &r;
+      if (&r == m_head)
+        newHead = &l;
+      if (&r == m_tail)
+        newTail = &l;
+
+      m_head = newHead;
+      m_tail = newTail;
+    }
+
+    ilist split_at(reference from) noexcept
+    {
+      UTILS_ASSERT(&from.list() == this);
+      auto newHead = &from;
+      auto newTail = m_tail;
+
+      auto fp = from.m_prev;
+      from.m_prev = {};
+
+      if (fp)
+        fp->m_next = {};
+
+      if (&from == m_head)
+      {
+        m_head = {};
+        m_tail = {};
+      }
+      if (&from == m_tail)
+      {
+        m_tail = fp;
+      }
+      if (!m_tail)
+        m_tail = m_head;
+
+      return { newHead, newTail };
     }
 
   public:

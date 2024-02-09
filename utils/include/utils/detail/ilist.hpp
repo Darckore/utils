@@ -598,6 +598,26 @@ namespace utils
       return { newHead, newTail };
     }
 
+    ilist& reverse() noexcept
+    {
+      auto prevHead = m_head;
+      auto prevTail = m_tail;
+
+      auto cur = m_head;
+      while (cur)
+      {
+        auto curNext = cur->next();
+        auto curPrev = cur->prev();
+        cur->m_prev = curNext;
+        cur->m_next = curPrev;
+        cur = curNext;
+      }
+
+      m_head = prevTail;
+      m_tail = prevHead;
+      return *this;
+    }
+
   public:
     auto begin() const noexcept
     {

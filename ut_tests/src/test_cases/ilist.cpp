@@ -321,4 +321,11 @@ namespace ut_tests
     lw.list.reorder(lw.list.back(), lw.list.front());
     verify_list(lw, std::array{ 0, 1 });
   }
+
+  TEST(ilist, t_reverse)
+  {
+    list_wrapper lw{ 1, 2, 3, 4 };
+    lw.list.reverse();
+    verify_list(lw, std::array{ 4, 3, 2, 1 });
+  }
 }

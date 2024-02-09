@@ -229,16 +229,14 @@ namespace ut_tests
   TEST(ilist, t_pop_front)
   {
     list_wrapper lw{ 0, 1, 2, 3, 4 };
-    lw.list.pop_front();
-    lw.list.pop_front();
+    lw.list.pop_front().pop_front();
     verify_list(lw, std::array{ 2, 3, 4 });
   }
 
   TEST(ilist, t_pop_back)
   {
     list_wrapper lw{ 0, 1, 2, 3, 4 };
-    lw.list.pop_back();
-    lw.list.pop_back();
+    lw.list.pop_back().pop_back();
     verify_list(lw, std::array{ 0, 1, 2 });
   }
 

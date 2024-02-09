@@ -436,7 +436,7 @@ namespace utils
       return node.add_after(std::forward<Args>(args)...);
     }
 
-    void remove_before(reference node) noexcept
+    ilist& remove_before(reference node) noexcept
     {
       UTILS_ASSERT(&node.list() == this);
 
@@ -444,8 +444,9 @@ namespace utils
         m_head = &node;
 
       node.kill_prev();
+      return *this;
     }
-    void remove_after(reference node) noexcept
+    ilist& remove_after(reference node) noexcept
     {
       UTILS_ASSERT(&node.list() == this);
 
@@ -453,8 +454,9 @@ namespace utils
         m_tail = &node;
 
       node.kill_next();
+      return *this;
     }
-    void remove(reference node) noexcept
+    ilist& remove(reference node) noexcept
     {
       UTILS_ASSERT(&node.list() == this);
       auto p = node.prev();
@@ -468,12 +470,13 @@ namespace utils
         m_tail = p;
 
       node_type::dealloc(&node);
+      return *this;
     }
 
-    void pop_front() noexcept
+    ilist& pop_front() noexcept
     {
       if (empty())
-        return;
+        return *this;
 
       auto head = m_head;
       m_head = head->next();
@@ -487,11 +490,12 @@ namespace utils
         node_type::dealloc(head);
         m_tail = {};
       }
+      return *this;
     }
-    void pop_back() noexcept
+    ilist& pop_back() noexcept
     {
       if (empty())
-        return;
+        return *this;
 
       auto tail = m_tail;
       m_tail = tail->prev();
@@ -505,6 +509,7 @@ namespace utils
         node_type::dealloc(tail);
         m_head = {};
       }
+      return *this;
     }
 
     const_reference front() const noexcept
@@ -530,10 +535,10 @@ namespace utils
       return !m_head;
     }
 
-    void clear() noexcept
+    ilist& clear() noexcept
     {
       if (empty())
-        return;
+        return *this;
 
       while (!m_head->is_tail())
         m_head->kill_next();
@@ -541,9 +546,10 @@ namespace utils
       m_tail = {};
       node_type::dealloc(m_head);
       m_head = {};
+      return *this;
     }
 
-    void reorder(reference l, reference r) noexcept
+    ilist& reorder(reference l, reference r) noexcept
     {
       UTILS_ASSERT(&l.list() == this);
       UTILS_ASSERT(&r.list() == this);
@@ -562,6 +568,7 @@ namespace utils
 
       m_head = newHead;
       m_tail = newTail;
+      return *this;
     }
 
     ilist split_at(reference from) noexcept

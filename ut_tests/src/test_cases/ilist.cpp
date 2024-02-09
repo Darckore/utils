@@ -299,4 +299,13 @@ namespace ut_tests
     lw.list.reorder(e0, e4);
     verify_list(lw, std::array{ 4, 1, 2, 3, 0 });
   }
+
+  TEST(ilist, t_reorder_adjacent)
+  {
+    list_wrapper lw{ 0, 1, 2, 3 };
+    auto e1 = lw.list.front().next(); // element 1
+    auto e2 = e1->next(); // element 2
+    lw.list.reorder(*e1, *e2);
+    verify_list(lw, std::array{ 0, 2, 1, 3 });
+  }
 }

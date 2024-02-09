@@ -26,9 +26,8 @@ namespace ut_tests
     };
 
     template <std::size_t N>
-    void verify_list(list_wrapper& lw, const std::array<int, N>& baseline) noexcept
+    void verify_list(utils::ilist<list_node>& list, const std::array<int, N>& baseline) noexcept
     {
-      auto&& list = lw.list;
       if (list.empty())
       {
         if (!baseline.empty())
@@ -73,6 +72,12 @@ namespace ut_tests
       }
 
       ASSERT_EQ(idx, baseSz);
+    }
+
+    template <std::size_t N>
+    void verify_list(list_wrapper& lw, const std::array<int, N>& baseline) noexcept
+    {
+      verify_list(lw.list, baseline);
     }
   }
 
@@ -230,5 +235,41 @@ namespace ut_tests
     lw.list.pop_back();
     lw.list.pop_back();
     verify_list(lw, std::array{ 0, 1, 2 });
+  }
+
+  TEST(ilist, t_split)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto split = lw.list.front().next()->next(); // element 2
+    auto other = lw.list.split_at(*split);
+    verify_list(lw, std::array{ 0, 1 });
+    verify_list(other, std::array{ 2, 3, 4 });
+  }
+
+  TEST(ilist, t_split_front)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& split = lw.list.front();
+    auto other = lw.list.split_at(split);
+    ASSERT_TRUE(lw.list.empty());
+    verify_list(other, std::array{ 0, 1, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_split_back)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& split = lw.list.back();
+    auto other = lw.list.split_at(split);
+    verify_list(lw, std::array{ 0, 1, 2, 3 });
+    verify_list(other, std::array{ 4 });
+  }
+
+  TEST(ilist, t_reorder)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto e1 = lw.list.front().next(); // element 1
+    auto e3 = e1->next()->next(); // element 3
+    lw.list.reorder(*e1, *e3);
+    verify_list(lw, std::array{ 0, 3, 2, 1, 4 });
   }
 }

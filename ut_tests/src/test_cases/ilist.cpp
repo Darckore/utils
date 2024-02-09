@@ -272,4 +272,31 @@ namespace ut_tests
     lw.list.reorder(*e1, *e3);
     verify_list(lw, std::array{ 0, 3, 2, 1, 4 });
   }
+
+  TEST(ilist, t_reorder_front)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& e0 = lw.list.front(); // element 0
+    auto e2 = e0.next()->next(); // element 2
+    lw.list.reorder(e0, *e2);
+    verify_list(lw, std::array{ 2, 1, 0, 3, 4 });
+  }
+
+  TEST(ilist, t_reorder_back)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& e0 = lw.list.front(); // element 0
+    auto e2 = e0.next()->next(); // element 2
+    lw.list.reorder(lw.list.back(), *e2);
+    verify_list(lw, std::array{ 0, 1, 4, 3, 2 });
+  }
+
+  TEST(ilist, t_reorder_front_back)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto&& e0 = lw.list.front(); // element 0
+    auto&& e4 = lw.list.back(); // element 4
+    lw.list.reorder(e0, e4);
+    verify_list(lw, std::array{ 4, 1, 2, 3, 0 });
+  }
 }

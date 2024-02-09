@@ -107,19 +107,32 @@ namespace utils
 
     void reorder_with(reference other) noexcept
     {
-      auto p = m_prev;
-      auto n = m_next;
-      auto op = other.prev();
-      auto on = other.next();
+      if (same_as(&other))
+        return;
 
-      other.m_prev = p;
-      if (p) p->m_next = &other;
-      other.m_next = n;
-      if (n) n->m_prev = &other;
-      m_prev = op;
-      if (op) op->m_next = to_derived();
-      m_next = on;
-      if (on) on->m_prev = to_derived();
+      auto self      = to_derived();
+      auto myPrev    = m_prev;
+      auto myNext    = m_next;
+      auto otherPrev = other.prev();
+      auto otherNext = other.next();
+
+      if (myPrev) myPrev->m_next = &other;
+      if (myNext) myNext->m_prev = &other;
+      
+      if (!other.same_as(myPrev)) other.m_prev = myPrev;
+      else other.m_prev = self;
+
+      if (!other.same_as(myNext)) other.m_next = myNext;
+      else other.m_next = self;
+
+      if (otherPrev) otherPrev->m_next = self;
+      if (otherNext) otherNext->m_prev = self;
+      
+      if (!same_as(otherPrev)) m_prev = otherPrev;
+      else m_prev = &other;
+
+      if (!same_as(otherNext)) m_next = otherNext;
+      else m_next = &other;
     }
 
     template <typename ...Args>

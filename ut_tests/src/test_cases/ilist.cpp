@@ -308,4 +308,14 @@ namespace ut_tests
     lw.list.reorder(*e1, *e2);
     verify_list(lw, std::array{ 0, 2, 1, 3 });
   }
+
+  TEST(ilist, t_reorder_adjacent_front_back)
+  {
+    list_wrapper lw{ 0, 1 };
+    lw.list.reorder(lw.list.front(), lw.list.back());
+    verify_list(lw, std::array{ 1, 0 });
+
+    lw.list.reorder(lw.list.back(), lw.list.front());
+    verify_list(lw, std::array{ 0, 1 });
+  }
 }

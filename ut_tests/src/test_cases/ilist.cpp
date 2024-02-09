@@ -226,6 +226,39 @@ namespace ut_tests
     verify_list(lw, std::array{ 0, 1, 2, 3 });
   }
 
+  TEST(ilist, t_detach)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto kill = lw.list.front().next()->next(); // element 2
+    lw.list.detach(*kill);
+    verify_list(lw, std::array{ 0, 1, 3, 4 });
+    EXPECT_TRUE(kill->is_head());
+    EXPECT_TRUE(kill->is_tail());
+    delete kill;
+  }
+
+  TEST(ilist, t_detach_front)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto kill = &lw.list.front();
+    lw.list.detach(*kill);
+    verify_list(lw, std::array{ 1, 2, 3, 4 });
+    EXPECT_TRUE(kill->is_head());
+    EXPECT_TRUE(kill->is_tail());
+    delete kill;
+  }
+
+  TEST(ilist, t_detach_back)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
+    auto kill = &lw.list.back();
+    lw.list.detach(*kill);
+    verify_list(lw, std::array{ 0, 1, 2, 3 });
+    EXPECT_TRUE(kill->is_head());
+    EXPECT_TRUE(kill->is_tail());
+    delete kill;
+  }
+
   TEST(ilist, t_pop_front)
   {
     list_wrapper lw{ 0, 1, 2, 3, 4 };

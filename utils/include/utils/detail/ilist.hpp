@@ -518,8 +518,8 @@ namespace utils
       if (!it) return *this;
       return remove_before(*it);
     }
-    
-    ilist& remove(reference node) noexcept
+
+    ilist& detach(reference node) noexcept
     {
       UTILS_ASSERT(&node.list() == this);
       auto p = node.prev();
@@ -532,6 +532,25 @@ namespace utils
       if (&node == m_tail)
         m_tail = p;
 
+      node.m_prev = {};
+      node.m_next = {};
+
+      return *this;
+    }
+    ilist& detach(iterator it) noexcept
+    {
+      if (!it) return *this;
+      return detach(*it);
+    }
+    ilist& detach(reverse_iterator it) noexcept
+    {
+      if (!it) return *this;
+      return detach(*it);
+    }
+
+    ilist& remove(reference node) noexcept
+    {
+      detach(node);
       node_type::dealloc(&node);
       return *this;
     }

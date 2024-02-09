@@ -18,18 +18,10 @@ namespace ut_tests
     {
       utils::ilist<list_node> list;
 
-      list_wrapper() noexcept
+      template <typename ...Values> requires (utils::all_same<int, Values...>)
+      list_wrapper(Values ...vals) noexcept
       {
-        list.emplace_back(0);
-        list.emplace_back(1);
-        list.emplace_back(2);
-        list.emplace_back(3);
-        list.emplace_back(4);
-        list.emplace_back(5);
-        list.emplace_back(6);
-        list.emplace_back(7);
-        list.emplace_back(8);
-        list.emplace_back(9);
+        (..., (list.emplace_back(vals)));
       }
     };
 
@@ -83,69 +75,69 @@ namespace ut_tests
 
   TEST(ilist, t_emplace_back)
   {
-    list_wrapper lw;
-    verify_list(lw, std::array{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+    list_wrapper lw{ 0, 1, 2, 3, 4, 5, 6 };
+    verify_list(lw, std::array{ 0, 1, 2, 3, 4, 5, 6 });
   }
 
   TEST(ilist, t_emplace_front)
   {
-    list_wrapper lw;
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
     lw.list.emplace_front(42);
     lw.list.emplace_front(69);
-    verify_list(lw, std::array{ 69, 42, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+    verify_list(lw, std::array{ 69, 42, 0, 1, 2, 3, 4 });
   }
 
   TEST(ilist, t_emplace_before)
   {
-    list_wrapper lw;
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
     auto anchor = lw.list.front().next(); // element 1
     lw.list.emplace_before(*anchor, 42);
     lw.list.emplace_before(*anchor, 69);
-    verify_list(lw, std::array{ 0, 42, 69, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+    verify_list(lw, std::array{ 0, 42, 69, 1, 2, 3, 4 });
   }
 
   TEST(ilist, t_emplace_before_front)
   {
-    list_wrapper lw;
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
     auto&& anchor = lw.list.front();
     lw.list.emplace_before(anchor, 42);
     lw.list.emplace_before(anchor, 69);
-    verify_list(lw, std::array{ 42, 69, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+    verify_list(lw, std::array{ 42, 69, 0, 1, 2, 3, 4 });
   }
 
   TEST(ilist, t_emplace_before_back)
   {
-    list_wrapper lw;
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
     auto&& anchor = lw.list.back();
     lw.list.emplace_before(anchor, 42);
     lw.list.emplace_before(anchor, 69);
-    verify_list(lw, std::array{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 42, 69, 9 });
+    verify_list(lw, std::array{ 0, 1, 2, 3, 42, 69, 4 });
   }
 
   TEST(ilist, t_emplace_after)
   {
-    list_wrapper lw;
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
     auto anchor = lw.list.front().next(); // element 1
     lw.list.emplace_after(*anchor, 42);
     lw.list.emplace_after(*anchor, 69);
-    verify_list(lw, std::array{ 0, 1, 69, 42, 2, 3, 4, 5, 6, 7, 8, 9 });
+    verify_list(lw, std::array{ 0, 1, 69, 42, 2, 3, 4 });
   }
 
   TEST(ilist, t_emplace_after_front)
   {
-    list_wrapper lw;
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
     auto&& anchor = lw.list.front();
     lw.list.emplace_after(anchor, 42);
     lw.list.emplace_after(anchor, 69);
-    verify_list(lw, std::array{ 0, 69, 42, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+    verify_list(lw, std::array{ 0, 69, 42, 1, 2, 3, 4 });
   }
 
   TEST(ilist, t_emplace_after_back)
   {
-    list_wrapper lw;
+    list_wrapper lw{ 0, 1, 2, 3, 4 };
     auto&& anchor = lw.list.back();
     lw.list.emplace_after(anchor, 42);
     lw.list.emplace_after(anchor, 69);
-    verify_list(lw, std::array{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 69, 42 });
+    verify_list(lw, std::array{ 0, 1, 2, 3, 4, 69, 42 });
   }
 }

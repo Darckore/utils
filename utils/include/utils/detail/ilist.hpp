@@ -3,6 +3,9 @@
 namespace utils
 {
   template <typename T> class ilist;
+  template <typename T> class ilist_iter;
+  template <typename T> class ilist_fwd_iter;
+  template <typename T> class ilist_rev_iter;
 
   //
   // Intrusive list node
@@ -19,6 +22,11 @@ namespace utils
     using const_pointer   = const value_type*;
     using reference       = value_type&;
     using const_reference = const value_type&;
+
+    using iterator               = ilist_fwd_iter<Derived>;
+    using const_iterator         = ilist_fwd_iter<const Derived>;
+    using reverse_iterator       = ilist_rev_iter<Derived>;
+    using const_reverse_iterator = ilist_rev_iter<const Derived>;
 
     friend list_type;
 
@@ -77,6 +85,11 @@ namespace utils
       return !next();
     }
 
+    iterator to_iterator() noexcept;
+    const_iterator to_iterator() const noexcept;
+    reverse_iterator to_reverse_iterator() noexcept;
+    const_reverse_iterator to_reverse_iterator() const noexcept;
+
   protected:
     void kill_prev() noexcept
     {
@@ -116,9 +129,13 @@ namespace utils
     }
 
   private:
+    const_pointer to_derived() const noexcept
+    {
+      return static_cast<const_pointer>(this);
+    }
     pointer to_derived() noexcept
     {
-      return static_cast<pointer>(this);
+      return FROM_CONST(to_derived);
     }
 
     template <typename ...Args> requires (std::constructible_from<value_type, list_type&, Args...>)
@@ -190,7 +207,7 @@ namespace utils
     }
     void prev() noexcept
     {
-      m_node = m_node->next();
+      m_node = m_node->prev();
     }
 
   private:
@@ -282,6 +299,35 @@ namespace utils
       return copy;
     }
   };
+
+
+  //
+  // Node to iterator conversion
+  //
+
+  template <typename T>
+  ilist_node<T>::iterator ilist_node<T>::to_iterator() noexcept
+  {
+    return iterator{ to_derived() };
+  }
+
+  template <typename T>
+  ilist_node<T>::const_iterator ilist_node<T>::to_iterator() const noexcept
+  {
+    return const_iterator{ to_derived() };
+  }
+
+  template <typename T>
+  ilist_node<T>::reverse_iterator ilist_node<T>::to_reverse_iterator() noexcept
+  {
+    return reverse_iterator{ to_derived() };
+  }
+
+  template <typename T>
+  ilist_node<T>::const_reverse_iterator ilist_node<T>::to_reverse_iterator() const noexcept
+  {
+    return const_reverse_iterator{ to_derived() };
+  }
 
 
   //

@@ -90,7 +90,7 @@ namespace utils
     reverse_iterator to_reverse_iterator() noexcept;
     const_reverse_iterator to_reverse_iterator() const noexcept;
 
-  protected:
+  private:
     void kill_prev() noexcept
     {
       dealloc(m_prev);
@@ -98,6 +98,11 @@ namespace utils
     void kill_next() noexcept
     {
       dealloc(m_next);
+    }
+
+    bool same_as(const_pointer other) const noexcept
+    {
+      return to_derived() == other;
     }
 
     void reorder_with(reference other) noexcept

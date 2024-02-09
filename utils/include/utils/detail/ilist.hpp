@@ -664,6 +664,11 @@ namespace utils
       return *m_head;
     }
 
+    void assume_ownership(pointer h, pointer t) noexcept
+    {
+
+    }
+
   private:
     pointer m_head{};
     pointer m_tail{};

@@ -327,5 +327,7 @@ namespace ut_tests
     list_wrapper lw{ 1, 2, 3, 4 };
     lw.list.reverse();
     verify_list(lw, std::array{ 4, 3, 2, 1 });
+    lw.list.reverse();
+    verify_list(lw, std::array{ 1, 2, 3, 4 });
   }
 }

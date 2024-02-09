@@ -383,14 +383,14 @@ namespace utils
       m_head{ h },
       m_tail{ t }
     {
-      if (!m_tail) m_tail = m_head;
-
-      auto first = m_head;
-      while (first)
+      if (!m_head)
       {
-        first->m_list = this;
-        first = first->next();
+        m_tail = {};
+        return;
       }
+
+      if (!m_tail) m_tail = m_head;
+      assume_ownership(*h, *t);
     }
 
   public:
@@ -639,7 +639,7 @@ namespace utils
 
     auto rbegin() const noexcept
     {
-      return const_reverse_iterator{ m_head };
+      return const_reverse_iterator{ m_tail };
     }
     auto rend() const noexcept
     {
@@ -648,7 +648,7 @@ namespace utils
 
     auto rbegin() noexcept
     {
-      return reverse_iterator{ m_head };
+      return reverse_iterator{ m_tail };
     }
     auto rend() noexcept
     {
@@ -664,9 +664,14 @@ namespace utils
       return *m_head;
     }
 
-    void assume_ownership(pointer h, pointer t) noexcept
+    void assume_ownership(reference h, reference t) noexcept
     {
-
+      auto first = &h;
+      while (first != t.next())
+      {
+        first->m_list = this;
+        first = first->next();
+      }
     }
 
   private:

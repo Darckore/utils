@@ -201,6 +201,11 @@ namespace utils
       m_node{ node }
     {}
 
+    explicit operator bool() const noexcept
+    {
+      return static_cast<bool>(m_node);
+    }
+
     constexpr bool operator==(const ilist_iter&) const noexcept = default;
 
     reference operator*() const noexcept
@@ -427,6 +432,24 @@ namespace utils
     }
 
     template <typename ...Args>
+    reference emplace_before(iterator it, Args&& ...args) noexcept
+    {
+      if (!it)
+        return emplace_back(std::forward<Args>(args)...);
+
+      return emplace_before(*it, std::forward<Args>(args)...);
+    }
+
+    template <typename ...Args>
+    reference emplace_before(reverse_iterator it, Args&& ...args) noexcept
+    {
+      if (!it)
+        return emplace_front(std::forward<Args>(args)...);
+
+      return emplace_after(*it, std::forward<Args>(args)...);
+    }
+
+    template <typename ...Args>
     reference emplace_after(reference node, Args&& ...args) noexcept
     {
       UTILS_ASSERT(this == &node.list());
@@ -434,6 +457,24 @@ namespace utils
         return emplace_back(std::forward<Args>(args)...);
 
       return node.add_after(std::forward<Args>(args)...);
+    }
+
+    template <typename ...Args>
+    reference emplace_after(iterator it, Args&& ...args) noexcept
+    {
+      if (!it)
+        return emplace_back(std::forward<Args>(args)...);
+
+      return emplace_after(*it, std::forward<Args>(args)...);
+    }
+
+    template <typename ...Args>
+    reference emplace_after(reverse_iterator it, Args&& ...args) noexcept
+    {
+      if (!it)
+        return emplace_front(std::forward<Args>(args)...);
+
+      return emplace_before(*it, std::forward<Args>(args)...);
     }
 
     ilist& remove_before(reference node) noexcept
@@ -446,6 +487,17 @@ namespace utils
       node.kill_prev();
       return *this;
     }
+    ilist& remove_before(iterator it) noexcept
+    {
+      if (!it) return *this;
+      return remove_before(*it);
+    }
+    ilist& remove_before(reverse_iterator it) noexcept
+    {
+      if (!it) return *this;
+      return remove_after(*it);
+    }
+    
     ilist& remove_after(reference node) noexcept
     {
       UTILS_ASSERT(&node.list() == this);
@@ -456,6 +508,17 @@ namespace utils
       node.kill_next();
       return *this;
     }
+    ilist& remove_after(iterator it) noexcept
+    {
+      if (!it) return *this;
+      return remove_after(*it);
+    }
+    ilist& remove_after(reverse_iterator it) noexcept
+    {
+      if (!it) return *this;
+      return remove_before(*it);
+    }
+    
     ilist& remove(reference node) noexcept
     {
       UTILS_ASSERT(&node.list() == this);
@@ -471,6 +534,16 @@ namespace utils
 
       node_type::dealloc(&node);
       return *this;
+    }
+    ilist& remove(iterator it) noexcept
+    {
+      if (!it) return *this;
+      return remove(*it);
+    }
+    ilist& remove(reverse_iterator it) noexcept
+    {
+      if (!it) return *this;
+      return remove(*it);
     }
 
     ilist& pop_front() noexcept

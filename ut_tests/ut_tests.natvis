@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="ut_tests::`anonymous-namespace'::list_node">
+    <DisplayString>test node ({value})</DisplayString>
+    <Expand>
+      <Item Name="[base]">*((base_type*)this)</Item>
+      <Item Name="[value]">value</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="ut_tests::`anonymous-namespace'::list_wrapper">
+    <DisplayString>ilist wrapper</DisplayString>
+    <Expand>
+      <Item Name="[list]">list</Item>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>

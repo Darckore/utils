@@ -49,8 +49,14 @@ namespace utils
     }
 
   public:
+    bool is_attached() const noexcept
+    {
+      return static_cast<bool>(m_list);
+    }
+
     const list_type& list() const noexcept
     {
+      UTILS_ASSERT(is_attached());
       return *m_list;
     }
     list_type& list() noexcept
@@ -534,6 +540,7 @@ namespace utils
 
       node.m_prev = {};
       node.m_next = {};
+      node.m_list = {};
 
       return *this;
     }

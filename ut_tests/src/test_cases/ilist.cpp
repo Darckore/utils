@@ -234,6 +234,7 @@ namespace ut_tests
     verify_list(lw, std::array{ 0, 1, 3, 4 });
     EXPECT_TRUE(kill->is_head());
     EXPECT_TRUE(kill->is_tail());
+    EXPECT_FALSE(kill->is_attached());
     delete kill;
   }
 
@@ -245,6 +246,7 @@ namespace ut_tests
     verify_list(lw, std::array{ 1, 2, 3, 4 });
     EXPECT_TRUE(kill->is_head());
     EXPECT_TRUE(kill->is_tail());
+    EXPECT_FALSE(kill->is_attached());
     delete kill;
   }
 
@@ -256,6 +258,7 @@ namespace ut_tests
     verify_list(lw, std::array{ 0, 1, 2, 3 });
     EXPECT_TRUE(kill->is_head());
     EXPECT_TRUE(kill->is_tail());
+    EXPECT_FALSE(kill->is_attached());
     delete kill;
   }
 

@@ -102,7 +102,8 @@
   <Type Name="utils::ilist_node&lt;*&gt;">
     <DisplayString>node</DisplayString>
     <Expand>
-      <Item Name="[list]">*m_list</Item>
+      <Item Name="[list]" Condition="m_list">*m_list</Item>
+      <Item Name="[list]" Condition="!m_list">"&lt;detached&gt;",sb</Item>
       <Item Name="[prev]" Condition="m_prev">*m_prev</Item>
       <Item Name="[prev]" Condition="!m_prev">"null",sb</Item>
       <Item Name="[next]" Condition="m_next">*m_next</Item>

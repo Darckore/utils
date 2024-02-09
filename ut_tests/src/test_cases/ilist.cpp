@@ -64,10 +64,15 @@ namespace ut_tests
       auto idx = 0ull;
       for (auto&& node : list)
       {
-        ASSERT_LT(idx, baseSz);
+        if (idx >= baseSz)
+        {
+          FAIL() << "List size is greater than the baseline size";
+          return;
+        }
 
         const auto val = node.value;
-        const auto exp = baseline[idx++];
+        const auto exp = baseline[idx];
+        ++idx;
         EXPECT_EQ(val, exp);
       }
 

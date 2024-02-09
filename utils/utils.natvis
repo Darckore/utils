@@ -99,4 +99,55 @@
     </Expand>
   </Type>
 
+  <Type Name="utils::ilist_node&lt;*&gt;">
+    <DisplayString>node</DisplayString>
+    <Expand>
+      <Item Name="[list]">*m_list</Item>
+      <Item Name="[prev]" Condition="m_prev">*m_prev</Item>
+      <Item Name="[prev]" Condition="!m_prev">"null",sb</Item>
+      <Item Name="[next]" Condition="m_next">*m_next</Item>
+      <Item Name="[next]" Condition="!m_next">"null",sb</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::ilist_fwd_iter&lt;*&gt;">
+    <DisplayString Condition="m_node">fwd iterator</DisplayString>
+    <DisplayString Condition="!m_node">fwd iterator (end)</DisplayString>
+    <Expand>
+      <Item Name="[node]" Condition="m_node">*m_node</Item>
+    </Expand>
+  </Type>
+
+  <Type Name="utils::ilist_rev_iter&lt;*&gt;">
+    <DisplayString Condition="m_node">rev iterator</DisplayString>
+    <DisplayString Condition="!m_node">rev iterator (end)</DisplayString>
+    <Expand>
+      <Item Name="[node]" Condition="m_node">*m_node</Item>
+    </Expand>
+  </Type>
+  
+  <Type Name="utils::ilist&lt;*&gt;">
+    <DisplayString Condition="m_head">intrusive list</DisplayString>
+    <DisplayString Condition="!m_head">intrusive list (empty)</DisplayString>
+    <Expand>
+      <Item Name="[head]" Condition="m_head">*m_head</Item>
+      <Item Name="[head]" Condition="!m_head">"null",sb</Item>
+      <Item Name="[tail]" Condition="m_tail">*m_tail</Item>
+      <Item Name="[tail]" Condition="!m_tail">"null",sb</Item>
+      <CustomListItems Condition="m_head">
+        <Variable Name="cur" InitialValue="m_head"/>
+        <Variable Name="count" InitialValue="0"/>
+        <Loop Condition="cur">
+          <Item Name="[{count}]">*cur</Item>
+          <Exec>cur = cur->m_next</Exec>
+          <Exec>++count</Exec>
+          <If Condition="cur &amp;&amp; count &gt; 20">
+            <Item Name="[...]">"&lt;limit reached&gt;",sb</Item>
+            <Break/>
+          </If>
+        </Loop>
+      </CustomListItems>
+    </Expand>
+  </Type>
+
 </AutoVisualizer>

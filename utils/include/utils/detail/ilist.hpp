@@ -395,7 +395,7 @@ namespace utils
       }
 
       if (!m_tail) m_tail = m_head;
-      assume_ownership(*h, *t);
+      assume_ownership(*m_head, *m_tail);
     }
 
   public:
@@ -756,12 +756,17 @@ namespace utils
       return *m_head;
     }
 
+    void assume_ownership(reference node) noexcept
+    {
+      node.m_list = this;
+    }
+
     void assume_ownership(reference h, reference t) noexcept
     {
       auto first = &h;
-      while (first != t.next())
+      while (first && first != t.next())
       {
-        first->m_list = this;
+        assume_ownership(*first);
         first = first->next();
       }
     }

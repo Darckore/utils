@@ -128,18 +128,19 @@
   </Type>
   
   <Type Name="utils::ilist&lt;*&gt;">
-    <DisplayString Condition="m_head">intrusive list</DisplayString>
-    <DisplayString Condition="!m_head">intrusive list (empty)</DisplayString>
+    <DisplayString Condition="m_size">intrusive list ({m_size})</DisplayString>
+    <DisplayString Condition="!m_size">intrusive list (empty)</DisplayString>
     <Expand>
+      <Item Name="[size]">m_size</Item>
       <Item Name="[head]" Condition="m_head">*m_head</Item>
       <Item Name="[head]" Condition="!m_head">"null",sb</Item>
-      <Item Name="[tail]" Condition="m_tail">*m_tail</Item>
-      <Item Name="[tail]" Condition="!m_tail">"null",sb</Item>
       <CustomListItems Condition="m_head">
         <Variable Name="cur" InitialValue="m_head"/>
         <Variable Name="count" InitialValue="0"/>
         <Loop Condition="cur">
-          <Item Name="[{count}]">*cur</Item>
+          <If Condition="count">
+            <Item Name="[{count}]">*cur</Item>
+          </If>
           <Exec>cur = cur->m_next</Exec>
           <Exec>++count</Exec>
           <If Condition="cur &amp;&amp; count &gt; 20">
@@ -148,6 +149,8 @@
           </If>
         </Loop>
       </CustomListItems>
+      <Item Name="[tail]" Condition="m_tail">*m_tail</Item>
+      <Item Name="[tail]" Condition="!m_tail">"null",sb</Item>
     </Expand>
   </Type>
 

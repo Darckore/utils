@@ -37,6 +37,13 @@ namespace ut_tests
         }
       }
 
+      if (list.size() != baseline.size())
+      {
+        FAIL() << "Baseline with " << baseline.size()
+               << " items is compared to a list of size " << list.size();
+        return;
+      }
+
       auto&& first = list.front();
       auto&& last = list.back();
       if (!first.is_head())
@@ -64,12 +71,6 @@ namespace ut_tests
       auto idx = 0ull;
       for (auto&& node : list)
       {
-        if (idx >= baseSz)
-        {
-          FAIL() << "List size is greater than the baseline size";
-          return;
-        }
-
         const auto val = node.value;
         const auto exp = baseline[idx];
         ++idx;

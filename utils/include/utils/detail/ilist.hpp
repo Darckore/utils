@@ -198,6 +198,8 @@ namespace utils
     using const_pointer   = const value_type*;
     using reference       = value_type&;
     using const_reference = const value_type&;
+    using size_type       = std::size_t;
+    using difference_type = std::ptrdiff_t;
 
   public:
     CLASS_SPECIALS_ALL(ilist_iter);
@@ -360,7 +362,7 @@ namespace utils
 
 
   //
-  // An doubly-linked intrusive list
+  // A doubly-linked intrusive list
   // Allows elements to know their locations within the container
   // The elements combine pointer to adjacent nodes with data
   //
@@ -378,6 +380,8 @@ namespace utils
     using const_pointer          = iterator::const_pointer;
     using reference              = iterator::reference;
     using const_reference        = iterator::const_reference;
+    using size_type              = iterator::size_type;
+    using difference_type        = iterator::difference_type;
 
   public:
     CLASS_SPECIALS_NONE_CUSTOM(ilist);
@@ -413,6 +417,7 @@ namespace utils
 
       auto&& newHead = m_head->add_before(std::forward<Args>(args)...);
       m_head = &newHead;
+      ++m_size;
       return front();
     }
 
@@ -424,6 +429,7 @@ namespace utils
 
       auto&& newTail = m_tail->add_after(std::forward<Args>(args)...);
       m_tail = &newTail;
+      ++m_size;
       return back();
     }
 
@@ -434,6 +440,7 @@ namespace utils
       if (&node == m_head)
         return emplace_front(std::forward<Args>(args)...);
 
+      ++m_size;
       return node.add_before(std::forward<Args>(args)...);
     }
 
@@ -462,6 +469,7 @@ namespace utils
       if (&node == m_tail)
         return emplace_back(std::forward<Args>(args)...);
 
+      ++m_size;
       return node.add_after(std::forward<Args>(args)...);
     }
 
@@ -490,6 +498,7 @@ namespace utils
       if (node.prev() == m_head)
         m_head = &node;
 
+      if (node.prev()) --m_size;
       node.kill_prev();
       return *this;
     }
@@ -511,6 +520,7 @@ namespace utils
       if (node.next() == m_tail)
         m_tail = &node;
 
+      if(node.next()) --m_size;
       node.kill_next();
       return *this;
     }
@@ -541,7 +551,7 @@ namespace utils
       node.m_prev = {};
       node.m_next = {};
       node.m_list = {};
-
+      --m_size;
       return *this;
     }
     ilist& detach(iterator it) noexcept
@@ -589,6 +599,7 @@ namespace utils
         node_type::dealloc(head);
         m_tail = {};
       }
+      --m_size;
       return *this;
     }
     ilist& pop_back() noexcept
@@ -608,6 +619,7 @@ namespace utils
         node_type::dealloc(tail);
         m_head = {};
       }
+      --m_size;
       return *this;
     }
 
@@ -629,11 +641,6 @@ namespace utils
       return FROM_CONST(back);
     }
 
-    bool empty() const noexcept
-    {
-      return !m_head;
-    }
-
     ilist& clear() noexcept
     {
       if (empty())
@@ -645,6 +652,7 @@ namespace utils
       m_tail = {};
       node_type::dealloc(m_head);
       m_head = {};
+      m_size = {};
       return *this;
     }
 
@@ -694,6 +702,15 @@ namespace utils
       if (!m_tail)
         m_tail = m_head;
 
+      auto newSize = size_type{};
+      auto head = m_head;
+      while (head)
+      {
+        ++newSize;
+        head = head->next();
+      }
+      m_size = newSize;
+
       return { newHead, newTail };
     }
 
@@ -718,6 +735,16 @@ namespace utils
     }
 
   public:
+    auto size() const noexcept
+    {
+      return m_size;
+    }
+
+    bool empty() const noexcept
+    {
+      return !m_size;
+    }
+
     auto begin() const noexcept
     {
       return const_iterator{ m_head };
@@ -760,11 +787,13 @@ namespace utils
     {
       m_head = &node_type::alloc(m_head, m_tail, *this, std::forward<Args>(args)...);
       m_tail = m_head;
+      ++m_size;
       return *m_head;
     }
 
     void assume_ownership(reference node) noexcept
     {
+      ++m_size;
       node.m_list = this;
     }
 
@@ -781,6 +810,7 @@ namespace utils
   private:
     pointer m_head{};
     pointer m_tail{};
+    size_type m_size{};
   };
 
 }

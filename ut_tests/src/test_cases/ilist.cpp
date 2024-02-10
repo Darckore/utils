@@ -516,5 +516,12 @@ namespace ut_tests
           v *= 3;
       });
     verify_list(lw, std::array{ 1, 6, 3, 12, 5, 18 });
+
+    lw.list.apply([](auto&& node) noexcept
+      {
+        if (node.value % 2 != 0)
+          node.list().remove(node);
+      });
+    verify_list(lw, std::array{ 6, 12, 18 });
   }
 }

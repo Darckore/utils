@@ -971,8 +971,9 @@ namespace utils
       auto head = m_head;
       while (head)
       {
+        auto next = head->next();
         transform(*head);
-        head = head->next();
+        head = next;
       }
       return *this;
     }

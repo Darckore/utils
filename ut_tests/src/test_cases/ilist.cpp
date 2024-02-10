@@ -8,6 +8,9 @@ namespace ut_tests
     {
       int value;
 
+      constexpr bool operator==(const list_node&) const noexcept = default;
+      constexpr auto operator<=>(const list_node&) const noexcept = default;
+
       list_node(list_type& list, int val) noexcept :
         base_type{ list },
         value{ val }
@@ -524,4 +527,15 @@ namespace ut_tests
       });
     verify_list(lw, std::array{ 6, 12, 18 });
   }
+
+  TEST(ilist, t_erase)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    lw.list.erase([](auto&& item) noexcept
+      {
+        return item.value % 3 == 0;
+      });
+    verify_list(lw, std::array{ 1, 2, 4, 5 });
+  }
+
 }

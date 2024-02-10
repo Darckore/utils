@@ -366,10 +366,16 @@ namespace utils
   }
 
   template <typename F, typename Node>
-  concept ilist_unary_predicate = std::is_nothrow_invocable_r_v<bool, F, const Node&>;
+  concept ilist_unary_predicate =
+    std::is_nothrow_invocable_r_v<bool, F, const Node&>;
 
   template <typename F, typename Node>
-  concept ilist_unary_transform = std::is_nothrow_invocable_r_v<void, F, Node&>;
+  concept ilist_binary_predicate =
+    std::is_nothrow_invocable_r_v<bool, F, const Node&, const Node&>;
+
+  template <typename F, typename Node>
+  concept ilist_unary_transform =
+    std::is_nothrow_invocable_r_v<void, F, Node&>;
 
 
   //
@@ -978,6 +984,20 @@ namespace utils
       return *this;
     }
 
+    template <ilist_unary_predicate<value_type> Pred>
+    ilist& erase(Pred&& pred) noexcept
+    {
+      auto head = m_head;
+      while (head)
+      {
+        auto next = head->next();
+        if (pred(*head))
+          remove(*head);
+        head = next;
+      }
+      return *this;
+    }
+
   public: // info and iteration
     auto size() const noexcept
     {
@@ -1064,4 +1084,12 @@ namespace utils
     size_type m_size{};
   };
 
+
+  template <typename Derived>
+  void swap(ilist_node<Derived>& l, ilist_node<Derived>& r) noexcept
+  {
+    UTILS_ASSERT(l.is_attached() && r.is_attached());
+    UTILS_ASSERT(&l.list() == &r.list());
+    l.list().reorder(l, r);
+  }
 }

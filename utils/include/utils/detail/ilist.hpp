@@ -365,6 +365,8 @@ namespace utils
     return const_reverse_iterator{ to_derived() };
   }
 
+  template <typename F, typename Node>
+  concept ilist_unary_predicate = std::is_nothrow_invocable_r_v<bool, F, const Node&>;
 
   //
   // A doubly-linked intrusive list
@@ -929,6 +931,34 @@ namespace utils
       m_head = prevTail;
       m_tail = prevHead;
       return *this;
+    }
+
+  private:
+    template <ilist_unary_predicate<value_type> Pred>
+    const_pointer find_impl(Pred&& pred) const noexcept
+    {
+      auto head = m_head;
+      while (head)
+      {
+        if (pred(*head)) break;
+        head = head->next();
+      }
+      return head;
+    }
+
+  public:
+    template <ilist_unary_predicate<value_type> Pred>
+    auto find(Pred&& pred) const noexcept
+    {
+      auto found = find_impl(std::forward<Pred>(pred));
+      return const_iterator{ found };
+    }
+
+    template <ilist_unary_predicate<value_type> Pred>
+    auto find(Pred&& pred) noexcept
+    {
+      auto found = FROM_CONST(find_impl, std::forward<Pred>(pred));
+      return iterator{ found };
     }
 
   public: // info and iteration

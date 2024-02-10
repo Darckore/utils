@@ -493,4 +493,16 @@ namespace ut_tests
     dst.list.append_to(app, std::move(src2.list));
     verify_list(dst, std::array{ 1, 2, 3, 4, 8, 9, 5, 6, 7 });
   }
+
+  TEST(ilist, t_find)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    auto toFind = lw.list.back().prev()->prev()->to_iterator(); // element 4
+    auto found = lw.list.find([](auto&& item) noexcept
+      {
+        return item.value == 4;
+      });
+
+    ASSERT_EQ(toFind, found);
+  }
 }

@@ -441,7 +441,7 @@ namespace utils
     template <typename ...Args>
     reference emplace_before(reference node, Args&& ...args) noexcept
     {
-      UTILS_ASSERT(this == &node.list());
+      UTILS_ASSERT(node.m_list == this);
       if (&node == m_head)
         return emplace_front(std::forward<Args>(args)...);
 
@@ -470,7 +470,7 @@ namespace utils
     template <typename ...Args>
     reference emplace_after(reference node, Args&& ...args) noexcept
     {
-      UTILS_ASSERT(this == &node.list());
+      UTILS_ASSERT(node.m_list == this);
       if (&node == m_tail)
         return emplace_back(std::forward<Args>(args)...);
 
@@ -527,7 +527,7 @@ namespace utils
 
     ilist& attach_before(reference node, reference attached) noexcept
     {
-      UTILS_ASSERT(&node.list() == this);
+      UTILS_ASSERT(node.m_list == this);
       if (attached.is_attached())
       {
         UTILS_ASSERT(false);
@@ -562,7 +562,7 @@ namespace utils
 
     ilist& attach_after(reference node, reference attached) noexcept
     {
-      UTILS_ASSERT(&node.list() == this);
+      UTILS_ASSERT(node.m_list == this);
       if (attached.is_attached())
       {
         UTILS_ASSERT(false);
@@ -597,7 +597,7 @@ namespace utils
 
     ilist& remove_before(reference node) noexcept
     {
-      UTILS_ASSERT(&node.list() == this);
+      UTILS_ASSERT(node.m_list == this);
 
       if (node.prev() == m_head)
         m_head = &node;
@@ -619,7 +619,7 @@ namespace utils
     
     ilist& remove_after(reference node) noexcept
     {
-      UTILS_ASSERT(&node.list() == this);
+      UTILS_ASSERT(node.m_list == this);
 
       if (node.next() == m_tail)
         m_tail = &node;
@@ -641,7 +641,7 @@ namespace utils
 
     ilist& detach(reference node) noexcept
     {
-      UTILS_ASSERT(&node.list() == this);
+      UTILS_ASSERT(node.m_list == this);
       auto p = node.prev();
       auto n = node.next();
       if (p) p->m_next = n;
@@ -725,6 +725,98 @@ namespace utils
       }
       --m_size;
       return *this;
+    }
+
+    ilist& prepend(ilist&& other) noexcept
+    {
+      if (other.empty())
+        return *this;
+
+      assume_ownership(other.front(), other.back());
+      if (m_head) node_type::link(other.m_tail, *m_head, m_head->next());
+      m_head = other.m_head;
+      if (!m_tail) m_tail = other.m_tail;
+      other.loose_content();
+      return *this;
+    }
+    ilist& prepend_to(reference node, ilist&& other) noexcept
+    {
+      UTILS_ASSERT(node.m_list == this);
+      if (other.empty())
+        return *this;
+
+      assume_ownership(other.front(), other.back());
+      
+      auto nodePrev = node.prev();
+      node_type::link(other.m_tail, node, node.next());
+      node_type::link(nodePrev, other.front(), other.m_head->next());
+
+      if (&node == m_head)
+        m_head = other.m_head;
+
+      other.loose_content();
+      return *this;
+    }
+    ilist& prepend_to(iterator it, ilist&& other) noexcept
+    {
+      if (!it)
+        return prepend(std::move(other));
+
+      return prepend_to(*it, std::move(other));
+    }
+    ilist& prepend_to(reverse_iterator it, ilist&& other) noexcept
+    {
+      other.reverse();
+      if (!it)
+        return append(std::move(other));
+
+      return append_to(*it, std::move(other));
+    }
+
+    ilist& append(ilist&& other) noexcept
+    {
+      if (other.empty())
+        return *this;
+
+      assume_ownership(other.front(), other.back());
+      node_type::link(m_tail, other.front(), other.m_head->next());
+      m_tail = other.m_tail;
+      if (!m_head) m_head = other.m_head;
+      other.loose_content();
+      return *this;
+    }
+    ilist& append_to(reference node, ilist&& other) noexcept
+    {
+      UTILS_ASSERT(node.m_list == this);
+      if (other.empty())
+        return *this;
+
+      assume_ownership(other.front(), other.back());
+
+      auto nodeNext = node.next();
+      node_type::link(node.prev(), node, other.m_head);
+      node_type::link(other.m_tail->prev(), other.back(), nodeNext);
+
+      if (&node == m_tail)
+        m_tail = other.m_tail;
+
+      other.loose_content();
+      return *this;
+    }
+    ilist& append_to(iterator it, ilist&& other) noexcept
+    {
+      if (!it)
+        return append(std::move(other));
+
+      return append_to(*it, std::move(other));
+    }
+    ilist& append_to(reverse_iterator it, ilist&& other) noexcept
+    {
+      other.reverse();
+      if (!it)
+        return prepend(std::move(other));
+
+      return prepend_to(*it, std::move(other));
     }
 
     const_reference front() const noexcept
@@ -909,6 +1001,13 @@ namespace utils
         assume_ownership(*first);
         first = first->next();
       }
+    }
+
+    void loose_content() noexcept
+    {
+      m_head = {};
+      m_tail = {};
+      m_size = {};
     }
 
   private:

@@ -71,6 +71,18 @@ namespace ut_tests
       auto idx = 0ull;
       for (auto&& node : list)
       {
+        if (!node.is_attached())
+        {
+          FAIL() << "Detached node with value " << node.value;
+          return;
+        }
+
+        if (&node.list() != &list)
+        {
+          FAIL() << "Foreign node with value " << node.value;
+          return;
+        }
+
         const auto val = node.value;
         const auto exp = baseline[idx];
         ++idx;
@@ -430,5 +442,55 @@ namespace ut_tests
     verify_list(lw, std::array{ 4, 3, 2, 1 });
     lw.list.reverse();
     verify_list(lw, std::array{ 1, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_prepend)
+  {
+    list_wrapper src{ 1, 2, 3, 4 };
+    list_wrapper dst{};
+    dst.list.prepend(std::move(src.list));
+    verify_list(dst, std::array{ 1, 2, 3, 4 });
+    
+    list_wrapper src2{ 5, 6, 7 };
+    dst.list.prepend(std::move(src2.list));
+    verify_list(dst, std::array{ 5, 6, 7, 1, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_prepend_to)
+  {
+    list_wrapper src{ 5, 6, 7 };
+    list_wrapper dst{ 1, 2, 3, 4 };
+    auto&& pre = dst.list.front();
+    dst.list.prepend_to(pre, std::move(src.list));
+    verify_list(dst, std::array{ 5, 6, 7, 1, 2, 3, 4 });
+
+    list_wrapper src2{ 8, 9 };
+    dst.list.prepend_to(pre, std::move(src2.list));
+    verify_list(dst, std::array{ 5, 6, 7, 8, 9, 1, 2, 3, 4 });
+  }
+
+  TEST(ilist, t_append)
+  {
+    list_wrapper src{ 1, 2, 3, 4 };
+    list_wrapper dst{};
+    dst.list.append(std::move(src.list));
+    verify_list(dst, std::array{ 1, 2, 3, 4 });
+
+    list_wrapper src2{ 5, 6, 7 };
+    dst.list.append(std::move(src2.list));
+    verify_list(dst, std::array{ 1, 2, 3, 4, 5, 6, 7 });
+  }
+
+  TEST(ilist, t_append_to)
+  {
+    list_wrapper src{ 5, 6, 7 };
+    list_wrapper dst{ 1, 2, 3, 4 };
+    auto&& app = dst.list.back();
+    dst.list.append_to(app, std::move(src.list));
+    verify_list(dst, std::array{ 1, 2, 3, 4, 5, 6, 7 });
+
+    list_wrapper src2{ 8, 9 };
+    dst.list.append_to(app, std::move(src2.list));
+    verify_list(dst, std::array{ 1, 2, 3, 4, 8, 9, 5, 6, 7 });
   }
 }

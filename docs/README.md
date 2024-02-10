@@ -208,3 +208,11 @@ Useful to cast stuff. Take a look at
 [this test](/ut_tests/src/test_cases/type_support.cpp)
 It will explain things better than I would hope to.
 
+### Intrusive list
+
+A doubly-linked list of nodes that combine data and links to
+adjacent nodes. They also know which list they belong to.
+Objects stored in the list must inherit from
+the CRTP base node.
+The list supports a range of operations and behaves
+somewhat like `std::list`.

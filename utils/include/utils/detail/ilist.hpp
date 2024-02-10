@@ -510,17 +510,6 @@ namespace utils
       if (!m_tail) m_tail = m_head;
       return *this;
     }
-    ilist& attach_front(iterator it) noexcept
-    {
-      if (!it) return *this;
-      return attach_front(*it);
-    }
-    ilist& attach_front(reverse_iterator it) noexcept
-    {
-      if (!it) return *this;
-      return attach_front(*it);
-    }
-
     ilist& attach_back(reference node) noexcept
     {
       if (node.is_attached())
@@ -534,16 +523,6 @@ namespace utils
       m_tail = &node;
       if (!m_head) m_head = m_tail;
       return *this;
-    }
-    ilist& attach_back(iterator it) noexcept
-    {
-      if (!it) return *this;
-      return attach_back(*it);
-    }
-    ilist& attach_back(reverse_iterator it) noexcept
-    {
-      if (!it) return *this;
-      return attach_back(*it);
     }
 
     ilist& attach_before(reference node, reference attached) noexcept
@@ -560,6 +539,26 @@ namespace utils
       if (m_head == &node) m_head = &attached;
       return *this;
     }
+    ilist& attach_before(iterator it, reference attached) noexcept
+    {
+      if (!it)
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
+      return attach_before(*it, attached);
+    }
+    ilist& attach_before(reverse_iterator it, reference attached) noexcept
+    {
+      if (!it)
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
+      return attach_after(*it, attached);
+    }
 
     ilist& attach_after(reference node, reference attached) noexcept
     {
@@ -574,6 +573,26 @@ namespace utils
       node_type::link(&node, attached, node.next());
       if (m_tail == &node) m_tail = &attached;
       return *this;
+    }
+    ilist& attach_after(iterator it, reference attached) noexcept
+    {
+      if (!it)
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
+      return attach_after(*it, attached);
+    }
+    ilist& attach_after(reverse_iterator it, reference attached) noexcept
+    {
+      if (!it)
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
+      return attach_before(*it, attached);
     }
 
     ilist& remove_before(reference node) noexcept

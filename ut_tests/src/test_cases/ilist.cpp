@@ -155,6 +155,70 @@ namespace ut_tests
     verify_list(lw, std::array{ 0, 1, 2, 3, 4, 69, 42 });
   }
 
+  TEST(ilist, t_attach_front)
+  {
+    list_wrapper src{ 1, 2, 3, 4 };
+    list_wrapper dst{};
+
+    auto item = &src.list.front();
+    src.list.detach(*item);
+    dst.list.attach_front(*item);
+    verify_list(dst, std::array{ 1 });
+
+    item = &src.list.back();
+    src.list.detach(*item);
+    dst.list.attach_front(*item);
+    verify_list(dst, std::array{ 4, 1 });
+  }
+
+  TEST(ilist, t_attach_back)
+  {
+    list_wrapper src{ 1, 2, 3, 4 };
+    list_wrapper dst{};
+
+    auto item = &src.list.front();
+    src.list.detach(*item);
+    dst.list.attach_back(*item);
+    verify_list(dst, std::array{ 1 });
+
+    item = &src.list.back();
+    src.list.detach(*item);
+    dst.list.attach_back(*item);
+    verify_list(dst, std::array{ 1, 4 });
+  }
+
+  TEST(ilist, t_attach_before)
+  {
+    list_wrapper src{ 1, 2, 3, 4 };
+    list_wrapper dst{ 5 };
+
+    auto item = &src.list.front();
+    src.list.detach(*item);
+    dst.list.attach_before(dst.list.front(), *item);
+    verify_list(dst, std::array{ 1, 5 });
+
+    item = &src.list.back();
+    src.list.detach(*item);
+    dst.list.attach_before(dst.list.back(), *item);
+    verify_list(dst, std::array{ 1, 4, 5 });
+  }
+
+  TEST(ilist, t_attach_after)
+  {
+    list_wrapper src{ 1, 2, 3, 4 };
+    list_wrapper dst{ 5 };
+
+    auto item = &src.list.front();
+    src.list.detach(*item);
+    dst.list.attach_after(dst.list.front(), *item);
+    verify_list(dst, std::array{ 5, 1 });
+
+    item = &src.list.back();
+    src.list.detach(*item);
+    dst.list.attach_after(dst.list.back(), *item);
+    verify_list(dst, std::array{ 5, 1, 4 });
+  }
+
   TEST(ilist, t_remove_before)
   {
     list_wrapper lw{ 0, 1, 2, 3, 4 };

@@ -162,15 +162,20 @@ namespace utils
       return FROM_CONST(to_derived);
     }
 
+    static reference link(pointer l, reference node, pointer r) noexcept
+    {
+      node.m_prev = l;
+      if (l) l->m_next = &node;
+      node.m_next = r;
+      if (r) r->m_prev = &node;
+      return node;
+    }
+
     template <typename ...Args> requires (std::constructible_from<value_type, list_type&, Args...>)
     static reference alloc(pointer l, pointer r, list_type& owner, Args&& ...args) noexcept
     {
       auto newVal = new value_type{ owner, std::forward<Args>(args)... };
-      newVal->m_prev = l;
-      if (l) l->m_next = newVal;
-      newVal->m_next = r;
-      if (r) r->m_prev = newVal;
-      return *newVal;
+      return link(l, *newVal, r);
     }
 
     static void dealloc(pointer ptr) noexcept
@@ -489,6 +494,86 @@ namespace utils
         return emplace_front(std::forward<Args>(args)...);
 
       return emplace_before(*it, std::forward<Args>(args)...);
+    }
+
+    ilist& attach_front(reference node) noexcept
+    {
+      if (node.is_attached())
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
+      assume_ownership(node);
+      node_type::link({}, node, m_head);
+      m_head = &node;
+      if (!m_tail) m_tail = m_head;
+      return *this;
+    }
+    ilist& attach_front(iterator it) noexcept
+    {
+      if (!it) return *this;
+      return attach_front(*it);
+    }
+    ilist& attach_front(reverse_iterator it) noexcept
+    {
+      if (!it) return *this;
+      return attach_front(*it);
+    }
+
+    ilist& attach_back(reference node) noexcept
+    {
+      if (node.is_attached())
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
+      assume_ownership(node);
+      node_type::link(m_tail, node, {});
+      m_tail = &node;
+      if (!m_head) m_head = m_tail;
+      return *this;
+    }
+    ilist& attach_back(iterator it) noexcept
+    {
+      if (!it) return *this;
+      return attach_back(*it);
+    }
+    ilist& attach_back(reverse_iterator it) noexcept
+    {
+      if (!it) return *this;
+      return attach_back(*it);
+    }
+
+    ilist& attach_before(reference node, reference attached) noexcept
+    {
+      UTILS_ASSERT(&node.list() == this);
+      if (attached.is_attached())
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
+      assume_ownership(attached);
+      node_type::link(node.prev(), attached, &node);
+      if (m_head == &node) m_head = &attached;
+      return *this;
+    }
+
+    ilist& attach_after(reference node, reference attached) noexcept
+    {
+      UTILS_ASSERT(&node.list() == this);
+      if (attached.is_attached())
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
+      assume_ownership(attached);
+      node_type::link(&node, attached, node.next());
+      if (m_tail == &node) m_tail = &attached;
+      return *this;
     }
 
     ilist& remove_before(reference node) noexcept

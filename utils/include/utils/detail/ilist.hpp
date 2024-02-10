@@ -413,7 +413,7 @@ namespace utils
       assume_ownership(*m_head, *m_tail);
     }
 
-  public:
+  public: // addition and removal of elements
     template <typename ...Args>
     reference emplace_front(Args&& ...args) noexcept
     {
@@ -819,6 +819,7 @@ namespace utils
       return prepend_to(*it, std::move(other));
     }
 
+  public: // accessors and order manipulation
     const_reference front() const noexcept
     {
       return *m_head;
@@ -930,7 +931,7 @@ namespace utils
       return *this;
     }
 
-  public:
+  public: // info and iteration
     auto size() const noexcept
     {
       return m_size;

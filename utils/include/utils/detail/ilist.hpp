@@ -368,6 +368,10 @@ namespace utils
   template <typename F, typename Node>
   concept ilist_unary_predicate = std::is_nothrow_invocable_r_v<bool, F, const Node&>;
 
+  template <typename F, typename Node>
+  concept ilist_unary_transform = std::is_nothrow_invocable_r_v<void, F, Node&>;
+
+
   //
   // A doubly-linked intrusive list
   // Allows elements to know their locations within the container
@@ -946,7 +950,7 @@ namespace utils
       return head;
     }
 
-  public:
+  public: // iterative manipulations
     template <ilist_unary_predicate<value_type> Pred>
     auto find(Pred&& pred) const noexcept
     {
@@ -959,6 +963,18 @@ namespace utils
     {
       auto found = FROM_CONST(find_impl, std::forward<Pred>(pred));
       return iterator{ found };
+    }
+
+    template <ilist_unary_transform<value_type> Transform>
+    ilist& apply(Transform&& transform) noexcept
+    {
+      auto head = m_head;
+      while (head)
+      {
+        transform(*head);
+        head = head->next();
+      }
+      return *this;
     }
 
   public: // info and iteration

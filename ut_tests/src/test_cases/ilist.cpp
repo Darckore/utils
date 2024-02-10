@@ -505,4 +505,16 @@ namespace ut_tests
 
     ASSERT_EQ(toFind, found);
   }
+
+  TEST(ilist, t_transform)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    lw.list.apply([](auto&& node) noexcept
+      {
+        auto&& v = node.value;
+        if (v % 2 == 0)
+          v *= 3;
+      });
+    verify_list(lw, std::array{ 1, 6, 3, 12, 5, 18 });
+  }
 }

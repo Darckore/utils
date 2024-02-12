@@ -170,6 +170,13 @@ namespace utils
       return FROM_CONST(to_derived);
     }
 
+    void detach() noexcept
+    {
+      m_prev = {};
+      m_next = {};
+      m_list = {};
+    }
+
     static reference link(pointer l, reference node, pointer r) noexcept
     {
       node.m_prev = l;
@@ -189,6 +196,20 @@ namespace utils
     static void dealloc(pointer ptr) noexcept
     {
       delete ptr;
+    }
+
+    static void set_next(pointer node, pointer p) noexcept
+    {
+      if (node) node->m_next = p;
+    }
+    static void set_prev(pointer node, pointer p) noexcept
+    {
+      if (node) node->m_prev = p;
+    }
+    static void mutual_link(pointer l, pointer r) noexcept
+    {
+      set_next(l, r);
+      set_prev(r, l);
     }
 
   private:
@@ -580,8 +601,7 @@ namespace utils
 
     ilist& attach_after(reference node, reference attached) noexcept
     {
-      UTILS_ASSERT(node.belongs_to(this));
-      if (attached.is_attached())
+      if (!node.belongs_to(this) || attached.is_attached())
       {
         UTILS_ASSERT(false);
         return *this;
@@ -589,7 +609,7 @@ namespace utils
 
       assume_ownership(attached);
       node_type::link(&node, attached, node.next());
-      if (m_tail == &node) m_tail = &attached;
+      if (node.same_as(m_tail)) set_tail(&attached);
       return *this;
     }
     ilist& attach_after(iterator it, reference attached) noexcept
@@ -615,12 +635,16 @@ namespace utils
 
     ilist& remove_before(reference node) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
+      if (!node.belongs_to(this))
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
 
       if (node.prev() == m_head)
-        m_head = &node;
+        set_head(&node);
 
-      if (node.prev()) --m_size;
+      if (node.prev()) shrink();
       node.kill_prev();
       return *this;
     }
@@ -637,12 +661,16 @@ namespace utils
     
     ilist& remove_after(reference node) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
+      if (!node.belongs_to(this))
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
 
       if (node.next() == m_tail)
-        m_tail = &node;
+        set_tail(&node);
 
-      if(node.next()) --m_size;
+      if(node.next()) shrink();
       node.kill_next();
       return *this;
     }
@@ -659,21 +687,21 @@ namespace utils
 
     ilist& detach(reference node) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
+      if (!node.belongs_to(this))
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
       auto p = node.prev();
       auto n = node.next();
-      if (p) p->m_next = n;
-      if (n) n->m_prev = p;
+      node_type::mutual_link(p, n);
 
-      if (&node == m_head)
-        m_head = n;
-      if (&node == m_tail)
-        m_tail = p;
+      if (node.same_as(m_head)) set_head(n);
+      if (node.same_as(m_tail)) set_tail(p);
 
-      node.m_prev = {};
-      node.m_next = {};
-      node.m_list = {};
-      --m_size;
+      node.detach();
+      shrink();
       return *this;
     }
     ilist& detach(iterator it) noexcept

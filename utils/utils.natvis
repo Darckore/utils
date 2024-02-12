@@ -151,6 +151,7 @@
       </CustomListItems>
       <Item Name="[tail]" Condition="m_tail">*m_tail</Item>
       <Item Name="[tail]" Condition="!m_tail">"null",sb</Item>
+      <Item Name="[allocator]">m_alloc</Item>
     </Expand>
   </Type>
 

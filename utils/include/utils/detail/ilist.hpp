@@ -2,31 +2,32 @@
 
 namespace utils
 {
-  template <typename T> class ilist;
-  template <typename T> class ilist_iter;
-  template <typename T> class ilist_fwd_iter;
-  template <typename T> class ilist_rev_iter;
+  template <typename T, typename Allocator> class ilist;
+  template <typename T, typename Allocator> class ilist_iter;
+  template <typename T, typename Allocator> class ilist_fwd_iter;
+  template <typename T, typename Allocator> class ilist_rev_iter;
 
   //
   // Intrusive list node
   // Used as a CRTP base class for anything stored in the list
   //
-  template <typename Derived>
+  template <typename Derived, typename Allocator = std::allocator<Derived>>
   class ilist_node
   {
   public:
     using value_type      = Derived;
-    using base_type       = ilist_node<value_type>;
-    using list_type       = ilist<value_type>;
+    using allocator_type  = Allocator;
+    using base_type       = ilist_node<value_type, allocator_type>;
+    using list_type       = ilist<value_type, allocator_type>;
     using pointer         = value_type*;
     using const_pointer   = const value_type*;
     using reference       = value_type&;
     using const_reference = const value_type&;
 
-    using iterator               = ilist_fwd_iter<Derived>;
-    using const_iterator         = ilist_fwd_iter<const Derived>;
-    using reverse_iterator       = ilist_rev_iter<Derived>;
-    using const_reverse_iterator = ilist_rev_iter<const Derived>;
+    using iterator               = ilist_fwd_iter<Derived, allocator_type>;
+    using const_iterator         = ilist_fwd_iter<const Derived, allocator_type>;
+    using reverse_iterator       = ilist_rev_iter<Derived, allocator_type>;
+    using const_reverse_iterator = ilist_rev_iter<const Derived, allocator_type>;
 
     friend list_type;
 
@@ -120,13 +121,13 @@ namespace utils
     const_reverse_iterator to_reverse_iterator() const noexcept;
 
   private:
-    void kill_prev() noexcept
+    void kill_prev(allocator_type alloc) noexcept
     {
-      dealloc(prev());
+      dealloc(alloc, prev());
     }
-    void kill_next() noexcept
+    void kill_next(allocator_type alloc) noexcept
     {
-      dealloc(next());
+      dealloc(alloc, next());
     }
 
     void reorder_with(reference other) noexcept
@@ -156,14 +157,14 @@ namespace utils
     }
 
     template <typename ...Args>
-    reference add_before(Args&& ...args) noexcept
+    reference add_before(allocator_type alloc, Args&& ...args) noexcept
     {
-      return alloc(prev(), to_derived(), list(), std::forward<Args>(args)...);
+      return make(alloc, prev(), to_derived(), list(), std::forward<Args>(args)...);
     }
     template <typename ...Args>
-    reference add_after(Args&& ...args) noexcept
+    reference add_after(allocator_type alloc, Args&& ...args) noexcept
     {
-      return alloc(to_derived(), next(), list(), std::forward<Args>(args)...);
+      return make(alloc, to_derived(), next(), list(), std::forward<Args>(args)...);
     }
 
   private:
@@ -174,6 +175,15 @@ namespace utils
     pointer to_derived() noexcept
     {
       return FROM_CONST(to_derived);
+    }
+
+    auto to_base() const noexcept
+    {
+      return static_cast<const base_type*>(this);
+    }
+    auto to_base() noexcept
+    {
+      return FROM_CONST(to_base);
     }
 
     void drop_next() noexcept
@@ -216,15 +226,20 @@ namespace utils
     }
 
     template <typename ...Args> requires (std::constructible_from<value_type, list_type&, Args...>)
-    static reference alloc(pointer l, pointer r, list_type& owner, Args&& ...args) noexcept
+    static reference make(allocator_type alloc, pointer l, pointer r, list_type& owner, Args&& ...args) noexcept
     {
-      auto newVal = new value_type{ owner, std::forward<Args>(args)... };
+      auto storage = alloc.allocate(1);
+      auto newVal = new (storage) value_type{ owner, std::forward<Args>(args)... };
       return link(l, *newVal, r);
     }
 
-    static void dealloc(pointer ptr) noexcept
+    static void dealloc(allocator_type alloc, pointer ptr) noexcept
     {
-      delete ptr;
+      if (!ptr) return;
+
+      ptr->to_base()->~ilist_node();
+      ptr->~value_type();
+      alloc.deallocate(ptr, 1);
     }
 
     static void set_next(pointer node, pointer p) noexcept
@@ -251,11 +266,12 @@ namespace utils
   //
   // Base class for list iterators
   //
-  template <typename T>
+  template <typename T, typename Allocator = std::allocator<T>>
   class ilist_iter
   {
   public:
-    using node_type       = ilist_node<std::remove_const_t<T>>;
+    using node_type       = ilist_node<std::remove_const_t<T>, Allocator>;
+    using allocator_type  = node_type::allocator_type;
     using value_type      = T;
     using pointer         = value_type*;
     using const_pointer   = const value_type*;
@@ -312,11 +328,11 @@ namespace utils
   //
   // Forward iterator
   //
-  template <typename T>
-  class ilist_fwd_iter final : public ilist_iter<T>
+  template <typename T, typename Allocator = std::allocator<T>>
+  class ilist_fwd_iter final : public ilist_iter<T, Allocator>
   {
   public:
-    using base_type = ilist_iter<T>;
+    using base_type = ilist_iter<T, Allocator>;
 
   public:
     CLASS_SPECIALS_ALL(ilist_fwd_iter);
@@ -355,11 +371,11 @@ namespace utils
   //
   // Reverse iterator
   //
-  template <typename T>
+  template <typename T, typename Allocator = std::allocator<T>>
   class ilist_rev_iter final : public ilist_iter<T>
   {
   public:
-    using base_type = ilist_iter<T>;
+    using base_type = ilist_iter<T, Allocator>;
 
   public:
     CLASS_SPECIALS_ALL(ilist_rev_iter);
@@ -399,26 +415,26 @@ namespace utils
   // Node to iterator conversion
   //
 
-  template <typename T>
-  ilist_node<T>::iterator ilist_node<T>::to_iterator() noexcept
+  template <typename T, typename Allocator>
+  ilist_node<T, Allocator>::iterator ilist_node<T, Allocator>::to_iterator() noexcept
   {
     return iterator{ to_derived() };
   }
 
-  template <typename T>
-  ilist_node<T>::const_iterator ilist_node<T>::to_iterator() const noexcept
+  template <typename T, typename Allocator>
+  ilist_node<T, Allocator>::const_iterator ilist_node<T, Allocator>::to_iterator() const noexcept
   {
     return const_iterator{ to_derived() };
   }
 
-  template <typename T>
-  ilist_node<T>::reverse_iterator ilist_node<T>::to_reverse_iterator() noexcept
+  template <typename T, typename Allocator>
+  ilist_node<T, Allocator>::reverse_iterator ilist_node<T, Allocator>::to_reverse_iterator() noexcept
   {
     return reverse_iterator{ to_derived() };
   }
 
-  template <typename T>
-  ilist_node<T>::const_reverse_iterator ilist_node<T>::to_reverse_iterator() const noexcept
+  template <typename T, typename Allocator>
+  ilist_node<T, Allocator>::const_reverse_iterator ilist_node<T, Allocator>::to_reverse_iterator() const noexcept
   {
     return const_reverse_iterator{ to_derived() };
   }
@@ -441,14 +457,15 @@ namespace utils
   // Allows elements to know their locations within the container
   // The elements combine pointer to adjacent nodes with data
   //
-  template <typename T>
+  template <typename T, typename Allocator = std::allocator<T>>
   class ilist final
   {
   public:
-    using iterator               = ilist_fwd_iter<T>;
-    using const_iterator         = ilist_fwd_iter<const T>;
-    using reverse_iterator       = ilist_rev_iter<T>;
-    using const_reverse_iterator = ilist_rev_iter<const T>;
+    using iterator               = ilist_fwd_iter<T, Allocator>;
+    using const_iterator         = ilist_fwd_iter<const T, Allocator>;
+    using reverse_iterator       = ilist_rev_iter<T, Allocator>;
+    using const_reverse_iterator = ilist_rev_iter<const T, Allocator>;
+    using allocator_type         = iterator::allocator_type;
     using node_type              = iterator::node_type;
     using value_type             = iterator::value_type;
     using pointer                = iterator::pointer;
@@ -467,6 +484,10 @@ namespace utils
     }
 
     ilist() noexcept = default;
+
+    explicit ilist(const allocator_type& alloc) noexcept :
+      m_alloc{ alloc }
+    {}
 
   private:
     ilist(pointer h, pointer t) noexcept :
@@ -490,7 +511,7 @@ namespace utils
       if (empty())
         return init(std::forward<Args>(args)...);
 
-      auto&& newHead = m_head->add_before(std::forward<Args>(args)...);
+      auto&& newHead = m_head->add_before(allocator(), std::forward<Args>(args)...);
       set_head(&newHead);
       grow();
       return front();
@@ -502,7 +523,7 @@ namespace utils
       if (empty())
         return init(std::forward<Args>(args)...);
 
-      auto&& newTail = m_tail->add_after(std::forward<Args>(args)...);
+      auto&& newTail = m_tail->add_after(allocator(), std::forward<Args>(args)...);
       set_tail(&newTail);
       grow();
       return back();
@@ -516,7 +537,7 @@ namespace utils
         return emplace_front(std::forward<Args>(args)...);
 
       grow();
-      return node.add_before(std::forward<Args>(args)...);
+      return node.add_before(allocator(), std::forward<Args>(args)...);
     }
 
     template <typename ...Args>
@@ -545,7 +566,7 @@ namespace utils
         return emplace_back(std::forward<Args>(args)...);
 
       grow();
-      return node.add_after(std::forward<Args>(args)...);
+      return node.add_after(allocator(), std::forward<Args>(args)...);
     }
 
     template <typename ...Args>
@@ -673,7 +694,7 @@ namespace utils
         set_head(&node);
 
       if (node.prev()) shrink();
-      node.kill_prev();
+      node.kill_prev(allocator());
       return *this;
     }
     ilist& remove_before(iterator it) noexcept
@@ -699,7 +720,7 @@ namespace utils
         set_tail(&node);
 
       if(node.next()) shrink();
-      node.kill_next();
+      node.kill_next(allocator());
       return *this;
     }
     ilist& remove_after(iterator it) noexcept
@@ -746,7 +767,7 @@ namespace utils
     ilist& remove(reference node) noexcept
     {
       detach(node);
-      node_type::dealloc(&node);
+      node_type::dealloc(allocator(), &node);
       return *this;
     }
     ilist& remove(iterator it) noexcept
@@ -770,11 +791,11 @@ namespace utils
 
       if (m_head)
       {
-        m_head->kill_prev();
+        m_head->kill_prev(allocator());
       }
       else
       {
-        node_type::dealloc(head);
+        node_type::dealloc(allocator(), head);
         reset_tail();
       }
       shrink();
@@ -790,11 +811,11 @@ namespace utils
 
       if (m_tail)
       {
-        m_tail->kill_next();
+        m_tail->kill_next(allocator());
       }
       else
       {
-        node_type::dealloc(tail);
+        node_type::dealloc(allocator(), tail);
         reset_bounds();
       }
       shrink();
@@ -920,9 +941,9 @@ namespace utils
         return *this;
 
       while (!m_head->is_tail())
-        m_head->kill_next();
+        m_head->kill_next(allocator());
 
-      node_type::dealloc(m_head);
+      node_type::dealloc(allocator(), m_head);
       loose_content();
       return *this;
     }
@@ -1047,6 +1068,11 @@ namespace utils
     }
 
   public: // info and iteration
+    auto allocator() const noexcept
+    {
+      return m_alloc;
+    }
+
     auto size() const noexcept
     {
       return m_size;
@@ -1097,7 +1123,7 @@ namespace utils
     template <typename ...Args>
     reference init(Args&& ...args) noexcept
     {
-      set_head(&node_type::alloc(m_head, m_tail, *this, std::forward<Args>(args)...));
+      set_head(&node_type::make(allocator(), m_head, m_tail, *this, std::forward<Args>(args)...));
       grow();
       return *m_head;
     }
@@ -1163,6 +1189,7 @@ namespace utils
     pointer m_head{};
     pointer m_tail{};
     size_type m_size{};
+    allocator_type m_alloc{};
   };
 
 }

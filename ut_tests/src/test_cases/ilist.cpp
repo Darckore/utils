@@ -19,7 +19,7 @@ namespace ut_tests
 
     struct list_wrapper
     {
-      utils::ilist<list_node> list;
+      utils::ilist<list_node> list{};
 
       template <typename ...Values> requires (utils::all_same<int, Values...>)
       list_wrapper(Values ...vals) noexcept

@@ -170,11 +170,36 @@ namespace utils
       return FROM_CONST(to_derived);
     }
 
-    void detach() noexcept
+    void drop_next() noexcept
+    {
+      m_next = {};
+    }
+    void drop_prev() noexcept
     {
       m_prev = {};
-      m_next = {};
+    }
+    void drop_list() noexcept
+    {
       m_list = {};
+    }
+    void detach() noexcept
+    {
+      drop_prev();
+      drop_next();
+      drop_list();
+    }
+
+    void set_next(pointer n) noexcept
+    {
+      m_next = n;
+    }
+    void set_prev(pointer p) noexcept
+    {
+      m_prev = p;
+    }
+    void attach(list_type& list) noexcept
+    {
+      m_list = &list;
     }
 
     static reference link(pointer l, reference node, pointer r) noexcept
@@ -200,11 +225,11 @@ namespace utils
 
     static void set_next(pointer node, pointer p) noexcept
     {
-      if (node) node->m_next = p;
+      if (node) node->set_next(p);
     }
     static void set_prev(pointer node, pointer p) noexcept
     {
-      if (node) node->m_prev = p;
+      if (node) node->set_prev(p);
     }
     static void mutual_link(pointer l, pointer r) noexcept
     {
@@ -738,18 +763,18 @@ namespace utils
         return *this;
 
       auto head = m_head;
-      m_head = head->next();
+      set_head(head->next());
 
-      if (!empty())
+      if (m_head)
       {
         m_head->kill_prev();
       }
       else
       {
         node_type::dealloc(head);
-        m_tail = {};
+        reset_tail();
       }
-      --m_size;
+      shrink();
       return *this;
     }
     ilist& pop_back() noexcept
@@ -758,7 +783,7 @@ namespace utils
         return *this;
 
       auto tail = m_tail;
-      m_tail = tail->prev();
+      set_tail(tail->prev());
 
       if (m_tail)
       {
@@ -767,9 +792,9 @@ namespace utils
       else
       {
         node_type::dealloc(tail);
-        m_head = {};
+        reset_head();
       }
-      --m_size;
+      shrink();
       return *this;
     }
 
@@ -792,14 +817,10 @@ namespace utils
         return *this;
 
       assume_ownership(other.front(), other.back());
-      
       auto nodePrev = node.prev();
       node_type::link(other.m_tail, node, node.next());
       node_type::link(nodePrev, other.front(), other.m_head->next());
-
-      if (&node == m_head)
-        m_head = other.m_head;
-
+      if (node.same_as(m_head)) set_head(other.m_head);
       other.loose_content();
       return *this;
     }
@@ -838,14 +859,10 @@ namespace utils
         return *this;
 
       assume_ownership(other.front(), other.back());
-
       auto nodeNext = node.next();
       node_type::link(node.prev(), node, other.m_head);
       node_type::link(other.m_tail->prev(), other.back(), nodeNext);
-
-      if (&node == m_tail)
-        m_tail = other.m_tail;
-
+      if (node.same_as(m_tail)) set_tail(other.m_tail);
       other.loose_content();
       return *this;
     }
@@ -868,6 +885,7 @@ namespace utils
   public: // accessors and order manipulation
     const_reference front() const noexcept
     {
+      UTILS_ASSERT(!empty());
       return *m_head;
     }
     reference front() noexcept
@@ -877,6 +895,7 @@ namespace utils
 
     const_reference back() const noexcept
     {
+      UTILS_ASSERT(!empty());
       return *m_tail;
     }
     reference back() noexcept
@@ -892,38 +911,36 @@ namespace utils
       while (!m_head->is_tail())
         m_head->kill_next();
 
-      m_tail = {};
       node_type::dealloc(m_head);
-      m_head = {};
-      m_size = {};
+      loose_content();
       return *this;
     }
 
     ilist& reorder(reference l, reference r) noexcept
     {
-      UTILS_ASSERT(&l.list() == this);
-      UTILS_ASSERT(&r.list() == this);
+      if (!l.belongs_to(this) || !r.belongs_to(this))
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
+
       l.reorder_with(r);
       auto newHead = m_head;
       auto newTail = m_tail;
 
-      if (&l == m_head)
-        newHead = &r;
-      if (&l == m_tail)
-        newTail = &r;
-      if (&r == m_head)
-        newHead = &l;
-      if (&r == m_tail)
-        newTail = &l;
+      if (l.same_as(m_head)) newHead = &r;
+      if (l.same_as(m_tail)) newTail = &r;
+      if (r.same_as(m_head)) newHead = &l;
+      if (r.same_as(m_tail)) newTail = &l;
 
-      m_head = newHead;
-      m_tail = newTail;
+      set_head(newHead);
+      set_tail(newTail);
       return *this;
     }
 
     ilist split_at(reference from) noexcept
     {
-      UTILS_ASSERT(&from.list() == this);
+      UTILS_ASSERT(from.belongs_to(this));
       auto newHead = &from;
       auto newTail = m_tail;
 
@@ -967,13 +984,13 @@ namespace utils
       {
         auto curNext = cur->next();
         auto curPrev = cur->prev();
-        cur->m_prev = curNext;
-        cur->m_next = curPrev;
+        cur->set_prev(curNext);
+        cur->set_next(curPrev);
         cur = curNext;
       }
 
-      m_head = prevTail;
-      m_tail = prevHead;
+      set_head(prevTail);
+      set_tail(prevHead);
       return *this;
     }
 
@@ -1083,16 +1100,15 @@ namespace utils
     template <typename ...Args>
     reference init(Args&& ...args) noexcept
     {
-      m_head = &node_type::alloc(m_head, m_tail, *this, std::forward<Args>(args)...);
-      m_tail = m_head;
-      ++m_size;
+      set_head(&node_type::alloc(m_head, m_tail, *this, std::forward<Args>(args)...));
+      grow();
       return *m_head;
     }
 
     void assume_ownership(reference node) noexcept
     {
-      ++m_size;
-      node.m_list = this;
+      grow();
+      node.attach(*this);
     }
 
     void assume_ownership(reference h, reference t) noexcept

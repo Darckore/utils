@@ -480,7 +480,8 @@ namespace utils
     {}
 
   private:
-    ilist(pointer h, pointer t) noexcept :
+    ilist(const allocator_type& alloc, pointer h, pointer t) noexcept :
+      m_alloc{ alloc },
       m_head{ h },
       m_tail{ t }
     {
@@ -979,7 +980,7 @@ namespace utils
         grow();
         head = head->next();
       }
-      return { newHead, newTail };
+      return { allocator(), newHead, newTail };
     }
 
     ilist& reverse() noexcept

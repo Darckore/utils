@@ -91,6 +91,19 @@ namespace utils
       return !next();
     }
 
+    bool same_as(const_pointer other) const noexcept
+    {
+      return to_derived() == other;
+    }
+    bool belongs_to(const list_type* list) const noexcept
+    {
+      return m_list == list;
+    }
+    bool belongs_to(const list_type& list) const noexcept
+    {
+      return belongs_to(&list);
+    }
+
     iterator to_iterator() noexcept;
     const_iterator to_iterator() const noexcept;
     reverse_iterator to_reverse_iterator() noexcept;
@@ -104,11 +117,6 @@ namespace utils
     void kill_next() noexcept
     {
       dealloc(m_next);
-    }
-
-    bool same_as(const_pointer other) const noexcept
-    {
-      return to_derived() == other;
     }
 
     void reorder_with(reference other) noexcept
@@ -417,7 +425,7 @@ namespace utils
     {
       if (!m_head)
       {
-        m_tail = {};
+        reset_tail();
         return;
       }
 
@@ -433,8 +441,8 @@ namespace utils
         return init(std::forward<Args>(args)...);
 
       auto&& newHead = m_head->add_before(std::forward<Args>(args)...);
-      m_head = &newHead;
-      ++m_size;
+      set_head(&newHead);
+      grow();
       return front();
     }
 
@@ -445,8 +453,8 @@ namespace utils
         return init(std::forward<Args>(args)...);
 
       auto&& newTail = m_tail->add_after(std::forward<Args>(args)...);
-      m_tail = &newTail;
-      ++m_size;
+      set_tail(&newTail);
+      grow();
       return back();
     }
 
@@ -454,10 +462,10 @@ namespace utils
     reference emplace_before(reference node, Args&& ...args) noexcept
     {
       UTILS_ASSERT(node.m_list == this);
-      if (&node == m_head)
+      if (node.same_as(m_head))
         return emplace_front(std::forward<Args>(args)...);
 
-      ++m_size;
+      grow();
       return node.add_before(std::forward<Args>(args)...);
     }
 
@@ -483,10 +491,10 @@ namespace utils
     reference emplace_after(reference node, Args&& ...args) noexcept
     {
       UTILS_ASSERT(node.m_list == this);
-      if (&node == m_tail)
+      if (node.same_as(m_tail))
         return emplace_back(std::forward<Args>(args)...);
 
-      ++m_size;
+      grow();
       return node.add_after(std::forward<Args>(args)...);
     }
 
@@ -518,8 +526,7 @@ namespace utils
 
       assume_ownership(node);
       node_type::link({}, node, m_head);
-      m_head = &node;
-      if (!m_tail) m_tail = m_head;
+      set_head(&node);
       return *this;
     }
     ilist& attach_back(reference node) noexcept
@@ -532,8 +539,7 @@ namespace utils
 
       assume_ownership(node);
       node_type::link(m_tail, node, {});
-      m_tail = &node;
-      if (!m_head) m_head = m_tail;
+      set_tail(&node);
       return *this;
     }
 
@@ -548,7 +554,7 @@ namespace utils
 
       assume_ownership(attached);
       node_type::link(node.prev(), attached, &node);
-      if (m_head == &node) m_head = &attached;
+      if (node.same_as(m_head)) set_head(&attached);
       return *this;
     }
     ilist& attach_before(iterator it, reference attached) noexcept
@@ -574,7 +580,7 @@ namespace utils
 
     ilist& attach_after(reference node, reference attached) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
+      UTILS_ASSERT(node.belongs_to(this));
       if (attached.is_attached())
       {
         UTILS_ASSERT(false);
@@ -1071,10 +1077,36 @@ namespace utils
       }
     }
 
-    void loose_content() noexcept
+    void grow() noexcept
+    {
+      ++m_size;
+    }
+    void shrink() noexcept
+    {
+      --m_size;
+    }
+    void set_tail(pointer t) noexcept
+    {
+      m_tail = t;
+      if (!m_head) m_head = m_tail;
+    }
+    void set_head(pointer h) noexcept
+    {
+      m_head = h;
+      if (!m_tail) m_tail = m_head;
+    }
+    void reset_tail() noexcept
+    {
+      m_tail = {};
+    }
+    void reset_head() noexcept
     {
       m_head = {};
-      m_tail = {};
+      reset_tail();
+    }
+    void loose_content() noexcept
+    {
+      reset_head();
       m_size = {};
     }
 

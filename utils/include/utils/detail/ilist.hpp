@@ -256,7 +256,7 @@ namespace utils
   //
   // Base class for list iterators
   //
-  template <typename T, typename Allocator = std::allocator<T>>
+  template <typename T, typename Allocator>
   class ilist_iter
   {
   public:
@@ -318,7 +318,7 @@ namespace utils
   //
   // Forward iterator
   //
-  template <typename T, typename Allocator = std::allocator<T>>
+  template <typename T, typename Allocator>
   class ilist_fwd_iter final : public ilist_iter<T, Allocator>
   {
   public:
@@ -361,8 +361,8 @@ namespace utils
   //
   // Reverse iterator
   //
-  template <typename T, typename Allocator = std::allocator<T>>
-  class ilist_rev_iter final : public ilist_iter<T>
+  template <typename T, typename Allocator>
+  class ilist_rev_iter final : public ilist_iter<T, Allocator>
   {
   public:
     using base_type = ilist_iter<T, Allocator>;

@@ -523,6 +523,24 @@ namespace ut_tests
     ASSERT_EQ(toFind, found);
   }
 
+  TEST(ilist, t_contains)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    auto found = lw.list.contains([](auto&& item) noexcept
+      {
+        return item.value == 6;
+      });
+
+    ASSERT_TRUE(found);
+
+    found = lw.list.contains([](auto&& item) noexcept
+      {
+        return item.value == 10;
+      });
+
+    ASSERT_FALSE(found);
+  }
+
   TEST(ilist, t_transform)
   {
     list_wrapper lw{ 1, 2, 3, 4, 5, 6 };

@@ -1043,6 +1043,12 @@ namespace utils
       return iterator{ found };
     }
 
+    template <ilist_unary_predicate<value_type> Pred>
+    auto contains(Pred&& pred) const noexcept
+    {
+      return static_cast<bool>(find(std::forward<Pred>(pred)));
+    }
+
     template <ilist_unary_transform<value_type> Transform>
     ilist& apply(Transform&& transform) noexcept
     {

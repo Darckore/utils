@@ -155,4 +155,31 @@
     </Expand>
   </Type>
 
+  <Type Name="utils::ilist_view&lt;*&gt;">
+    <DisplayString Condition="m_size">list view ({m_size})</DisplayString>
+    <DisplayString Condition="!m_size">list view (empty)</DisplayString>
+    <Expand>
+      <Item Name="[size]">m_size</Item>
+      <Item Name="[head]" Condition="m_head">*m_head</Item>
+      <Item Name="[head]" Condition="!m_head">"null",sb</Item>
+      <CustomListItems Condition="m_size">
+        <Variable Name="cur" InitialValue="m_head"/>
+        <Variable Name="count" InitialValue="0"/>
+        <Loop Condition="cur">
+          <If Condition="count &amp;&amp; count &lt; m_size - 1">
+            <Item Name="[{count}]">*cur</Item>
+          </If>
+          <Exec>cur = cur->m_next</Exec>
+          <Exec>++count</Exec>
+          <If Condition="cur &amp;&amp; count &gt; 20">
+            <Item Name="[...]">"&lt;limit reached&gt;",sb</Item>
+            <Break/>
+          </If>
+        </Loop>
+      </CustomListItems>
+      <Item Name="[tail]" Condition="m_tail">*m_tail</Item>
+      <Item Name="[tail]" Condition="!m_tail">"null",sb</Item>
+    </Expand>
+  </Type>
+
 </AutoVisualizer>

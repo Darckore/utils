@@ -29,7 +29,27 @@ namespace ut_tests
     };
 
     template <std::size_t N>
-    void verify_list(utils::ilist<list_node>& list, const std::array<int, N>& baseline) noexcept
+    void verify_list(utils::ilist_view<list_node> list, const std::array<int, N>& baseline) noexcept
+    {
+      if (list.size() != baseline.size())
+      {
+        FAIL() << "Baseline with " << baseline.size()
+               << " items is compared to a list view of size " << list.size();
+        return;
+      }
+
+      auto actualSize = std::size_t{};
+      for (auto&& [node, exp] : utils::make_iterators(list, baseline))
+      {
+        ++actualSize;
+        EXPECT_EQ(node.value, exp);
+      }
+
+      ASSERT_EQ(actualSize, list.size());
+    }
+
+    template <std::size_t N>
+    void verify_list(const utils::ilist<list_node>& list, const std::array<int, N>& baseline) noexcept
     {
       if (list.size() != baseline.size())
       {
@@ -532,4 +552,28 @@ namespace ut_tests
     verify_list(lw, std::array{ 1, 2, 4, 5 });
   }
 
+  TEST(ilist_view, t_create)
+  {
+    using utils::ilist_view;
+
+    list_wrapper lw{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+    auto&& list = lw.list;
+
+    ilist_view lv1{ list };
+    verify_list(lv1, std::array{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+
+    ilist_view lv2{ list.begin(), list.end() };
+    verify_list(lv2, std::array{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
+
+    auto beg = std::next(list.begin(), 3); // element 3
+    auto end = std::next(list.begin(), 6); // element 6
+    lv2 = { beg, end };
+    verify_list(lv2, std::array{ 3, 4, 5 });
+
+    ilist_view lv3{ beg, end, 4 };
+    verify_list(lv3, std::array{ 3, 4, 5, 6 });
+
+    ilist_view lv4{ beg, 3 };
+    verify_list(lv4, std::array{ 3, 4, 5 });
+ }
 }

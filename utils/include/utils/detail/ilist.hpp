@@ -322,7 +322,8 @@ namespace utils
   class ilist_fwd_iter final : public ilist_iter<T, Allocator>
   {
   public:
-    using base_type = ilist_iter<T, Allocator>;
+    using base_type  = ilist_iter<T, Allocator>;
+    using const_type = ilist_fwd_iter<const T, Allocator>;
 
   public:
     CLASS_SPECIALS_ALL(ilist_fwd_iter);
@@ -331,6 +332,11 @@ namespace utils
     explicit ilist_fwd_iter(base_type::pointer node) noexcept :
       base_type{ node }
     {}
+
+    operator const_type() const noexcept
+    {
+      return const_type{ base_type::get() };
+    }
 
     ilist_fwd_iter& operator++() noexcept
     {
@@ -365,7 +371,8 @@ namespace utils
   class ilist_rev_iter final : public ilist_iter<T, Allocator>
   {
   public:
-    using base_type = ilist_iter<T, Allocator>;
+    using base_type  = ilist_iter<T, Allocator>;
+    using const_type = ilist_rev_iter<const T, Allocator>;
 
   public:
     CLASS_SPECIALS_ALL(ilist_rev_iter);
@@ -374,6 +381,11 @@ namespace utils
     explicit ilist_rev_iter(base_type::pointer node) noexcept :
       base_type{ node }
     {}
+
+    operator const_type() const noexcept
+    {
+      return const_type{ base_type::get() };
+    }
 
     ilist_rev_iter& operator++() noexcept
     {
@@ -1110,6 +1122,24 @@ namespace utils
       return reverse_iterator{};
     }
 
+    auto cbegin() const noexcept
+    {
+      return begin();
+    }
+    auto cend() const noexcept
+    {
+      return end();
+    }
+
+    auto crbegin() const noexcept
+    {
+      return rbegin();
+    }
+    auto crend() const noexcept
+    {
+      return rend();
+    }
+
   private:
     template <typename ...Args>
     reference init(Args&& ...args) noexcept
@@ -1183,4 +1213,143 @@ namespace utils
     allocator_type m_alloc{};
   };
 
+
+  //
+  // A view into the list
+  //
+  template <typename T, typename Allocator = std::allocator<T>>
+  class ilist_view final
+  {
+  public:
+    using list_type              = ilist<T, Allocator>;
+    using iterator               = list_type::iterator;
+    using const_iterator         = list_type::const_iterator;
+    using reverse_iterator       = list_type::reverse_iterator;
+    using const_reverse_iterator = list_type::const_reverse_iterator;
+    using allocator_type         = list_type::allocator_type;
+    using node_type              = list_type::node_type;
+    using value_type             = list_type::value_type;
+    using pointer                = list_type::pointer;
+    using const_pointer          = list_type::const_pointer;
+    using reference              = list_type::reference;
+    using const_reference        = list_type::const_reference;
+    using size_type              = list_type::size_type;
+    using difference_type        = list_type::difference_type;
+
+  public:
+    CLASS_SPECIALS_ALL(ilist_view);
+    
+    ~ilist_view() noexcept = default;
+
+    ilist_view(const list_type& list) noexcept
+    {
+      if (list.empty()) return;
+
+      m_head = &list.front();
+      m_tail = &list.back();
+      m_size = list.size();
+    }
+
+    ilist_view(const_iterator b, const_iterator e) noexcept :
+      m_head{ b.get() }
+    {
+      if (!m_head) return;
+      while (b != e)
+      {
+        m_tail = b.get();
+        ++b;
+        ++m_size;
+      }
+    }
+
+    ilist_view(const_iterator head, const_iterator tail, size_type sz) noexcept :
+      m_head{ head.get() },
+      m_tail{ tail.get() },
+      m_size{ sz }
+    {}
+
+    ilist_view(const_iterator head, size_type sz) noexcept :
+      m_head{ head.get() }
+    {
+      if (!m_head) return;
+      while (m_size != sz)
+      {
+        UTILS_ASSERT(head);
+        m_tail = head.get();
+        ++m_size;
+        ++head;
+      }
+    }
+
+  public:
+    const_reference front() const noexcept
+    {
+      UTILS_ASSERT(!empty());
+      return *m_head;
+    }
+
+    const_reference back() const noexcept
+    {
+      UTILS_ASSERT(!empty());
+      return *m_tail;
+    }
+
+  public:
+    auto size() const noexcept
+    {
+      return m_size;
+    }
+
+    bool empty() const noexcept
+    {
+      return !m_size;
+    }
+
+    auto begin() const noexcept
+    {
+      return const_iterator{ m_head };
+    }
+    auto end() const noexcept
+    {
+      return const_iterator{};
+    }
+
+    auto rbegin() const noexcept
+    {
+      return const_reverse_iterator{ m_tail };
+    }
+    auto rend() const noexcept
+    {
+      return const_reverse_iterator{};
+    }
+
+  private:
+    const_pointer m_head{};
+    const_pointer m_tail{};
+    size_type m_size{};
+  };
+
+  template <typename T, typename A>
+  ilist_view(ilist_fwd_iter<T, A>, ilist_fwd_iter<T, A>)
+    -> ilist_view<T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_fwd_iter<const T, A>, ilist_fwd_iter<const T, A>)
+    -> ilist_view<T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_fwd_iter<T, A>, std::size_t)
+    -> ilist_view<T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_fwd_iter<const T, A>, std::size_t)
+    -> ilist_view<T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_fwd_iter<T, A>, ilist_fwd_iter<T, A>, std::size_t)
+    -> ilist_view<T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_fwd_iter<const T, A>, ilist_fwd_iter<const T, A>, std::size_t)
+    -> ilist_view<T, A>;
 }

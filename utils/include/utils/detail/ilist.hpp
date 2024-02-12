@@ -792,7 +792,7 @@ namespace utils
       else
       {
         node_type::dealloc(tail);
-        reset_head();
+        reset_bounds();
       }
       shrink();
       return *this;
@@ -945,32 +945,18 @@ namespace utils
       auto newTail = m_tail;
 
       auto fp = from.m_prev;
-      from.m_prev = {};
+      from.drop_prev();
+      node_type::set_next(fp, {});
 
-      if (fp)
-        fp->m_next = {};
-
-      if (&from == m_head)
-      {
-        m_head = {};
-        m_tail = {};
-      }
-      if (&from == m_tail)
-      {
-        m_tail = fp;
-      }
-      if (!m_tail)
-        m_tail = m_head;
-
-      auto newSize = size_type{};
+      if (from.same_as(m_head)) reset_bounds();
+      set_tail(fp);
+      reset_size();
       auto head = m_head;
       while (head)
       {
-        ++newSize;
+        grow();
         head = head->next();
       }
-      m_size = newSize;
-
       return { newHead, newTail };
     }
 
@@ -1146,12 +1132,20 @@ namespace utils
     void reset_head() noexcept
     {
       m_head = {};
+    }
+    void reset_bounds() noexcept
+    {
+      reset_head();
       reset_tail();
+    }
+    void reset_size() noexcept
+    {
+      m_size = {};
     }
     void loose_content() noexcept
     {
-      reset_head();
-      m_size = {};
+      reset_bounds();
+      reset_size();
     }
 
   private:
@@ -1160,12 +1154,4 @@ namespace utils
     size_type m_size{};
   };
 
-
-  template <typename Derived>
-  void swap(ilist_node<Derived>& l, ilist_node<Derived>& r) noexcept
-  {
-    UTILS_ASSERT(l.is_attached() && r.is_attached());
-    UTILS_ASSERT(&l.list() == &r.list());
-    l.list().reorder(l, r);
-  }
 }

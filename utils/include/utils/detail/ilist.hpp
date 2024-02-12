@@ -35,10 +35,7 @@ namespace utils
 
     ~ilist_node() noexcept
     {
-      if (m_prev)
-        m_prev->m_next = m_next;
-      if (m_next)
-        m_next->m_prev = m_prev;
+      mutual_link(prev(), next());
     }
 
   protected:
@@ -95,6 +92,19 @@ namespace utils
     {
       return to_derived() == other;
     }
+
+    template <typename First, typename ...Args> requires (all_convertible<const_pointer, Args...>)
+    bool same_as_any(First first, Args ...args) const noexcept
+    {
+      return (same_as(first) && ... && same_as(args));
+    }
+
+    template <typename First, typename ...Args> requires (all_convertible<const_pointer, Args...>)
+    bool same_as_none(First first, Args ...args) const noexcept
+    {
+      return !same_as_any(first, args...);
+    }
+
     bool belongs_to(const list_type* list) const noexcept
     {
       return m_list == list;
@@ -112,11 +122,11 @@ namespace utils
   private:
     void kill_prev() noexcept
     {
-      dealloc(m_prev);
+      dealloc(prev());
     }
     void kill_next() noexcept
     {
-      dealloc(m_next);
+      dealloc(next());
     }
 
     void reorder_with(reference other) noexcept
@@ -125,39 +135,35 @@ namespace utils
         return;
 
       auto self      = to_derived();
-      auto myPrev    = m_prev;
-      auto myNext    = m_next;
+      auto myPrev    = prev();
+      auto myNext    = next();
       auto otherPrev = other.prev();
       auto otherNext = other.next();
 
-      if (myPrev) myPrev->m_next = &other;
-      if (myNext) myNext->m_prev = &other;
-      
-      if (!other.same_as(myPrev)) other.m_prev = myPrev;
-      else other.m_prev = self;
+      set_next(myPrev, &other);
+      set_prev(myNext, &other);
+      if (!other.same_as(myPrev)) other.set_prev(myPrev);
+      else other.set_prev(self);
+      if (!other.same_as(myNext)) other.set_next(myNext);
+      else other.set_next(self);
 
-      if (!other.same_as(myNext)) other.m_next = myNext;
-      else other.m_next = self;
-
-      if (otherPrev) otherPrev->m_next = self;
-      if (otherNext) otherNext->m_prev = self;
-      
-      if (!same_as(otherPrev)) m_prev = otherPrev;
-      else m_prev = &other;
-
-      if (!same_as(otherNext)) m_next = otherNext;
-      else m_next = &other;
+      set_next(otherPrev, self);
+      set_prev(otherNext, self);
+      if (!same_as(otherPrev)) set_prev(otherPrev);
+      else set_prev(&other);
+      if (!same_as(otherNext)) set_next(otherNext);
+      else set_next(&other);
     }
 
     template <typename ...Args>
     reference add_before(Args&& ...args) noexcept
     {
-      return alloc(m_prev, to_derived(), list(), std::forward<Args>(args)...);
+      return alloc(prev(), to_derived(), list(), std::forward<Args>(args)...);
     }
     template <typename ...Args>
     reference add_after(Args&& ...args) noexcept
     {
-      return alloc(to_derived(), m_next, list(), std::forward<Args>(args)...);
+      return alloc(to_derived(), next(), list(), std::forward<Args>(args)...);
     }
 
   private:
@@ -172,11 +178,11 @@ namespace utils
 
     void drop_next() noexcept
     {
-      m_next = {};
+      set_next({});
     }
     void drop_prev() noexcept
     {
-      m_prev = {};
+      set_prev({});
     }
     void drop_list() noexcept
     {
@@ -204,10 +210,8 @@ namespace utils
 
     static reference link(pointer l, reference node, pointer r) noexcept
     {
-      node.m_prev = l;
-      if (l) l->m_next = &node;
-      node.m_next = r;
-      if (r) r->m_prev = &node;
+      mutual_link(l, &node);
+      mutual_link(&node, r);
       return node;
     }
 
@@ -507,7 +511,7 @@ namespace utils
     template <typename ...Args>
     reference emplace_before(reference node, Args&& ...args) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
+      UTILS_ASSERT(node.belongs_to(this));
       if (node.same_as(m_head))
         return emplace_front(std::forward<Args>(args)...);
 
@@ -536,7 +540,7 @@ namespace utils
     template <typename ...Args>
     reference emplace_after(reference node, Args&& ...args) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
+      UTILS_ASSERT(node.belongs_to(this));
       if (node.same_as(m_tail))
         return emplace_back(std::forward<Args>(args)...);
 
@@ -591,8 +595,7 @@ namespace utils
 
     ilist& attach_before(reference node, reference attached) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
-      if (attached.is_attached())
+      if (!node.belongs_to(this) || attached.is_attached())
       {
         UTILS_ASSERT(false);
         return *this;
@@ -812,7 +815,11 @@ namespace utils
     }
     ilist& prepend_to(reference node, ilist&& other) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
+      if (!node.belongs_to(this))
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
       if (other.empty())
         return *this;
 
@@ -854,7 +861,11 @@ namespace utils
     }
     ilist& append_to(reference node, ilist&& other) noexcept
     {
-      UTILS_ASSERT(node.m_list == this);
+      if (!node.belongs_to(this))
+      {
+        UTILS_ASSERT(false);
+        return *this;
+      }
       if (other.empty())
         return *this;
 
@@ -944,7 +955,7 @@ namespace utils
       auto newHead = &from;
       auto newTail = m_tail;
 
-      auto fp = from.m_prev;
+      auto fp = from.prev();
       from.drop_prev();
       node_type::set_next(fp, {});
 

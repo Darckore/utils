@@ -31,15 +31,6 @@ namespace ut_tests
     template <std::size_t N>
     void verify_list(utils::ilist<list_node>& list, const std::array<int, N>& baseline) noexcept
     {
-      if (list.empty())
-      {
-        if (!baseline.empty())
-        {
-          FAIL() << "List is empty, but baseline has " << baseline.size() << " elements";
-          return;
-        }
-      }
-
       if (list.size() != baseline.size())
       {
         FAIL() << "Baseline with " << baseline.size()
@@ -60,19 +51,20 @@ namespace ut_tests
         return;
       }
 
-      if (utils::eq_any(&first, first.prev(), first.next()))
+      if (first.same_as_any(first.prev(), first.next()))
       {
         FAIL() << "Head refers to itself";
         return;
       }
-      if (utils::eq_any(&last, last.prev(), last.next()))
+      if (last.same_as_any(last.prev(), last.next()))
       {
         FAIL() << "Tail refers to itself";
       }
 
-      const auto baseSz = baseline.size();
-      auto idx = 0ull;
-      for (auto&& node : list)
+      auto actualLast = decltype(&last){};
+      auto actualFirst = decltype(&first){};
+      auto actualSize = std::size_t{};
+      for (auto&& [node, exp] : utils::make_iterators(list, baseline))
       {
         if (!node.is_attached())
         {
@@ -80,19 +72,21 @@ namespace ut_tests
           return;
         }
 
-        if (&node.list() != &list)
+        if (!node.belongs_to(list))
         {
           FAIL() << "Foreign node with value " << node.value;
           return;
         }
 
-        const auto val = node.value;
-        const auto exp = baseline[idx];
-        ++idx;
-        EXPECT_EQ(val, exp);
+        if (!actualFirst) actualFirst = &node;
+        actualLast = &node;
+        ++actualSize;
+        EXPECT_EQ(node.value, exp);
       }
 
-      ASSERT_EQ(idx, baseSz);
+      ASSERT_EQ(actualSize, list.size());
+      ASSERT_TRUE(first.same_as(actualFirst));
+      ASSERT_TRUE(last.same_as(actualLast));
     }
 
     template <std::size_t N>

@@ -177,15 +177,6 @@ namespace utils
       return FROM_CONST(to_derived);
     }
 
-    auto to_base() const noexcept
-    {
-      return static_cast<const base_type*>(this);
-    }
-    auto to_base() noexcept
-    {
-      return FROM_CONST(to_base);
-    }
-
     void drop_next() noexcept
     {
       set_next({});
@@ -237,7 +228,6 @@ namespace utils
     {
       if (!ptr) return;
 
-      ptr->to_base()->~ilist_node();
       ptr->~value_type();
       alloc.deallocate(ptr, 1);
     }

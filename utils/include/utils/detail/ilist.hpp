@@ -1079,6 +1079,15 @@ namespace utils
       return *this;
     }
 
+    template <ilist_unary_predicate<value_type> Pred>
+    ilist& filter(Pred&& pred) noexcept
+    {
+      return erase([&](auto&& node) noexcept
+        {
+          return !pred(node);
+        });
+    }
+
   public: // info and iteration
     forward_view to_view() const noexcept;
     

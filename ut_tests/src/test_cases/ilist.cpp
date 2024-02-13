@@ -563,6 +563,16 @@ namespace ut_tests
     verify_list(lw, std::array{ 1, 2, 4, 5 });
   }
 
+  TEST(ilist, t_filter)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    lw.list.filter([](auto&& item) noexcept
+      {
+        return item.value % 3 == 0;
+      });
+    verify_list(lw, std::array{ 3, 6 });
+  }
+
   TEST(ilist_view, t_fwd)
   {
     using utils::ilist_view;

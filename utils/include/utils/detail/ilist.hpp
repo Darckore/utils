@@ -480,8 +480,28 @@ namespace utils
     using forward_view           = ilist_view<false, T, Allocator>;
     using reverse_view           = ilist_view<true, T, Allocator>;
 
+  private:
+    ilist& move_from(ilist&& other) noexcept
+    {
+      return clear().append(std::move(other));
+    }
+
   public:
-    CLASS_SPECIALS_NONE_CUSTOM(ilist);
+    ilist(const ilist&) = delete;
+    ilist& operator=(const ilist&) = delete;
+
+    ilist(ilist&& other) noexcept
+    {
+      move_from(std::move(other));
+    }
+
+    ilist& operator=(ilist&& other) noexcept
+    {
+      if (this == &other)
+        return *this;
+
+      return move_from(std::move(other));
+    }
 
     ~ilist() noexcept
     {

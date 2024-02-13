@@ -22,7 +22,7 @@ namespace ut_tests
       utils::ilist<list_node> list{};
 
       template <typename ...Values> requires (utils::all_same<int, Values...>)
-      list_wrapper(Values ...vals) noexcept
+        list_wrapper(Values ...vals) noexcept
       {
         (..., (list.emplace_back(vals)));
       }
@@ -34,7 +34,7 @@ namespace ut_tests
       if (list.size() != baseline.size())
       {
         FAIL() << "Baseline with " << baseline.size()
-               << " items is compared to a list view of size " << list.size();
+          << " items is compared to a list view of size " << list.size();
         return;
       }
 
@@ -50,7 +50,7 @@ namespace ut_tests
       if (list.size() != baseline.size())
       {
         FAIL() << "Baseline with " << baseline.size()
-               << " items is compared to a list of size " << list.size();
+          << " items is compared to a list of size " << list.size();
         return;
       }
 
@@ -107,6 +107,23 @@ namespace ut_tests
     {
       verify_list(lw.list, baseline);
     }
+  }
+}
+
+namespace ut_tests
+{
+  TEST(ilist, t_move)
+  {
+    list_wrapper lw{ 0, 1, 2, 3, 4, 5, 6 };
+    
+    decltype(lw.list) consumer{};
+    consumer.emplace_back(7);
+    consumer.emplace_back(8);
+
+    consumer = std::move(lw.list);
+    verify_list(consumer, std::array{ 0, 1, 2, 3, 4, 5, 6 });
+
+    ASSERT_TRUE(lw.list.empty());
   }
 
   TEST(ilist, t_emplace_back)
@@ -460,7 +477,7 @@ namespace ut_tests
     list_wrapper dst{};
     dst.list.prepend(std::move(src.list));
     verify_list(dst, std::array{ 1, 2, 3, 4 });
-    
+
     list_wrapper src2{ 5, 6, 7 };
     dst.list.prepend(std::move(src2.list));
     verify_list(dst, std::array{ 5, 6, 7, 1, 2, 3, 4 });
@@ -572,7 +589,11 @@ namespace ut_tests
       });
     verify_list(lw, std::array{ 3, 6 });
   }
+}
 
+
+namespace ut_tests
+{
   TEST(ilist_view, t_fwd)
   {
     using utils::ilist_view;

@@ -1256,29 +1256,31 @@ namespace utils
   };
 
 
-  template <bool Reverse, typename T, typename Allocator>
-  struct ilist_view_traits;
-
-  template <typename T, typename Allocator>
-  struct ilist_view_traits<false, T, Allocator>
+  namespace detail
   {
-    using list_type              = ilist<T, Allocator>;
-    using iterator               = list_type::iterator;
-    using const_iterator         = list_type::const_iterator;
-    using reverse_iterator       = list_type::reverse_iterator;
-    using const_reverse_iterator = list_type::const_reverse_iterator;
-  };
+    template <bool Reverse, typename T, typename Allocator>
+    struct ilist_view_traits;
 
-  template <typename T, typename Allocator>
-  struct ilist_view_traits<true, T, Allocator>
-  {
-    using list_type              = ilist<T, Allocator>;
-    using iterator               = list_type::reverse_iterator;
-    using const_iterator         = list_type::const_reverse_iterator;
-    using reverse_iterator       = list_type::iterator;
-    using const_reverse_iterator = list_type::const_iterator;
-  };
+    template <typename T, typename Allocator>
+    struct ilist_view_traits<false, T, Allocator>
+    {
+      using list_type              = ilist<T, Allocator>;
+      using iterator               = list_type::iterator;
+      using const_iterator         = list_type::const_iterator;
+      using reverse_iterator       = list_type::reverse_iterator;
+      using const_reverse_iterator = list_type::const_reverse_iterator;
+    };
 
+    template <typename T, typename Allocator>
+    struct ilist_view_traits<true, T, Allocator>
+    {
+      using list_type              = ilist<T, Allocator>;
+      using iterator               = list_type::reverse_iterator;
+      using const_iterator         = list_type::const_reverse_iterator;
+      using reverse_iterator       = list_type::iterator;
+      using const_reverse_iterator = list_type::const_iterator;
+    };
+  }
 
   //
   // A view into the list
@@ -1301,7 +1303,7 @@ namespace utils
     using size_type              = list_type::size_type;
     using difference_type        = list_type::difference_type;
 
-    using view_traits            = ilist_view_traits<Reverse, T, Allocator>;
+    using view_traits            = detail::ilist_view_traits<Reverse, T, Allocator>;
     using iterator               = view_traits::iterator;
     using const_iterator         = view_traits::const_iterator;
     using reverse_iterator       = view_traits::reverse_iterator;

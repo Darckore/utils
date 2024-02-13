@@ -164,6 +164,26 @@
       <Item Name="[size]">m_size</Item>
       <Item Name="[head]" Condition="m_head.m_node">*m_head.m_node</Item>
       <Item Name="[head]" Condition="!m_head.m_node">"null",sb</Item>
+      <CustomListItems Condition="m_size">
+        <Variable Name="cur" InitialValue="m_head.m_node"/>
+        <Variable Name="count" InitialValue="0"/>
+        <Loop Condition="cur != m_tail.m_node">
+          <If Condition="count &amp;&amp; count &lt; m_size - 1">
+            <Item Name="[{count}]">*cur</Item>
+          </If>
+          <If Condition="!reverse">
+            <Exec>cur = cur->m_next</Exec>
+          </If>
+          <If Condition="reverse">
+            <Exec>cur = cur->m_prev</Exec>
+          </If>
+          <Exec>++count</Exec>
+          <If Condition="cur &amp;&amp; count &gt; 20">
+            <Item Name="[...]">"&lt;limit reached&gt;",sb</Item>
+            <Break/>
+          </If>
+        </Loop>
+      </CustomListItems>
       <Item Name="[tail]" Condition="m_tail.m_node">*m_tail.m_node</Item>
       <Item Name="[tail]" Condition="!m_tail.m_node">"null",sb</Item>
     </Expand>

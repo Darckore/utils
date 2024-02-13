@@ -1391,13 +1391,14 @@ namespace utils
   template <typename T, typename A>
   ilist<T, A>::forward_view ilist<T, A>::to_view() const noexcept
   {
-    return { begin(), end() };
+    return { *this };
   }
 
   template <typename T, typename A>
   ilist<T, A>::reverse_view ilist<T, A>::to_rev_view() const noexcept
   {
-    return { rbegin(), rend() };
+    if (empty()) return {};
+    return { rbegin(), front().to_reverse_iterator(), size() };
   }
 
   template <typename T, typename A>

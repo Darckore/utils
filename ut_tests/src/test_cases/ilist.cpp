@@ -569,22 +569,28 @@ namespace ut_tests
 
     list_wrapper lw{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     auto&& list = lw.list;
+    auto lv0 = list.to_view();
 
     ilist_view lv1{ list };
+    EXPECT_EQ(lv0, lv1);
     verify_list(lv1, std::array{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
     ilist_view lv2{ list.begin(), list.end() };
+    EXPECT_EQ(lv0, lv2);
     verify_list(lv2, std::array{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 });
 
     auto beg = std::next(list.begin(), 3); // element 3
     auto end = std::next(list.begin(), 6); // element 6
     lv2 = { beg, end };
+    EXPECT_NE(lv0, lv2);
     verify_list(lv2, std::array{ 3, 4, 5 });
 
     ilist_view lv3{ beg, end, 4 };
+    EXPECT_NE(lv0, lv3);
     verify_list(lv3, std::array{ 3, 4, 5, 6 });
 
     ilist_view lv4{ beg, 3 };
+    EXPECT_NE(lv0, lv4);
     verify_list(lv4, std::array{ 3, 4, 5 });
  }
 
@@ -594,19 +600,24 @@ namespace ut_tests
 
     list_wrapper lw{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
     auto&& list = lw.list;
+    auto lv0 = list.to_rev_view();
 
-    ilist_view lv2{ list.rbegin(), list.rend() };
-    verify_list(lv2, std::array{ 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 });
+    ilist_view lv1{ list.rbegin(), list.rend() };
+    EXPECT_EQ(lv0, lv1);
+    verify_list(lv1, std::array{ 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 });
 
     auto beg = std::next(list.rbegin(), 3); // element 6
     auto end = std::next(list.rbegin(), 6); // element 3
-    lv2 = { beg, end };
-    verify_list(lv2, std::array{ 6, 5, 4 });
+    lv1 = { beg, end };
+    EXPECT_NE(lv0, lv1);
+    verify_list(lv1, std::array{ 6, 5, 4 });
 
-    ilist_view lv3{ beg, end, 4 };
-    verify_list(lv3, std::array{ 6, 5, 4, 3 });
+    ilist_view lv2{ beg, end, 4 };
+    EXPECT_NE(lv0, lv2);
+    verify_list(lv2, std::array{ 6, 5, 4, 3 });
 
-    ilist_view lv4{ beg, 3 };
-    verify_list(lv4, std::array{ 6, 5, 4 });
+    ilist_view lv3{ beg, 3 };
+    EXPECT_NE(lv0, lv3);
+    verify_list(lv3, std::array{ 6, 5, 4 });
   }
 }

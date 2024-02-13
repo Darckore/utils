@@ -6,6 +6,7 @@ namespace utils
   template <typename T, typename Allocator> class ilist_iter;
   template <typename T, typename Allocator> class ilist_fwd_iter;
   template <typename T, typename Allocator> class ilist_rev_iter;
+  template <bool R, typename T, typename Allocator> class ilist_view;
 
   //
   // Intrusive list node
@@ -476,6 +477,8 @@ namespace utils
     using const_reference        = iterator::const_reference;
     using size_type              = iterator::size_type;
     using difference_type        = iterator::difference_type;
+    using forward_view           = ilist_view<false, T, Allocator>;
+    using reverse_view           = ilist_view<true, T, Allocator>;
 
   public:
     CLASS_SPECIALS_NONE_CUSTOM(ilist);
@@ -1077,6 +1080,10 @@ namespace utils
     }
 
   public: // info and iteration
+    forward_view to_view() const noexcept;
+    
+    reverse_view to_rev_view() const noexcept;
+
     auto allocator() const noexcept
     {
       return m_alloc;
@@ -1250,6 +1257,9 @@ namespace utils
   template <bool Reverse, typename T, typename Allocator = std::allocator<T>>
   class ilist_view final
   {
+  private:
+    static constexpr auto reverse = Reverse;
+
   public:
     using list_type              = ilist<T, Allocator>;
     using allocator_type         = list_type::allocator_type;
@@ -1275,9 +1285,16 @@ namespace utils
 
     ilist_view(const list_type& list) noexcept :
       m_head{ list.begin() },
-      m_tail{ list.end() },
       m_size{ list.size() }
-    {}
+    {
+      if (list.empty())
+      {
+        m_tail = list.end();
+        return;
+      }
+
+      m_tail = list.back().to_iterator();
+    }
 
     ilist_view(const_iterator b, const_iterator e) noexcept :
       m_head{ b }
@@ -1310,6 +1327,8 @@ namespace utils
       }
     }
 
+    constexpr bool operator==(const ilist_view&) const noexcept = default;
+
   public:
     const_reference front() const noexcept
     {
@@ -1324,6 +1343,16 @@ namespace utils
     }
 
   public:
+    static consteval auto is_reverse() noexcept
+    {
+      return reverse;
+    }
+
+    static consteval auto is_forward() noexcept
+    {
+      return !is_reverse();
+    }
+
     auto size() const noexcept
     {
       return m_size;
@@ -1358,6 +1387,18 @@ namespace utils
     const_iterator m_tail{};
     size_type m_size{};
   };
+
+  template <typename T, typename A>
+  ilist<T, A>::forward_view ilist<T, A>::to_view() const noexcept
+  {
+    return { begin(), end() };
+  }
+
+  template <typename T, typename A>
+  ilist<T, A>::reverse_view ilist<T, A>::to_rev_view() const noexcept
+  {
+    return { rbegin(), rend() };
+  }
 
   template <typename T, typename A>
   ilist_view(const ilist<T, A>&)

@@ -156,8 +156,10 @@
   </Type>
 
   <Type Name="utils::ilist_view&lt;*&gt;">
-    <DisplayString Condition="m_size">list view ({m_size})</DisplayString>
-    <DisplayString Condition="!m_size">list view (empty)</DisplayString>
+    <DisplayString Condition="m_size &amp;&amp; !reverse">list view ({m_size})</DisplayString>
+    <DisplayString Condition="!m_size &amp;&amp; !reverse">list view (empty)</DisplayString>
+    <DisplayString Condition="m_size &amp;&amp; reverse">rev view ({m_size})</DisplayString>
+    <DisplayString Condition="!m_size &amp;&amp; reverse">rev view (empty)</DisplayString>
     <Expand>
       <Item Name="[size]">m_size</Item>
       <Item Name="[head]" Condition="m_head.m_node">*m_head.m_node</Item>

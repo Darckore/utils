@@ -1220,18 +1220,38 @@ namespace utils
   };
 
 
-  //
-  // A view into the list
-  //
-  template <typename T, typename Allocator = std::allocator<T>>
-  class ilist_view final
+  template <bool Reverse, typename T, typename Allocator>
+  struct ilist_view_traits;
+
+  template <typename T, typename Allocator>
+  struct ilist_view_traits<false, T, Allocator>
   {
-  public:
     using list_type              = ilist<T, Allocator>;
     using iterator               = list_type::iterator;
     using const_iterator         = list_type::const_iterator;
     using reverse_iterator       = list_type::reverse_iterator;
     using const_reverse_iterator = list_type::const_reverse_iterator;
+  };
+
+  template <typename T, typename Allocator>
+  struct ilist_view_traits<true, T, Allocator>
+  {
+    using list_type              = ilist<T, Allocator>;
+    using iterator               = list_type::reverse_iterator;
+    using const_iterator         = list_type::const_reverse_iterator;
+    using reverse_iterator       = list_type::iterator;
+    using const_reverse_iterator = list_type::const_iterator;
+  };
+
+
+  //
+  // A view into the list
+  //
+  template <bool Reverse, typename T, typename Allocator = std::allocator<T>>
+  class ilist_view final
+  {
+  public:
+    using list_type              = ilist<T, Allocator>;
     using allocator_type         = list_type::allocator_type;
     using node_type              = list_type::node_type;
     using value_type             = list_type::value_type;
@@ -1241,6 +1261,12 @@ namespace utils
     using const_reference        = list_type::const_reference;
     using size_type              = list_type::size_type;
     using difference_type        = list_type::difference_type;
+
+    using view_traits            = ilist_view_traits<Reverse, T, Allocator>;
+    using iterator               = view_traits::iterator;
+    using const_iterator         = view_traits::const_iterator;
+    using reverse_iterator       = view_traits::reverse_iterator;
+    using const_reverse_iterator = view_traits::const_reverse_iterator;
 
   public:
     CLASS_SPECIALS_ALL(ilist_view);
@@ -1334,26 +1360,54 @@ namespace utils
   };
 
   template <typename T, typename A>
+  ilist_view(const ilist<T, A>&)
+    -> ilist_view<false, T, A>;
+
+  template <typename T, typename A>
   ilist_view(ilist_fwd_iter<T, A>, ilist_fwd_iter<T, A>)
-    -> ilist_view<T, A>;
+    -> ilist_view<false, T, A>;
 
   template <typename T, typename A>
   ilist_view(ilist_fwd_iter<const T, A>, ilist_fwd_iter<const T, A>)
-    -> ilist_view<T, A>;
+    -> ilist_view<false, T, A>;
 
   template <typename T, typename A>
   ilist_view(ilist_fwd_iter<T, A>, std::size_t)
-    -> ilist_view<T, A>;
+    -> ilist_view<false, T, A>;
 
   template <typename T, typename A>
   ilist_view(ilist_fwd_iter<const T, A>, std::size_t)
-    -> ilist_view<T, A>;
+    -> ilist_view<false, T, A>;
 
   template <typename T, typename A>
   ilist_view(ilist_fwd_iter<T, A>, ilist_fwd_iter<T, A>, std::size_t)
-    -> ilist_view<T, A>;
+    -> ilist_view<false, T, A>;
 
   template <typename T, typename A>
   ilist_view(ilist_fwd_iter<const T, A>, ilist_fwd_iter<const T, A>, std::size_t)
-    -> ilist_view<T, A>;
+    -> ilist_view<false, T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_rev_iter<T, A>, ilist_rev_iter<T, A>)
+    -> ilist_view<true, T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_rev_iter<const T, A>, ilist_rev_iter<const T, A>)
+    -> ilist_view<true, T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_rev_iter<T, A>, std::size_t)
+    -> ilist_view<true, T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_rev_iter<const T, A>, std::size_t)
+    -> ilist_view<true, T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_rev_iter<T, A>, ilist_rev_iter<T, A>, std::size_t)
+    -> ilist_view<true, T, A>;
+
+  template <typename T, typename A>
+  ilist_view(ilist_rev_iter<const T, A>, ilist_rev_iter<const T, A>, std::size_t)
+    -> ilist_view<true, T, A>;
 }

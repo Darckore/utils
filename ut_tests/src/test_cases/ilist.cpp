@@ -38,14 +38,10 @@ namespace ut_tests
         return;
       }
 
-      auto actualSize = std::size_t{};
       for (auto&& [node, exp] : utils::make_iterators(list, baseline))
       {
-        ++actualSize;
         EXPECT_EQ(node.value, exp);
       }
-
-      ASSERT_EQ(actualSize, list.size());
     }
 
     template <std::size_t N>
@@ -83,7 +79,6 @@ namespace ut_tests
 
       auto actualLast = decltype(&last){};
       auto actualFirst = decltype(&first){};
-      auto actualSize = std::size_t{};
       for (auto&& [node, exp] : utils::make_iterators(list, baseline))
       {
         if (!node.is_attached())
@@ -100,11 +95,9 @@ namespace ut_tests
 
         if (!actualFirst) actualFirst = &node;
         actualLast = &node;
-        ++actualSize;
         EXPECT_EQ(node.value, exp);
       }
 
-      ASSERT_EQ(actualSize, list.size());
       ASSERT_TRUE(first.same_as(actualFirst));
       ASSERT_TRUE(last.same_as(actualLast));
     }

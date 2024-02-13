@@ -1247,41 +1247,38 @@ namespace utils
     
     ~ilist_view() noexcept = default;
 
-    ilist_view(const list_type& list) noexcept
-    {
-      if (list.empty()) return;
-
-      m_head = &list.front();
-      m_tail = &list.back();
-      m_size = list.size();
-    }
+    ilist_view(const list_type& list) noexcept :
+      m_head{ list.begin() },
+      m_tail{ list.end() },
+      m_size{ list.size() }
+    {}
 
     ilist_view(const_iterator b, const_iterator e) noexcept :
-      m_head{ b.get() }
+      m_head{ b }
     {
       if (!m_head) return;
       while (b != e)
       {
-        m_tail = b.get();
+        m_tail = b;
         ++b;
         ++m_size;
       }
     }
 
     ilist_view(const_iterator head, const_iterator tail, size_type sz) noexcept :
-      m_head{ head.get() },
-      m_tail{ tail.get() },
+      m_head{ head },
+      m_tail{ tail },
       m_size{ sz }
     {}
 
     ilist_view(const_iterator head, size_type sz) noexcept :
-      m_head{ head.get() }
+      m_head{ head }
     {
       if (!m_head) return;
       while (m_size != sz)
       {
         UTILS_ASSERT(head);
-        m_tail = head.get();
+        m_tail = head;
         ++m_size;
         ++head;
       }
@@ -1313,25 +1310,26 @@ namespace utils
 
     auto begin() const noexcept
     {
-      return const_iterator{ m_head };
+      return m_head;
     }
     auto end() const noexcept
     {
-      return const_iterator{};
+      return m_tail ? std::next(m_tail) : m_tail;
     }
 
     auto rbegin() const noexcept
     {
-      return const_reverse_iterator{ m_tail };
+      return const_reverse_iterator{ m_tail.get() };
     }
     auto rend() const noexcept
     {
-      return const_reverse_iterator{};
+      auto head = m_head ? std::next(m_head, -1) : m_head;
+      return const_reverse_iterator{ head.get() };
     }
 
   private:
-    const_pointer m_head{};
-    const_pointer m_tail{};
+    const_iterator m_head{};
+    const_iterator m_tail{};
     size_type m_size{};
   };
 

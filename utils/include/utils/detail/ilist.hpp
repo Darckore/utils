@@ -558,7 +558,12 @@ namespace utils
     template <typename ...Args>
     reference emplace_before(reference node, Args&& ...args) noexcept
     {
-      UTILS_ASSERT(node.belongs_to(this));
+      if (!node.belongs_to(this))
+      {
+        UTILS_ASSERT(false);
+        return node;
+      }
+
       if (node.same_as(m_head))
         return emplace_front(std::forward<Args>(args)...);
 
@@ -587,7 +592,12 @@ namespace utils
     template <typename ...Args>
     reference emplace_after(reference node, Args&& ...args) noexcept
     {
-      UTILS_ASSERT(node.belongs_to(this));
+      if (!node.belongs_to(this))
+      {
+        UTILS_ASSERT(false);
+        return node;
+      }
+
       if (node.same_as(m_tail))
         return emplace_back(std::forward<Args>(args)...);
 

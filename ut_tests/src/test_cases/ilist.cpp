@@ -339,7 +339,10 @@ namespace ut_tests
     EXPECT_TRUE(kill->is_head());
     EXPECT_TRUE(kill->is_tail());
     EXPECT_FALSE(kill->is_attached());
-    delete kill;
+
+    decltype(lw.list)::allocator_type alloc{};
+    kill->~list_node();
+    alloc.deallocate(kill, 1);
   }
 
   TEST(ilist, t_detach_front)
@@ -351,7 +354,10 @@ namespace ut_tests
     EXPECT_TRUE(kill->is_head());
     EXPECT_TRUE(kill->is_tail());
     EXPECT_FALSE(kill->is_attached());
-    delete kill;
+
+    decltype(lw.list)::allocator_type alloc{};
+    kill->~list_node();
+    alloc.deallocate(kill, 1);
   }
 
   TEST(ilist, t_detach_back)
@@ -363,7 +369,10 @@ namespace ut_tests
     EXPECT_TRUE(kill->is_head());
     EXPECT_TRUE(kill->is_tail());
     EXPECT_FALSE(kill->is_attached());
-    delete kill;
+
+    decltype(lw.list)::allocator_type alloc{};
+    kill->~list_node();
+    alloc.deallocate(kill, 1);
   }
 
   TEST(ilist, t_pop_front)

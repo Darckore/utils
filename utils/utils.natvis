@@ -42,6 +42,16 @@
     <DisplayString>hashed string: {m_hash,Xb}</DisplayString>
   </Type>
 
+  <Type Name="utils::mangled_ptr&lt;*&gt;">
+    <DisplayString>mangled ptr: {m_value,Xb}</DisplayString>
+    <Expand>
+      <Item Name="[value]">m_value,Xb</Item>
+      <Item Name="[demangled]">(m_value &amp; 0x00FFFFFFFFFFFFFF),Xb</Item>
+      <Item Name="[object]" Condition="!(m_value &amp; 0x00FFFFFFFFFFFFFF)">"null",sb</Item>
+      <Item Name="[object]" Condition="(m_value &amp; 0x00FFFFFFFFFFFFFF)">*((pointer)(m_value &amp; 0x00FFFFFFFFFFFFFF))</Item>
+    </Expand>
+  </Type>
+
   <Type Name="utils::colour">
     <DisplayString>colour: {m_val,Xb}</DisplayString>
     <Expand>

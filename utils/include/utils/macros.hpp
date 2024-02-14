@@ -16,6 +16,10 @@
 #define CLASS_MOVE_CTOR(clName)      constexpr clName(clName&&) noexcept
 #define CLASS_MOVE_OPERATOR(clName)  constexpr clName& operator=(clName&&) noexcept
 
+#define CLASS_DEFAULT_EQ(clName) constexpr bool operator==(const clName&) const noexcept CLASS_DEFAULT
+
+#define CLASS_DEFAULT_ORD(clName) constexpr auto operator<=>(const clName&) const noexcept CLASS_DEFAULT
+
 #define CLASS_SPECIALS_ALL(clName)\
   CLASS_DEFAULT_CTOR(clName)  CLASS_DEFAULT;\
   CLASS_COPY_CTOR(clName)     CLASS_DEFAULT;\

@@ -152,4 +152,29 @@ namespace ut_tests
     constRef(thing);
   }
 
+  TEST(common, t_mangled_ptr)
+  {
+    auto x = 42;
+    auto px = &x;
+    constexpr auto mask = std::byte{ 0xab };
+    constexpr auto shifted = static_cast<std::uintptr_t>(mask) <<
+                             ((sizeof(void*) - 1) * std::numeric_limits<std::uint8_t>::digits);
+    const auto ptrval = reinterpret_cast<std::uintptr_t>(px);
+
+    utils::mangled_ptr<int> mp;
+    EXPECT_FALSE(mp);
+    EXPECT_EQ(mp.stored(), 0u);
+
+    mp = { {}, mask };
+    EXPECT_FALSE(mp);
+    EXPECT_TRUE(mp.is_mangled());
+
+    mp = { px, mask };
+    EXPECT_TRUE(mp);
+    EXPECT_TRUE(mp.is_mangled());
+    EXPECT_EQ(mp.stored(), (ptrval | shifted));
+    EXPECT_EQ(mp.get_msb(), mask);
+    EXPECT_EQ(*mp, 42);
+    EXPECT_EQ(mp.get(), px);
+  }
 }

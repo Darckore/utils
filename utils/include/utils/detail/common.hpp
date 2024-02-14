@@ -196,4 +196,173 @@ namespace utils
   {
     return hash(static_cast<std::underlying_type_t<T>>(val));
   }
+
+  //
+  // Returns the number of bits in a byte
+  //
+  consteval auto byte_size() noexcept
+  {
+    return std::numeric_limits<std::underlying_type_t<std::byte>>::digits;
+  }
+
+  //
+  // Returns the given byte shifted left to the given position
+  // and cast to the specified type
+  //
+  template <integer Res, std::size_t Pos>
+  constexpr auto shift_byte(std::byte value) noexcept
+  {
+    using ures = std::make_unsigned_t<Res>;
+    static_assert(Pos < sizeof(ures));
+    return std::bit_cast<Res>(static_cast<ures>(value) << (Pos * byte_size()));
+  }
+
+
+  //
+  // Holds an obfuscated pointer which can be used to store some data
+  // in the most significant byte (safe in user space)
+  // 
+  // Also provides a pointer-like interface into the stored ptr
+  // WILL NOT check for nullptr dereferences, this is on the user
+  //
+  template <typename T>
+  class mangled_ptr final
+  {
+  public:
+    using value_type      = T;
+    using pointer         = value_type*;
+    using const_pointer   = const value_type*;
+    using reference       = value_type&;
+    using const_reference = const value_type&;
+    using stored_type     = std::uintptr_t;
+    using byte_type       = std::byte;
+
+  private:
+    static consteval auto filled_byte() noexcept
+    {
+      return byte_type{ 0xFF };
+    }
+    static consteval auto msb_idx() noexcept
+    {
+      return sizeof(stored_type) - 1;
+    }
+    static constexpr auto shifted_byte(byte_type msb) noexcept
+    {
+      return shift_byte<stored_type, msb_idx()>(msb);
+    }
+    static constexpr auto baseline() noexcept
+    {
+      return shifted_byte(filled_byte());
+    }
+    static constexpr auto inv_baseline() noexcept
+    {
+      return ~baseline();
+    }
+
+  private:
+    static constexpr auto from_ptr(pointer ptr) noexcept
+    {
+      return reinterpret_cast<stored_type>(ptr);
+    }
+    static constexpr auto to_ptr(stored_type val) noexcept
+    {
+      return reinterpret_cast<pointer>(val);
+    }
+
+    static constexpr auto drop_msb(stored_type val) noexcept
+    {
+      return val & inv_baseline();
+    }
+    static constexpr auto apply_msb(stored_type val, byte_type msb) noexcept
+    {
+      return val | shifted_byte(msb);
+    }
+
+    static constexpr auto mangle(pointer ptr, byte_type msb) noexcept
+    {
+      return apply_msb(from_ptr(ptr), msb);
+    }
+    static constexpr auto demangle(stored_type val) noexcept
+    {
+      return to_ptr(drop_msb(val));
+    }
+    static constexpr auto get_msb(stored_type val) noexcept
+    {
+      return static_cast<byte_type>((val & baseline()) >> (msb_idx() * byte_size()));
+    }
+
+  public:
+    CLASS_SPECIALS_ALL(mangled_ptr);
+
+    constexpr mangled_ptr(pointer ptr, byte_type msb) noexcept :
+      m_value{ mangle(ptr, msb) }
+    {}
+
+    explicit constexpr mangled_ptr(pointer ptr) noexcept :
+      mangled_ptr{ ptr, {} }
+    {}
+
+    CLASS_DEFAULT_EQ(mangled_ptr);
+
+  public:
+    constexpr auto stored() const noexcept
+    {
+      return m_value;
+    }
+    constexpr auto get_msb() const noexcept
+    {
+      return get_msb(stored());
+    }
+    constexpr auto is_mangled() const noexcept
+    {
+      return get_msb() != byte_type{};
+    }
+    constexpr const_pointer get() const noexcept
+    {
+      return demangle(stored());
+    }
+    constexpr pointer get() noexcept
+    {
+      return FROM_CONST(get);
+    }
+
+    explicit constexpr operator bool() const noexcept
+    {
+      return static_cast<bool>(get());
+    }
+    constexpr const_reference operator*() const noexcept
+    {
+      UTILS_ASSERT(operator bool());
+      return *get();
+    }
+    constexpr reference operator*() noexcept
+    {
+      return FROM_CONST(operator*);
+    }
+    constexpr const_pointer operator->() const noexcept
+    {
+      UTILS_ASSERT(operator bool());
+      return get();
+    }
+    constexpr pointer operator->() noexcept
+    {
+      return FROM_CONST(operator->);
+    }
+
+  private:
+    stored_type m_value{};
+  };
+
+  template <typename P, typename B>
+  mangled_ptr(P*, B) -> mangled_ptr<P>;
 }
+
+
+template <typename T>
+struct std::hash<utils::mangled_ptr<T>>
+{
+  constexpr auto operator()(const utils::mangled_ptr<T>& mp) const noexcept
+  {
+    return mp.stored();
+  }
+};

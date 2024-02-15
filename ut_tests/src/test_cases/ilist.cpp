@@ -178,8 +178,20 @@ namespace ut_tests
     list_wrapper lw{ 0, 1, 2 };
     auto ln = lw.list.front();
     EXPECT_FALSE(ln.is_attached());
+    EXPECT_TRUE(ln.is_foreign());
     EXPECT_EQ(ln.prev(), nullptr);
     EXPECT_EQ(ln.next(), nullptr);
+
+    ln.value = 69;
+
+    auto&& last = lw.list.back();
+    lw.list.emplace_back(42);
+    last = ln;
+    EXPECT_TRUE(last.is_attached());
+    EXPECT_FALSE(last.is_foreign());
+    EXPECT_NE(last.prev(), nullptr);
+    EXPECT_NE(last.next(), nullptr);
+    verify_list(lw, std::array{ 0, 1, 69, 42 });
   }
 
   TEST(ilist, t_copy)

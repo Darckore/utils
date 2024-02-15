@@ -176,4 +176,32 @@ namespace utils
   //
   template <std::size_t N>
   using idx_gen = std::make_index_sequence<N>;
+
+  //
+  // A unary predicate
+  //
+  template <typename F, typename Obj>
+  concept unary_predicate = std::is_nothrow_invocable_r_v<bool, F, const Obj&>;
+
+  //
+  // A binary predicate
+  //
+  template <typename F, typename Obj>
+  concept binary_predicate = std::is_nothrow_invocable_r_v<bool, F, const Obj&, const Obj&>;
+
+  //
+  // A unary transform
+  // Should modify the provided object in-place
+  //
+  template <typename F, typename Obj>
+  concept unary_transform = std::is_nothrow_invocable_r_v<void, F, Obj&>;
+
+  //
+  // A unary generator
+  // Accepts an object pointer and returns a new object based on it
+  // according to some rules
+  // Should handle a nullptr case
+  //
+  template <typename F, typename Obj>
+  concept unary_generator = std::is_nothrow_invocable_r_v<Obj, F, const Obj*>;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+// Fwd
 namespace utils
 {
   template <typename T, typename Allocator> class ilist;
@@ -7,7 +8,12 @@ namespace utils
   template <typename T, typename Allocator> class ilist_fwd_iter;
   template <typename T, typename Allocator> class ilist_rev_iter;
   template <bool R, typename T, typename Allocator> class ilist_view;
+}
 
+
+// Node
+namespace utils
+{
   //
   // Intrusive list node
   // Used as a CRTP base class for anything stored in the list
@@ -16,16 +22,15 @@ namespace utils
   class ilist_node
   {
   public:
-    using value_type      = Derived;
-    using allocator_type  = Allocator;
-    using base_type       = ilist_node<value_type, allocator_type>;
-    using list_type       = ilist<value_type, allocator_type>;
-    using list_ptr        = mangled_ptr<list_type>;
-    using pointer         = value_type*;
-    using const_pointer   = const value_type*;
-    using reference       = value_type&;
-    using const_reference = const value_type&;
-
+    using value_type             = Derived;
+    using allocator_type         = Allocator;
+    using base_type              = ilist_node<value_type, allocator_type>;
+    using list_type              = ilist<value_type, allocator_type>;
+    using list_ptr               = mangled_ptr<list_type>;
+    using pointer                = value_type*;
+    using const_pointer          = const value_type*;
+    using reference              = value_type&;
+    using const_reference        = const value_type&;
     using iterator               = ilist_fwd_iter<Derived, allocator_type>;
     using const_iterator         = ilist_fwd_iter<const Derived, allocator_type>;
     using reverse_iterator       = ilist_rev_iter<Derived, allocator_type>;
@@ -125,13 +130,15 @@ namespace utils
       return to_derived() == other;
     }
 
-    template <typename First, typename ...Args> requires (all_convertible<const_pointer, Args...>)
+    template <typename First, typename ...Args>
+      requires (all_convertible<const_pointer, Args...>)
     bool same_as_any(First first, Args ...args) const noexcept
     {
       return (same_as(first) && ... && same_as(args));
     }
 
-    template <typename First, typename ...Args> requires (all_convertible<const_pointer, Args...>)
+    template <typename First, typename ...Args>
+      requires (all_convertible<const_pointer, Args...>)
     bool same_as_none(First first, Args ...args) const noexcept
     {
       return !same_as_any(first, args...);
@@ -166,9 +173,9 @@ namespace utils
       if (same_as(&other))
         return;
 
-      auto self      = to_derived();
-      auto myPrev    = prev();
-      auto myNext    = next();
+      auto self = to_derived();
+      auto myPrev = prev();
+      auto myNext = next();
       auto otherPrev = other.prev();
       auto otherNext = other.next();
 
@@ -247,7 +254,8 @@ namespace utils
       return node;
     }
 
-    template <typename ...Args> requires (std::constructible_from<value_type, list_type&, Args...>)
+    template <typename ...Args>
+      requires (std::constructible_from<value_type, list_type&, Args...>)
     static reference make(allocator_type alloc, pointer l, pointer r, list_type& owner, Args&& ...args) noexcept
     {
       auto storage = alloc.allocate(1);
@@ -299,8 +307,12 @@ namespace utils
     pointer m_prev{};
     pointer m_next{};
   };
+}
 
 
+// Iterators
+namespace utils
+{
   //
   // Base class for list iterators
   //
@@ -489,28 +501,22 @@ namespace utils
     return const_reverse_iterator{ to_derived() };
   }
 
-  template <typename F, typename Node>
-  concept ilist_unary_predicate =
-    std::is_nothrow_invocable_r_v<bool, F, const Node&>;
-
-  template <typename F, typename Node>
-  concept ilist_binary_predicate =
-    std::is_nothrow_invocable_r_v<bool, F, const Node&, const Node&>;
-
-  template <typename F, typename Node>
-  concept ilist_unary_transform =
-    std::is_nothrow_invocable_r_v<void, F, Node&>;
-
-  template <typename F, typename Node>
-  concept ilist_unary_generator =
-    std::is_nothrow_invocable_r_v<Node, F, const Node*>;
 
   template <typename T, typename N, typename A>
   concept ilist_iterator =
     std::same_as<T, ilist_fwd_iter<N, A>> ||
     std::same_as<T, ilist_rev_iter<N, A>>;
 
+  template <typename T, typename N, typename A>
+  concept ilist_non_const_iterator =
+    ilist_iterator<T, N, A> &&
+    !std::is_const_v<T>;
+}
 
+
+// The list
+namespace utils
+{
   //
   // A doubly-linked intrusive list
   // Allows elements to know their locations within the container
@@ -813,7 +819,7 @@ namespace utils
       if (!it) return *this;
       return remove_after(*it);
     }
-    
+
     ilist& remove_after(reference node) noexcept
     {
       if (!node.belongs_to(this))
@@ -1097,7 +1103,7 @@ namespace utils
     }
 
   private:
-    template <ilist_unary_predicate<value_type> Pred>
+    template <unary_predicate<value_type> Pred>
     const_pointer find_impl(Pred&& pred) const noexcept
     {
       auto head = m_head;
@@ -1110,27 +1116,27 @@ namespace utils
     }
 
   public: // iterative manipulations
-    template <ilist_unary_predicate<value_type> Pred>
+    template <unary_predicate<value_type> Pred>
     auto find(Pred&& pred) const noexcept
     {
       auto found = find_impl(std::forward<Pred>(pred));
       return const_iterator{ found };
     }
 
-    template <ilist_unary_predicate<value_type> Pred>
+    template <unary_predicate<value_type> Pred>
     auto find(Pred&& pred) noexcept
     {
       auto found = FROM_CONST(find_impl, std::forward<Pred>(pred));
       return iterator{ found };
     }
 
-    template <ilist_unary_predicate<value_type> Pred>
+    template <unary_predicate<value_type> Pred>
     auto contains(Pred&& pred) const noexcept
     {
       return static_cast<bool>(find(std::forward<Pred>(pred)));
     }
 
-    template <ilist_unary_transform<value_type> Transform>
+    template <unary_transform<value_type> Transform>
     ilist& apply(Transform&& transform) noexcept
     {
       auto head = m_head;
@@ -1143,7 +1149,7 @@ namespace utils
       return *this;
     }
 
-    template <ilist_unary_predicate<value_type> Pred>
+    template <unary_predicate<value_type> Pred>
     ilist& erase(Pred&& pred) noexcept
     {
       auto head = m_head;
@@ -1157,7 +1163,7 @@ namespace utils
       return *this;
     }
 
-    template <ilist_unary_predicate<value_type> Pred>
+    template <unary_predicate<value_type> Pred>
     ilist& filter(Pred&& pred) noexcept
     {
       return erase([&](auto&& node) noexcept
@@ -1166,7 +1172,7 @@ namespace utils
         });
     }
 
-    template <ilist_unary_predicate<value_type> Pred>
+    template <unary_predicate<value_type> Pred>
     ilist extract(Pred&& pred) noexcept
     {
       ilist res{ allocator() };
@@ -1184,8 +1190,9 @@ namespace utils
       return res;
     }
 
-    template <ilist_unary_predicate<value_type> Pred>
-    ilist get_filtered(Pred&& pred) const noexcept requires (std::copyable<value_type>)
+    template <unary_predicate<value_type> Pred>
+      requires (std::copyable<value_type>)
+    ilist get_filtered(Pred&& pred) const noexcept
     {
       ilist res{ allocator() };
       auto head = m_head;
@@ -1201,9 +1208,10 @@ namespace utils
       }
       return res;
     }
-    
-    template <ilist_unary_generator<value_type> Gen, ilist_iterator<value_type, allocator_type> It>
-    ilist& generate(It iter, size_type n, Gen&& gen) noexcept requires (std::copyable<value_type>)
+
+    template <unary_generator<value_type> Gen, ilist_non_const_iterator<value_type, allocator_type> It>
+      requires (std::copyable<value_type>)
+    ilist& generate(It iter, size_type n, Gen&& gen) noexcept
     {
       auto count = n;
       if (!count) return *this;
@@ -1220,7 +1228,7 @@ namespace utils
 
   public: // info and iteration
     forward_view to_view() const noexcept;
-    
+
     reverse_view to_rev_view() const noexcept;
 
     auto allocator() const noexcept
@@ -1386,7 +1394,12 @@ namespace utils
   {
     lst.detach(node);
   }
+}
 
+
+// List view
+namespace utils
+{
   namespace detail
   {
     template <bool Reverse, typename T, typename Allocator>

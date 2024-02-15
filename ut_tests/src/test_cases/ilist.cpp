@@ -8,9 +8,6 @@ namespace ut_tests
     {
       int value;
 
-      constexpr bool operator==(const list_node&) const noexcept = default;
-      constexpr auto operator<=>(const list_node&) const noexcept = default;
-
       explicit list_node(int val) noexcept :
         base_type{ base_type::make_detached_tag{} },
         value{ val }
@@ -20,14 +17,16 @@ namespace ut_tests
         base_type{ list },
         value{ val }
       {}
+
+      bool operator==(const list_node& other) const noexcept
+      {
+        return value == other.value;
+      }
     };
 
     struct list_node_uc : public utils::ilist_node<list_node_uc>
     {
       int value;
-
-      constexpr bool operator==(const list_node_uc&) const noexcept = default;
-      constexpr auto operator<=>(const list_node_uc&) const noexcept = default;
 
       explicit list_node_uc(int val) noexcept :
         base_type{ base_type::make_detached_tag{} },
@@ -41,6 +40,11 @@ namespace ut_tests
 
       list_node_uc(const list_node_uc&) = delete;
       list_node_uc& operator=(const list_node_uc&) = delete;
+
+      bool operator==(const list_node_uc& other) const noexcept
+      {
+        return value == other.value;
+      }
     };
 
     template <typename T>
@@ -137,11 +141,32 @@ namespace ut_tests
     {
       verify_list(lw.list, baseline);
     }
+  
+    bool operator==(const list_node_uc& l, const list_node& r) noexcept
+    {
+      return l.value == r.value;
+    }
   }
 }
 
 namespace ut_tests
 {
+  TEST(ilist, t_equ_compare)
+  {
+    list_wrapper lw{ 0, 1, 2, 3 };
+    list_wrapper_uc lu{ 0, 1, 2, 3 };
+    EXPECT_EQ(lw.list, lu.list);
+
+    lw.list.reorder(lw.list.front(), lw.list.back());
+    EXPECT_NE(lw.list, lu.list);
+
+    lu.list.reorder(lu.list.front(), lu.list.back());
+    EXPECT_EQ(lw.list, lu.list);
+
+    lw.list.pop_back();
+    EXPECT_NE(lw.list, lu.list);
+  }
+
   TEST(ilist, t_copy_node)
   {
     list_wrapper lw{ 0, 1, 2 };
@@ -158,6 +183,18 @@ namespace ut_tests
     constexpr auto arr = std::array{ 0, 1, 2 };
     verify_list(lw.list, arr);
     verify_list(lst, arr);
+  }
+
+  TEST(ilist, t_copyable)
+  {
+    using lc = decltype(list_wrapper::list);
+    using lu = decltype(list_wrapper_uc::list);
+
+    EXPECT_TRUE(std::copyable<lc>);
+    EXPECT_TRUE(std::copyable<lc::value_type>);
+
+    EXPECT_FALSE(std::copyable<lu>);
+    EXPECT_FALSE(std::copyable<lu::value_type>);
   }
 
   TEST(ilist, t_move)

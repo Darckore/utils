@@ -45,10 +45,10 @@ namespace utils
 
     ~ilist_node() noexcept
     {
-      if (is_attached())
-        detach_this(*m_list, *to_derived());
+      if (!is_attached())
+        return;
 
-      mutual_link(prev(), next());
+      detach_this(*m_list, *to_derived());
     }
 
   protected:
@@ -1310,6 +1310,22 @@ namespace utils
     size_type m_size{};
     allocator_type m_alloc{};
   };
+
+  template <typename T1, typename T2, typename A1, typename A2>
+  bool operator==(const ilist<T1, A1>& l, const ilist<T2, A2>& r) noexcept
+    requires (equ_comparable<T1, T2>)
+  {
+    if (l.size() != r.size())
+      return false;
+
+    for (auto&& [ln, rn] : make_iterators(l, r))
+    {
+      if (ln != rn)
+        return false;
+    }
+
+    return true;
+  }
 
   template <typename T, typename A>
   void ilist_node<T, A>::detach_this(list_type& lst, reference node) noexcept

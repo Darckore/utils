@@ -45,8 +45,6 @@ namespace utils
 
   public:
     ilist_node() = delete;
-    ilist_node(ilist_node&&) noexcept = delete;
-    ilist_node& operator=(ilist_node&&) noexcept = delete;
 
     ~ilist_node() noexcept
     {
@@ -74,6 +72,15 @@ namespace utils
     {}
 
     ilist_node& operator=(const ilist_node&) noexcept
+    {
+      return *this;
+    }
+
+    ilist_node(ilist_node&&) noexcept :
+      ilist_node{ make_detached_tag{} }
+    {}
+
+    ilist_node& operator=(ilist_node&&) noexcept
     {
       return *this;
     }
@@ -269,6 +276,15 @@ namespace utils
     {
       auto storage = alloc.allocate(1);
       auto newVal = new (storage) value_type{ src };
+      newVal->m_list.reset();
+      return *newVal;
+    }
+
+    static reference make_copy(allocator_type alloc, value_type&& src) noexcept
+      requires (std::movable<value_type>)
+    {
+      auto storage = alloc.allocate(1);
+      auto newVal = new (storage) value_type{ std::move(src) };
       newVal->m_list.reset();
       return *newVal;
     }
@@ -1210,7 +1226,7 @@ namespace utils
     }
 
     template <unary_generator<value_type> Gen, ilist_non_const_iterator<value_type, allocator_type> It>
-      requires (std::copyable<value_type>)
+      requires (std::copyable<value_type> || std::movable<value_type>)
     ilist& generate(It iter, size_type n, Gen&& gen) noexcept
     {
       auto count = n;

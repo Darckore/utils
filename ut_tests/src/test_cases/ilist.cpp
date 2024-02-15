@@ -38,12 +38,28 @@ namespace ut_tests
         value{ val }
       {}
 
-      list_node_uc(const list_node_uc&) = delete;
-      list_node_uc& operator=(const list_node_uc&) = delete;
-
       bool operator==(const list_node_uc& other) const noexcept
       {
         return value == other.value;
+      }
+
+      list_node_uc(const list_node_uc&) = delete;
+      list_node_uc& operator=(const list_node_uc&) = delete;
+      
+      list_node_uc(list_node_uc&& other) noexcept :
+        base_type{ base_type::make_detached_tag{} },
+        value{ other.value }
+      {
+        other.value = -666;
+      }
+      list_node_uc& operator=(list_node_uc&& other) noexcept
+      {
+        if (this != &other)
+        {
+          value = other.value;
+          other.value = -666;
+        }
+        return *this;
       }
     };
 
@@ -213,6 +229,27 @@ namespace ut_tests
 
     EXPECT_FALSE(std::copyable<lu>);
     EXPECT_FALSE(std::copyable<lu::value_type>);
+  }
+
+  TEST(ilist, t_move_node)
+  {
+    list_wrapper_uc lw{ 0, 1, 2 };
+    auto ln = std::move(lw.list.front());
+    EXPECT_FALSE(ln.is_attached());
+    EXPECT_TRUE(ln.is_foreign());
+    EXPECT_EQ(ln.prev(), nullptr);
+    EXPECT_EQ(ln.next(), nullptr);
+
+    ln.value = 69;
+
+    auto&& last = lw.list.back();
+    lw.list.emplace_back(42);
+    last = std::move(ln);
+    EXPECT_TRUE(last.is_attached());
+    EXPECT_FALSE(last.is_foreign());
+    EXPECT_NE(last.prev(), nullptr);
+    EXPECT_NE(last.next(), nullptr);
+    verify_list(lw, std::array{ -666, 1, 69, 42 });
   }
 
   TEST(ilist, t_move)
@@ -755,6 +792,24 @@ namespace ut_tests
     lw.list.generate(last.to_iterator(), 3, [](auto last) noexcept
       {
         return list_node{ last->value * 2 };
+      });
+    verify_list(lw.list, std::array{ 1, 2, 3, 4, 8, 16, 32 });
+  }
+
+  TEST(ilist, t_generate_nocopy)
+  {
+    list_wrapper_uc lw;
+    lw.list.generate(lw.list.begin(), 4, [](auto last) noexcept
+      {
+        const auto val = last ? last->value + 1 : 1;
+        return list_node_uc{ val };
+      });
+    verify_list(lw.list, std::array{ 1, 2, 3, 4 });
+
+    auto&& last = lw.list.back();
+    lw.list.generate(last.to_iterator(), 3, [](auto last) noexcept
+      {
+        return list_node_uc{ last->value * 2 };
       });
     verify_list(lw.list, std::array{ 1, 2, 3, 4, 8, 16, 32 });
   }

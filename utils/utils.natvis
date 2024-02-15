@@ -118,6 +118,8 @@
       <Item Name="[prev]" Condition="!m_prev">"null",sb</Item>
       <Item Name="[next]" Condition="m_next">*m_next</Item>
       <Item Name="[next]" Condition="!m_next">"null",sb</Item>
+      <Item Name="[foreign]" Condition="(m_list.m_value &amp; 0xFF00000000000000)">"yes",sb</Item>
+      <Item Name="[foreign]" Condition="!(m_list.m_value &amp; 0xFF00000000000000)">"no",sb</Item>
     </Expand>
   </Type>
 

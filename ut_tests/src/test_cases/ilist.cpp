@@ -11,6 +11,11 @@ namespace ut_tests
       constexpr bool operator==(const list_node&) const noexcept = default;
       constexpr auto operator<=>(const list_node&) const noexcept = default;
 
+      explicit list_node(int val) noexcept :
+        base_type{ base_type::make_detached_tag{} },
+        value{ val }
+      {}
+
       list_node(list_type& list, int val) noexcept :
         base_type{ list },
         value{ val }
@@ -124,6 +129,23 @@ namespace ut_tests
     verify_list(consumer, std::array{ 0, 1, 2, 3, 4, 5, 6 });
 
     ASSERT_TRUE(lw.list.empty());
+  }
+
+  TEST(ilist, t_mixed_alloc)
+  {
+    decltype(list_wrapper{}.list) lst;
+    lst.emplace_back(42);
+    list_node ln{ 69 };
+    lst.attach_back(ln);
+    verify_list(lst, std::array{ 42, 69 });
+    lst.remove_after(lst.front());
+    verify_list(lst, std::array{ 42 });
+    lst.attach_front(ln);
+    verify_list(lst, std::array{ 69, 42 });
+    lst.remove_before(lst.back());
+    verify_list(lst, std::array{ 42 });
+    lst.attach_after(lst.front(), ln);
+    verify_list(lst, std::array{ 42, 69 });
   }
 
   TEST(ilist, t_emplace_back)

@@ -33,6 +33,8 @@ namespace utils
 
     friend list_type;
 
+    struct make_detached_tag {};
+
   private:
     static constexpr auto allocTag = std::byte{ 0xFF };
 
@@ -41,10 +43,19 @@ namespace utils
 
     ~ilist_node() noexcept
     {
+      if (is_attached())
+        detach_this(*m_list, *to_derived());
+
       mutual_link(prev(), next());
     }
 
   protected:
+    explicit ilist_node(make_detached_tag) noexcept :
+      m_list{ {}, allocTag }
+    {
+      static_assert(std::derived_from<value_type, base_type>);
+    }
+
     ilist_node(list_type& owner) noexcept :
       m_list{ &owner, allocTag }
     {
@@ -237,7 +248,13 @@ namespace utils
 
     static void dealloc(allocator_type alloc, pointer ptr) noexcept
     {
-      if (!ptr || ptr->is_allocated_outside()) return;
+      if (!ptr) return;
+      if (ptr->is_allocated_outside())
+      {
+        if (ptr->is_attached())
+          detach_this(ptr->list(), *ptr);
+        return;
+      }
 
       ptr->~value_type();
       alloc.deallocate(ptr, 1);
@@ -256,6 +273,7 @@ namespace utils
       set_next(l, r);
       set_prev(r, l);
     }
+    static void detach_this(list_type& lst, reference node) noexcept;
 
   private:
     list_ptr m_list{};
@@ -736,10 +754,6 @@ namespace utils
         return *this;
       }
 
-      if (node.prev() == m_head)
-        set_head(&node);
-
-      if (node.prev()) shrink();
       node.kill_prev(allocator());
       return *this;
     }
@@ -762,10 +776,6 @@ namespace utils
         return *this;
       }
 
-      if (node.next() == m_tail)
-        set_tail(&node);
-
-      if(node.next()) shrink();
       node.kill_next(allocator());
       return *this;
     }
@@ -834,17 +844,8 @@ namespace utils
 
       auto head = m_head;
       set_head(head->next());
-
-      if (m_head)
-      {
-        m_head->kill_prev(allocator());
-      }
-      else
-      {
-        node_type::dealloc(allocator(), head);
-        reset_tail();
-      }
-      shrink();
+      detach(*head);
+      node_type::dealloc(allocator(), head);
       return *this;
     }
     ilist& pop_back() noexcept
@@ -854,17 +855,8 @@ namespace utils
 
       auto tail = m_tail;
       set_tail(tail->prev());
-
-      if (m_tail)
-      {
-        m_tail->kill_next(allocator());
-      }
-      else
-      {
-        node_type::dealloc(allocator(), tail);
-        reset_bounds();
-      }
-      shrink();
+      detach(*tail);
+      node_type::dealloc(allocator(), tail);
       return *this;
     }
 
@@ -1275,6 +1267,11 @@ namespace utils
     allocator_type m_alloc{};
   };
 
+  template <typename T, typename A>
+  void ilist_node<T, A>::detach_this(list_type& lst, reference node) noexcept
+  {
+    lst.detach(node);
+  }
 
   namespace detail
   {

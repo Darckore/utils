@@ -349,6 +349,31 @@ namespace utils
       return FROM_CONST(operator->);
     }
 
+    auto replace(pointer ptr, byte_type msb) const noexcept
+    {
+      return mangled_ptr{ ptr, msb };
+    }
+    auto replace(pointer ptr) const noexcept
+    {
+      return mangled_ptr{ ptr };
+    }
+
+    mangled_ptr& reset(pointer ptr, byte_type msb) noexcept
+    {
+      *this = replace(ptr, msb);
+      return *this;
+    }
+    mangled_ptr& reset(pointer ptr) noexcept
+    {
+      *this = replace(ptr);
+      return *this;
+    }
+    mangled_ptr& reset() noexcept
+    {
+      *this = {};
+      return *this;
+    }
+
   private:
     stored_type m_value{};
   };

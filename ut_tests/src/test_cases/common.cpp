@@ -170,11 +170,16 @@ namespace ut_tests
     EXPECT_TRUE(mp.is_mangled());
 
     mp = { px, mask };
+    auto mp2 = mp.replace(px);
+    EXPECT_NE(mp, mp2);
     EXPECT_TRUE(mp);
     EXPECT_TRUE(mp.is_mangled());
     EXPECT_EQ(mp.stored(), (ptrval | shifted));
     EXPECT_EQ(mp.get_msb(), mask);
     EXPECT_EQ(*mp, 42);
     EXPECT_EQ(mp.get(), px);
+
+    mp.reset(px);
+    EXPECT_EQ(mp, mp2);
   }
 }

@@ -20,6 +20,7 @@ namespace utils
     using allocator_type  = Allocator;
     using base_type       = ilist_node<value_type, allocator_type>;
     using list_type       = ilist<value_type, allocator_type>;
+    using list_ptr        = mangled_ptr<list_type>;
     using pointer         = value_type*;
     using const_pointer   = const value_type*;
     using reference       = value_type&;
@@ -32,6 +33,9 @@ namespace utils
 
     friend list_type;
 
+  private:
+    static constexpr auto allocTag = std::byte{ 0xFF };
+
   public:
     CLASS_SPECIALS_NONE(ilist_node);
 
@@ -42,7 +46,7 @@ namespace utils
 
   protected:
     ilist_node(list_type& owner) noexcept :
-      m_list{ &owner }
+      m_list{ &owner, allocTag }
     {
       static_assert(std::derived_from<value_type, base_type>);
     }
@@ -169,6 +173,11 @@ namespace utils
     }
 
   private:
+    bool is_allocated_outside() const noexcept
+    {
+      return m_list.is_mangled();
+    }
+
     const_pointer to_derived() const noexcept
     {
       return static_cast<const_pointer>(this);
@@ -188,7 +197,7 @@ namespace utils
     }
     void drop_list() noexcept
     {
-      m_list = {};
+      m_list = nullptr;
     }
     void detach() noexcept
     {
@@ -222,12 +231,13 @@ namespace utils
     {
       auto storage = alloc.allocate(1);
       auto newVal = new (storage) value_type{ owner, std::forward<Args>(args)... };
+      newVal->m_list.reset(&owner);
       return link(l, *newVal, r);
     }
 
     static void dealloc(allocator_type alloc, pointer ptr) noexcept
     {
-      if (!ptr) return;
+      if (!ptr || ptr->is_allocated_outside()) return;
 
       ptr->~value_type();
       alloc.deallocate(ptr, 1);
@@ -248,7 +258,7 @@ namespace utils
     }
 
   private:
-    list_type* m_list{};
+    list_ptr m_list{};
     pointer m_prev{};
     pointer m_next{};
   };

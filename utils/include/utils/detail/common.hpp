@@ -304,17 +304,23 @@ namespace utils
 
     CLASS_DEFAULT_EQ(mangled_ptr);
 
+    constexpr mangled_ptr& operator=(pointer ptr) noexcept
+    {
+      const auto msb = get_msb();
+      return reset(ptr, msb);
+    }
+
     friend constexpr bool operator==(const mangled_ptr& ptr, const_pointer other) noexcept
     {
       return ptr.get() == other;
     }
 
   public:
-    constexpr auto stored() const noexcept
+    constexpr stored_type stored() const noexcept
     {
       return m_value;
     }
-    constexpr auto get_msb() const noexcept
+    constexpr byte_type get_msb() const noexcept
     {
       return get_msb(stored());
     }

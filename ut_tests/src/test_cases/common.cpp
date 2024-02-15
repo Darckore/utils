@@ -179,6 +179,8 @@ namespace ut_tests
     EXPECT_EQ(*mp, 42);
     EXPECT_EQ(mp.get(), px);
     EXPECT_EQ(mp, px);
+    mp = px;
+    EXPECT_EQ(mp, px);
 
     mp.reset(px);
     EXPECT_EQ(mp, mp2);

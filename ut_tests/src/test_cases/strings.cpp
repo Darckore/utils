@@ -192,7 +192,7 @@ namespace ut_tests
     ASSERT_NE(k0d, k1d);
   }
 
-  TEST(string, t_pref_restore)
+  TEST(strings, t_pref_restore)
   {
     utils::prefixed_pool pp;
     auto l0 = pp.next_indexed(lol);

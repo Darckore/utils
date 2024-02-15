@@ -732,18 +732,37 @@ namespace ut_tests
   TEST(ilist, t_generate)
   {
     list_wrapper lw;
-    lw.list.generate(4, [](auto last) noexcept
+    lw.list.generate(lw.list.begin(), 4, [](auto last) noexcept
       {
         if (!last) return list_node{ 1 };
         return list_node{ last->value + 1 };
       });
     verify_list(lw.list, std::array{ 1, 2, 3, 4 });
 
-    lw.list.generate(3, [](auto last) noexcept
+    auto&& last = lw.list.back();
+    lw.list.generate(last.to_iterator(), 3, [](auto last) noexcept
       {
         return list_node{ last->value * 2 };
       });
     verify_list(lw.list, std::array{ 1, 2, 3, 4, 8, 16, 32 });
+  }
+
+  TEST(ilist, t_generate_rev)
+  {
+    list_wrapper lw;
+    lw.list.generate(lw.list.rbegin(), 4, [](auto last) noexcept
+      {
+        if (!last) return list_node{ 4 };
+        return list_node{ last->value - 1 };
+      });
+    verify_list(lw.list, std::array{ 1, 2, 3, 4 });
+
+    auto&& last = lw.list.back();
+    lw.list.generate(last.to_reverse_iterator(), 3, [](auto last) noexcept
+      {
+        return list_node{ last->value * 2 };
+      });
+    verify_list(lw.list, std::array{ 1, 2, 3, 32, 16, 8, 4 });
   }
 }
 

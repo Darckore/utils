@@ -505,6 +505,11 @@ namespace utils
   concept ilist_unary_generator =
     std::is_nothrow_invocable_r_v<Node, F, const Node*>;
 
+  template <typename T, typename N, typename A>
+  concept ilist_iterator =
+    std::same_as<T, ilist_fwd_iter<N, A>> ||
+    std::same_as<T, ilist_rev_iter<N, A>>;
+
 
   //
   // A doubly-linked intrusive list
@@ -775,20 +780,14 @@ namespace utils
     ilist& attach_after(iterator it, reference attached) noexcept
     {
       if (!it)
-      {
-        UTILS_ASSERT(false);
-        return *this;
-      }
+        return attach_back(attached);
 
       return attach_after(*it, attached);
     }
     ilist& attach_after(reverse_iterator it, reference attached) noexcept
     {
       if (!it)
-      {
-        UTILS_ASSERT(false);
-        return *this;
-      }
+        return attach_front(attached);
 
       return attach_before(*it, attached);
     }
@@ -1203,25 +1202,18 @@ namespace utils
       return res;
     }
     
-    template <ilist_unary_generator<value_type> Gen>
-    ilist& generate(size_type n, Gen&& gen) noexcept requires (std::copyable<value_type>)
+    template <ilist_unary_generator<value_type> Gen, ilist_iterator<value_type, allocator_type> It>
+    ilist& generate(It iter, size_type n, Gen&& gen) noexcept requires (std::copyable<value_type>)
     {
       auto count = n;
       if (!count) return *this;
 
-      if (empty())
-      {
-        --count;
-        auto&& newItem = node_type::make_copy(allocator(), gen(const_pointer{}));
-        attach_back(newItem);
-      }
-
-      auto prev = m_tail;
+      auto prev = iter;
       while (count--)
       {
-        auto&& newItem = node_type::make_copy(allocator(), gen(prev));
-        attach_back(newItem);
-        prev = m_tail;
+        auto&& newItem = node_type::make_copy(allocator(), gen(prev.get()));
+        attach_after(prev, newItem);
+        prev = It{ &newItem };
       }
       return *this;
     }

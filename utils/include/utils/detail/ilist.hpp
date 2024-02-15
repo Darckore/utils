@@ -39,7 +39,11 @@ namespace utils
     static constexpr auto allocTag = std::byte{ 0xFF };
 
   public:
-    CLASS_SPECIALS_NONE(ilist_node);
+    ilist_node() = delete;
+    ilist_node(ilist_node&&) noexcept = delete;
+    ilist_node& operator=(ilist_node&&) noexcept = delete;
+    ilist_node(const ilist_node&) noexcept = delete;
+    ilist_node& operator=(const ilist_node&) noexcept = delete;
 
     ~ilist_node() noexcept
     {

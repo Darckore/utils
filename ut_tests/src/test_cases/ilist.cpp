@@ -255,7 +255,7 @@ namespace ut_tests
   TEST(ilist, t_move)
   {
     list_wrapper lw{ 0, 1, 2, 3, 4, 5, 6 };
-    
+
     decltype(lw.list) consumer{};
     consumer.emplace_back(7);
     consumer.emplace_back(8);
@@ -264,6 +264,13 @@ namespace ut_tests
     verify_list(consumer, std::array{ 0, 1, 2, 3, 4, 5, 6 });
 
     ASSERT_TRUE(lw.list.empty());
+  }
+
+  TEST(ilist, t_weird_move)
+  {
+    list_wrapper_uc lw{ 0, 1, 2 };
+    lw.list.front() = std::move(lw.list.back());
+    verify_list(lw, std::array{ 2, 1, -666 });
   }
 
   TEST(ilist, t_mixed_alloc)

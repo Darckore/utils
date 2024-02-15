@@ -78,6 +78,10 @@ namespace utils
     {
       return static_cast<bool>(m_list);
     }
+    bool is_foreign() const noexcept
+    {
+      return m_list.is_mangled();
+    }
 
     const list_type& list() const noexcept
     {
@@ -195,11 +199,6 @@ namespace utils
     }
 
   private:
-    bool is_allocated_outside() const noexcept
-    {
-      return m_list.is_mangled();
-    }
-
     const_pointer to_derived() const noexcept
     {
       return static_cast<const_pointer>(this);
@@ -269,7 +268,7 @@ namespace utils
     static void dealloc(allocator_type alloc, pointer ptr) noexcept
     {
       if (!ptr) return;
-      if (ptr->is_allocated_outside())
+      if (ptr->is_foreign())
       {
         if (ptr->is_attached())
           detach_this(ptr->list(), *ptr);

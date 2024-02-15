@@ -63,7 +63,7 @@ namespace ut_tests
     using list_wrapper_uc = list_wrapper_base<list_node_uc>;
 
     template <bool Reverse, typename T, typename A, std::size_t N>
-    void verify_list(utils::ilist_view<Reverse, T, A> list, const std::array<int, N>& baseline) noexcept
+    void verify_list(utils::ilist_view<Reverse, T, A> list, const std::array<int, N>& baseline, bool failForeign = true) noexcept
     {
       if (list.size() != baseline.size())
       {
@@ -74,12 +74,15 @@ namespace ut_tests
 
       for (auto&& [node, exp] : utils::make_iterators(list, baseline))
       {
+        if (failForeign && node.is_foreign())
+          FAIL() << "Foreign node " << node.value;
+
         EXPECT_EQ(node.value, exp);
       }
     }
 
     template <typename T, std::size_t N>
-    void verify_list(const utils::ilist<T>& list, const std::array<int, N>& baseline) noexcept
+    void verify_list(const utils::ilist<T>& list, const std::array<int, N>& baseline, bool failForeign = true) noexcept
     {
       if (list.size() != baseline.size())
       {
@@ -121,6 +124,9 @@ namespace ut_tests
           return;
         }
 
+        if (failForeign && node.is_foreign())
+          FAIL() << "Foreign node " << node.value;
+
         if (!node.belongs_to(list))
         {
           FAIL() << "Foreign node with value " << node.value;
@@ -137,9 +143,9 @@ namespace ut_tests
     }
 
     template <typename T, std::size_t N>
-    void verify_list(list_wrapper_base<T>& lw, const std::array<int, N>& baseline) noexcept
+    void verify_list(list_wrapper_base<T>& lw, const std::array<int, N>& baseline, bool failForeign = true) noexcept
     {
-      verify_list(lw.list, baseline);
+      verify_list(lw.list, baseline, failForeign);
     }
   
     bool operator==(const list_node_uc& l, const list_node& r) noexcept
@@ -217,15 +223,15 @@ namespace ut_tests
     lst.emplace_back(42);
     list_node ln{ 69 };
     lst.attach_back(ln);
-    verify_list(lst, std::array{ 42, 69 });
+    verify_list(lst, std::array{ 42, 69 }, false);
     lst.remove_after(lst.front());
     verify_list(lst, std::array{ 42 });
     lst.attach_front(ln);
-    verify_list(lst, std::array{ 69, 42 });
+    verify_list(lst, std::array{ 69, 42 }, false);
     lst.remove_before(lst.back());
     verify_list(lst, std::array{ 42 });
     lst.attach_after(lst.front(), ln);
-    verify_list(lst, std::array{ 42, 69 });
+    verify_list(lst, std::array{ 42, 69 }, false);
   }
 
   TEST(ilist, t_emplace_back)

@@ -511,6 +511,8 @@ namespace utils
   private:
     ilist& move_from(ilist&& other) noexcept
     {
+      if (this == &other) return *this;
+      m_alloc = other.allocator();
       return clear().append(std::move(other));
     }
 
@@ -525,9 +527,6 @@ namespace utils
 
     ilist& operator=(ilist&& other) noexcept
     {
-      if (this == &other)
-        return *this;
-
       return move_from(std::move(other));
     }
 

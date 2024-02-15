@@ -1164,6 +1164,42 @@ namespace utils
         });
     }
 
+    template <ilist_unary_predicate<value_type> Pred>
+    ilist extract(Pred&& pred) noexcept
+    {
+      ilist res{ allocator() };
+      auto head = m_head;
+      while (head)
+      {
+        auto next = head->next();
+        if (pred(*head))
+        {
+          detach(*head);
+          res.attach_back(*head);
+        }
+        head = next;
+      }
+      return res;
+    }
+
+    template <ilist_unary_predicate<value_type> Pred>
+    ilist get_filtered(Pred&& pred) noexcept requires (std::copyable<value_type>)
+    {
+      ilist res{ allocator() };
+      auto head = m_head;
+      while (head)
+      {
+        auto next = head->next();
+        if (pred(*head))
+        {
+          auto&& copy = node_type::make_copy(allocator(), *head);
+          res.attach_back(copy);
+        }
+        head = next;
+      }
+      return res;
+    }
+
   public: // info and iteration
     forward_view to_view() const noexcept;
     

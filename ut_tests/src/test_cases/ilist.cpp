@@ -700,6 +700,28 @@ namespace ut_tests
       });
     verify_list(lw, std::array{ 3, 6 });
   }
+
+  TEST(ilist, t_extract)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    auto other = lw.list.extract([](auto&& item) noexcept
+      {
+        return item.value % 3 == 0;
+      });
+    verify_list(lw.list, std::array{ 1, 2, 4, 5 });
+    verify_list(other, std::array{ 3, 6 });
+  }
+
+  TEST(ilist, t_get_filtered)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    auto other = lw.list.get_filtered([](auto&& item) noexcept
+      {
+        return item.value % 3 == 0;
+      });
+    verify_list(lw.list, std::array{ 1, 2, 3, 4, 5, 6 });
+    verify_list(other, std::array{ 3, 6 });
+  }
 }
 
 

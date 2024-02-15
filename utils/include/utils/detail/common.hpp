@@ -381,8 +381,7 @@ namespace utils
     }
     mangled_ptr& reset() noexcept
     {
-      *this = {};
-      return *this;
+      return reset({});
     }
 
   private:

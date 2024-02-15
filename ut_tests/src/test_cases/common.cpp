@@ -178,8 +178,11 @@ namespace ut_tests
     EXPECT_EQ(mp.get_msb(), mask);
     EXPECT_EQ(*mp, 42);
     EXPECT_EQ(mp.get(), px);
+    EXPECT_EQ(mp, px);
 
     mp.reset(px);
     EXPECT_EQ(mp, mp2);
+    EXPECT_EQ(mp, px);
+    EXPECT_EQ(px, mp);
   }
 }

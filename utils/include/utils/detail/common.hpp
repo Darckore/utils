@@ -304,6 +304,11 @@ namespace utils
 
     CLASS_DEFAULT_EQ(mangled_ptr);
 
+    friend constexpr bool operator==(const mangled_ptr& ptr, const_pointer other) noexcept
+    {
+      return ptr.get() == other;
+    }
+
   public:
     constexpr auto stored() const noexcept
     {

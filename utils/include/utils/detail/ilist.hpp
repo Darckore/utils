@@ -501,6 +501,10 @@ namespace utils
   concept ilist_unary_transform =
     std::is_nothrow_invocable_r_v<void, F, Node&>;
 
+  template <typename F, typename Node>
+  concept ilist_unary_generator =
+    std::is_nothrow_invocable_r_v<Node, F, const Node*>;
+
 
   //
   // A doubly-linked intrusive list
@@ -1182,7 +1186,7 @@ namespace utils
     }
 
     template <ilist_unary_predicate<value_type> Pred>
-    ilist get_filtered(Pred&& pred) noexcept requires (std::copyable<value_type>)
+    ilist get_filtered(Pred&& pred) const noexcept requires (std::copyable<value_type>)
     {
       ilist res{ allocator() };
       auto head = m_head;
@@ -1197,6 +1201,29 @@ namespace utils
         head = next;
       }
       return res;
+    }
+    
+    template <ilist_unary_generator<value_type> Gen>
+    ilist& generate(size_type n, Gen&& gen) noexcept requires (std::copyable<value_type>)
+    {
+      auto count = n;
+      if (!count) return *this;
+
+      if (empty())
+      {
+        --count;
+        auto&& newItem = node_type::make_copy(allocator(), gen(const_pointer{}));
+        attach_back(newItem);
+      }
+
+      auto prev = m_tail;
+      while (count--)
+      {
+        auto&& newItem = node_type::make_copy(allocator(), gen(prev));
+        attach_back(newItem);
+        prev = m_tail;
+      }
+      return *this;
     }
 
   public: // info and iteration

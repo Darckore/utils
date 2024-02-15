@@ -728,6 +728,23 @@ namespace ut_tests
     verify_list(lw.list, std::array{ 1, 2, 3, 4, 5, 6 });
     verify_list(other, std::array{ 3, 6 });
   }
+
+  TEST(ilist, t_generate)
+  {
+    list_wrapper lw;
+    lw.list.generate(4, [](auto last) noexcept
+      {
+        if (!last) return list_node{ 1 };
+        return list_node{ last->value + 1 };
+      });
+    verify_list(lw.list, std::array{ 1, 2, 3, 4 });
+
+    lw.list.generate(3, [](auto last) noexcept
+      {
+        return list_node{ last->value * 2 };
+      });
+    verify_list(lw.list, std::array{ 1, 2, 3, 4, 8, 16, 32 });
+  }
 }
 
 

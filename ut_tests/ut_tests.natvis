@@ -9,6 +9,14 @@
     </Expand>
   </Type>
 
+  <Type Name="ut_tests::`anonymous-namespace'::list_node_uc">
+    <DisplayString>uncopyable test node ({value})</DisplayString>
+    <Expand>
+      <Item Name="[base]">*((base_type*)this)</Item>
+      <Item Name="[value]">value</Item>
+    </Expand>
+  </Type>
+
   <Type Name="ut_tests::`anonymous-namespace'::list_wrapper">
     <DisplayString>ilist wrapper</DisplayString>
     <Expand>

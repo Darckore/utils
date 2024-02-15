@@ -22,16 +22,41 @@ namespace ut_tests
       {}
     };
 
-    struct list_wrapper
+    struct list_node_uc : public utils::ilist_node<list_node_uc>
     {
-      utils::ilist<list_node> list{};
+      int value;
+
+      constexpr bool operator==(const list_node_uc&) const noexcept = default;
+      constexpr auto operator<=>(const list_node_uc&) const noexcept = default;
+
+      explicit list_node_uc(int val) noexcept :
+        base_type{ base_type::make_detached_tag{} },
+        value{ val }
+      {}
+
+      list_node_uc(list_type& list, int val) noexcept :
+        base_type{ list },
+        value{ val }
+      {}
+
+      list_node_uc(const list_node_uc&) = delete;
+      list_node_uc& operator=(const list_node_uc&) = delete;
+    };
+
+    template <typename T>
+    struct list_wrapper_base
+    {
+      utils::ilist<T> list{};
 
       template <typename ...Values> requires (utils::all_same<int, Values...>)
-        list_wrapper(Values ...vals) noexcept
+      list_wrapper_base(Values ...vals) noexcept
       {
         (..., (list.emplace_back(vals)));
       }
     };
+
+    using list_wrapper    = list_wrapper_base<list_node>;
+    using list_wrapper_uc = list_wrapper_base<list_node_uc>;
 
     template <bool Reverse, typename T, typename A, std::size_t N>
     void verify_list(utils::ilist_view<Reverse, T, A> list, const std::array<int, N>& baseline) noexcept
@@ -49,8 +74,8 @@ namespace ut_tests
       }
     }
 
-    template <std::size_t N>
-    void verify_list(const utils::ilist<list_node>& list, const std::array<int, N>& baseline) noexcept
+    template <typename T, std::size_t N>
+    void verify_list(const utils::ilist<T>& list, const std::array<int, N>& baseline) noexcept
     {
       if (list.size() != baseline.size())
       {
@@ -107,8 +132,8 @@ namespace ut_tests
       ASSERT_TRUE(last.same_as(actualLast));
     }
 
-    template <std::size_t N>
-    void verify_list(list_wrapper& lw, const std::array<int, N>& baseline) noexcept
+    template <typename T, std::size_t N>
+    void verify_list(list_wrapper_base<T>& lw, const std::array<int, N>& baseline) noexcept
     {
       verify_list(lw.list, baseline);
     }
@@ -117,6 +142,15 @@ namespace ut_tests
 
 namespace ut_tests
 {
+  TEST(ilist, t_copy_node)
+  {
+    list_wrapper lw{ 0, 1, 2 };
+    auto ln = lw.list.front();
+    EXPECT_FALSE(ln.is_attached());
+    EXPECT_EQ(ln.prev(), nullptr);
+    EXPECT_EQ(ln.next(), nullptr);
+  }
+
   TEST(ilist, t_move)
   {
     list_wrapper lw{ 0, 1, 2, 3, 4, 5, 6 };

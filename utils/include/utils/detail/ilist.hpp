@@ -42,8 +42,6 @@ namespace utils
     ilist_node() = delete;
     ilist_node(ilist_node&&) noexcept = delete;
     ilist_node& operator=(ilist_node&&) noexcept = delete;
-    ilist_node(const ilist_node&) noexcept = delete;
-    ilist_node& operator=(const ilist_node&) noexcept = delete;
 
     ~ilist_node() noexcept
     {
@@ -64,6 +62,15 @@ namespace utils
       m_list{ &owner, allocTag }
     {
       static_assert(std::derived_from<value_type, base_type>);
+    }
+
+    ilist_node(const ilist_node&) noexcept :
+      ilist_node{ make_detached_tag{} }
+    {}
+
+    ilist_node& operator=(const ilist_node&) noexcept
+    {
+      return *this;
     }
 
   public:
@@ -248,6 +255,14 @@ namespace utils
       auto newVal = new (storage) value_type{ owner, std::forward<Args>(args)... };
       newVal->m_list.reset(&owner);
       return link(l, *newVal, r);
+    }
+
+    static reference make_copy(allocator_type alloc, const_reference src) noexcept
+      requires (std::copyable<value_type>)
+    {
+      auto storage = alloc.allocate(1);
+      auto newVal = new (storage) value_type{ src };
+      return *newVal;
     }
 
     static void dealloc(allocator_type alloc, pointer ptr) noexcept

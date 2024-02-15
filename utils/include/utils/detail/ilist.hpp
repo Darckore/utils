@@ -262,6 +262,7 @@ namespace utils
     {
       auto storage = alloc.allocate(1);
       auto newVal = new (storage) value_type{ src };
+      newVal->m_list.reset();
       return *newVal;
     }
 
@@ -535,9 +536,34 @@ namespace utils
       return clear().append(std::move(other));
     }
 
+    ilist& copy_from(const ilist& other) noexcept requires (std::copyable<value_type>)
+    {
+      if (this == &other)
+        return *this;
+
+      clear();
+      m_alloc = other.allocator();
+      for (auto&& node : other)
+      {
+        auto&& copy = node_type::make_copy(allocator(), node);
+        attach_back(copy);
+      }
+      return *this;
+    }
+
   public:
-    ilist(const ilist&) = delete;
-    ilist& operator=(const ilist&) = delete;
+    ilist(const ilist&) requires (!std::copyable<value_type>) = delete;
+    ilist& operator=(const ilist&) requires (!std::copyable<value_type>) = delete;
+
+    ilist(const ilist& other) noexcept requires (std::copyable<value_type>)
+    {
+      copy_from(other);
+    }
+
+    ilist& operator=(const ilist& other) noexcept requires (std::copyable<value_type>)
+    {
+      return copy_from(other);
+    }
 
     ilist(ilist&& other) noexcept
     {

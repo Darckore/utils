@@ -151,6 +151,15 @@ namespace ut_tests
     EXPECT_EQ(ln.next(), nullptr);
   }
 
+  TEST(ilist, t_copy)
+  {
+    list_wrapper lw{ 0, 1, 2 };
+    auto lst = lw.list;
+    constexpr auto arr = std::array{ 0, 1, 2 };
+    verify_list(lw.list, arr);
+    verify_list(lst, arr);
+  }
+
   TEST(ilist, t_move)
   {
     list_wrapper lw{ 0, 1, 2, 3, 4, 5, 6 };

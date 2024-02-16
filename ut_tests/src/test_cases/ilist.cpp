@@ -971,4 +971,32 @@ namespace ut_tests
     rview = rview.remove_suffix(10);
     EXPECT_TRUE(rview.empty());
   }
+
+  TEST(ilist_view, t_find)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    auto view = lw.list.to_view();
+    auto it = view.find([](auto&& item) noexcept
+      {
+        return item.value == 3;
+      });
+
+    EXPECT_NE(it, view.end());
+    EXPECT_EQ(it->value, 3);
+
+    auto it2 = view.find(it, [](auto&& item) noexcept
+      {
+        return item.value == 2;
+      });
+
+    EXPECT_EQ(it2, view.end());
+
+    it2 = view.rfind(it, [](auto&& item) noexcept
+      {
+        return item.value == 2;
+      });
+
+    EXPECT_NE(it2, view.end());
+    EXPECT_EQ(it2->value, 2);
+  }
 }

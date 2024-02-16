@@ -1615,12 +1615,37 @@ namespace utils
       auto head = std::next(m_head, n);
       return { head, m_tail, size() - n };
     }
-
     ilist_view remove_suffix(size_type n) const noexcept
     {
       if (size() <= n) return {};
       auto tail = std::prev(m_tail, n);
       return { m_head, tail, size() - n };
+    }
+
+    template <unary_predicate<value_type> Pred>
+    auto find(const_iterator from, Pred&& pred) const noexcept
+    {
+      return std::find_if(from, end(), std::forward<Pred>(pred));
+    }
+
+    template <unary_predicate<value_type> Pred>
+    auto find(Pred&& pred) const noexcept
+    {
+      return find(begin(), std::forward<Pred>(pred));
+    }
+
+    template <unary_predicate<value_type> Pred>
+    auto rfind(const_iterator from, Pred&& pred) const noexcept
+    {
+      auto rev = const_reverse_iterator{ from.get() };
+      rev = std::find_if(rev, rend(), std::forward<Pred>(pred));
+      return const_iterator{ rev.get() };
+    }
+
+    template <unary_predicate<value_type> Pred>
+    auto rfind(Pred&& pred) const noexcept
+    {
+      return find(const_iterator{ m_tail }, std::forward<Pred>(pred));
     }
 
   private:

@@ -23,18 +23,8 @@ namespace ut_tests
         return value == other.value;
       }
 
-      list_node(const list_node& other) noexcept :
-        base_type{ base_type::make_detached_tag{} },
-        value{ other.value }
-      {}
-
-      list_node& operator=(const list_node& other) noexcept
-      {
-        if (this != &other)
-          value = other.value;
-        return *this;
-      }
-
+      list_node(const list_node& other) noexcept = default;
+      list_node& operator=(const list_node& other) noexcept = default;
       list_node(list_node&&) = delete;
       list_node& operator=(list_node&&) = delete;
     };

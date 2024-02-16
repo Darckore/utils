@@ -814,6 +814,40 @@ namespace utils
       return attach_before(*it, attached);
     }
 
+    template <typename R>
+    ilist& insert_front(R&& node) noexcept
+    {
+      return attach_front(clone(std::forward<R>(node)));
+    }
+
+    template <typename R>
+    ilist& insert_back(R&& node) noexcept
+    {
+      return attach_back(clone(std::forward<R>(node)));
+    }
+
+    template <typename R>
+    ilist& insert_before(reference node, R&& attached) noexcept
+    {
+      return attach_before(node, clone(std::forward<R>(attached)));
+    }
+    template <ilist_non_const_iterator It, typename R>
+    ilist& insert_before(It it, R&& attached) noexcept
+    {
+      return attach_before(it, clone(std::forward<R>(attached)));
+    }
+
+    template <typename R>
+    ilist& insert_after(reference node, R&& attached) noexcept
+    {
+      return attach_after(node, clone(std::forward<R>(attached)));
+    }
+    template <ilist_non_const_iterator It, typename R>
+    ilist& insert_after(It it, R&& attached) noexcept
+    {
+      return attach_after(it, clone(std::forward<R>(attached)));
+    }
+
     ilist& remove_before(reference node) noexcept
     {
       if (!node.belongs_to(this))
@@ -1325,12 +1359,17 @@ namespace utils
       return *m_head;
     }
 
+    reference clone(same_noquals<value_type> auto&& node) noexcept
+      requires (clonable<value_type>)
+    {
+      return node_type::make_copy(allocator(), std::forward<decltype(node)>(node));
+    }
+
     void assume_ownership(reference node) noexcept
     {
       grow();
       node.attach(*this);
     }
-
     void assume_ownership(reference h, reference t) noexcept
     {
       auto first = &h;

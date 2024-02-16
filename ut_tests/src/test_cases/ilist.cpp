@@ -424,6 +424,56 @@ namespace ut_tests
     verify_list(dst, std::array{ 5, 1, 4 });
   }
 
+  TEST(ilist, t_insert_front)
+  {
+    list_wrapper src{ 1, 2, 3 };
+    list_node n{ 42 };
+    src.list.insert_front(n);
+    verify_list(src, std::array{ 42, 1, 2, 3 });
+
+    list_wrapper_uc srcu{ 1, 2, 3 };
+    list_node_uc nu{ 42 };
+    srcu.list.insert_front(std::move(nu));
+    verify_list(srcu, std::array{ 42, 1, 2, 3 });
+  }
+
+  TEST(ilist, t_insert_back)
+  {
+    list_wrapper src{ 1, 2, 3 };
+    list_node n{ 42 };
+    src.list.insert_back(n);
+    verify_list(src, std::array{ 1, 2, 3, 42 });
+
+    list_wrapper_uc srcu{ 1, 2, 3 };
+    list_node_uc nu{ 42 };
+    srcu.list.insert_back(std::move(nu));
+    verify_list(srcu, std::array{ 1, 2, 3, 42 });
+  }
+
+  TEST(ilist, t_insert_before)
+  {
+    list_wrapper_uc srcu{ 1, 2, 3 };
+    list_node_uc nu{ 42 };
+    auto&& front = srcu.list.front();
+    srcu.list.insert_before(front, std::move(nu));
+    verify_list(srcu, std::array{ 42, 1, 2, 3 });
+    
+    srcu.list.insert_before(front, list_node_uc{ 69 });
+    verify_list(srcu, std::array{ 42, 69, 1, 2, 3 });
+  }
+
+  TEST(ilist, t_insert_after)
+  {
+    list_wrapper_uc srcu{ 1, 2, 3 };
+    list_node_uc nu{ 42 };
+    auto&& back = srcu.list.back();
+    srcu.list.insert_after(back, std::move(nu));
+    verify_list(srcu, std::array{ 1, 2, 3, 42 });
+
+    srcu.list.insert_after(back, list_node_uc{ 69 });
+    verify_list(srcu, std::array{ 1, 2, 3, 69, 42 });
+  }
+
   TEST(ilist, t_remove_before)
   {
     list_wrapper lw{ 0, 1, 2, 3, 4 };

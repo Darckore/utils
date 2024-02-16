@@ -22,6 +22,21 @@ namespace ut_tests
       {
         return value == other.value;
       }
+
+      list_node(const list_node& other) noexcept :
+        base_type{ base_type::make_detached_tag{} },
+        value{ other.value }
+      {}
+
+      list_node& operator=(const list_node& other) noexcept
+      {
+        if (this != &other)
+          value = other.value;
+        return *this;
+      }
+
+      list_node(list_node&&) = delete;
+      list_node& operator=(list_node&&) = delete;
     };
 
     struct list_node_uc : public utils::ilist_node<list_node_uc>
@@ -224,11 +239,8 @@ namespace ut_tests
     using lc = decltype(list_wrapper::list);
     using lu = decltype(list_wrapper_uc::list);
 
-    EXPECT_TRUE(std::copyable<lc>);
-    EXPECT_TRUE(std::copyable<lc::value_type>);
-
-    EXPECT_FALSE(std::copyable<lu>);
-    EXPECT_FALSE(std::copyable<lu::value_type>);
+    EXPECT_TRUE(utils::copyable<lc>);
+    EXPECT_FALSE(utils::copyable<lu>);
   }
 
   TEST(ilist, t_move_node)
@@ -790,8 +802,8 @@ namespace ut_tests
     list_wrapper lw;
     lw.list.generate(lw.list.begin(), 4, [](auto last) noexcept
       {
-        if (!last) return list_node{ 1 };
-        return list_node{ last->value + 1 };
+        const auto val = last ? last->value + 1 : 1;
+        return list_node{ val };
       });
     verify_list(lw.list, std::array{ 1, 2, 3, 4 });
 

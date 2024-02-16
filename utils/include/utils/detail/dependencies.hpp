@@ -63,6 +63,34 @@ namespace utils
   template <typename I> concept fwd_it = std::forward_iterator<I>;
 
   //
+  // Checks that a type can be copied
+  //
+  template <typename T>
+  concept copyable =
+    std::is_nothrow_copy_constructible_v<T> &&
+    std::is_nothrow_copy_assignable_v<T>;
+
+  //
+  // Checks that a type can be moved
+  //
+  template <typename T>
+  concept movable =
+    std::is_nothrow_move_constructible_v<T> &&
+    std::is_nothrow_move_assignable_v<T>;
+
+  //
+  // Checks that a type can be constructed from the given arguments
+  //
+  template <typename T, typename ...Args>
+  concept constructible = std::is_nothrow_constructible_v<T, Args...>;
+
+  //
+  // Checks that a type can be moved or copied
+  //
+  template <typename T>
+  concept clonable = copyable<T> || movable<T>;
+
+  //
   // Checks that the parameter pack is not empty
   //
   template <typename ...Pack>
@@ -105,8 +133,8 @@ namespace utils
   // Checks whether all provided types are convertible to the first type
   //
   template <typename To, typename From1, typename ...FromN>
-  concept all_convertible = std::conjunction_v<std::is_convertible<From1, To>,
-                                               std::is_convertible<FromN, To>...>;
+  concept all_convertible = std::conjunction_v<std::is_nothrow_convertible<From1, To>,
+                                               std::is_nothrow_convertible<FromN, To>...>;
 
   //
   // A concept for any comparable type

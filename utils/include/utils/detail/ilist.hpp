@@ -262,7 +262,7 @@ namespace utils
     }
 
     template <typename ...Args>
-      requires (std::constructible_from<value_type, list_type&, Args...>)
+      requires (constructible<value_type, list_type&, Args...>)
     static reference make(allocator_type alloc, pointer l, pointer r, list_type& owner, Args&& ...args) noexcept
     {
       auto storage = alloc.allocate(1);
@@ -272,7 +272,7 @@ namespace utils
     }
 
     static reference make_copy(allocator_type alloc, const_reference src) noexcept
-      requires (std::copyable<value_type>)
+      requires (copyable<value_type>)
     {
       auto storage = alloc.allocate(1);
       auto newVal = new (storage) value_type{ src };
@@ -281,7 +281,7 @@ namespace utils
     }
 
     static reference make_copy(allocator_type alloc, value_type&& src) noexcept
-      requires (std::movable<value_type>)
+      requires (movable<value_type>)
     {
       auto storage = alloc.allocate(1);
       auto newVal = new (storage) value_type{ std::move(src) };
@@ -566,7 +566,7 @@ namespace utils
       return clear().append(std::move(other));
     }
 
-    ilist& copy_from(const ilist& other) noexcept requires (std::copyable<value_type>)
+    ilist& copy_from(const ilist& other) noexcept requires (copyable<value_type>)
     {
       if (this == &other)
         return *this;
@@ -582,15 +582,15 @@ namespace utils
     }
 
   public:
-    ilist(const ilist&) requires (!std::copyable<value_type>) = delete;
-    ilist& operator=(const ilist&) requires (!std::copyable<value_type>) = delete;
+    ilist(const ilist&) requires (!copyable<value_type>) = delete;
+    ilist& operator=(const ilist&) requires (!copyable<value_type>) = delete;
 
-    ilist(const ilist& other) noexcept requires (std::copyable<value_type>)
+    ilist(const ilist& other) noexcept requires (copyable<value_type>)
     {
       copy_from(other);
     }
 
-    ilist& operator=(const ilist& other) noexcept requires (std::copyable<value_type>)
+    ilist& operator=(const ilist& other) noexcept requires (copyable<value_type>)
     {
       return copy_from(other);
     }
@@ -1207,7 +1207,7 @@ namespace utils
     }
 
     template <unary_predicate<value_type> Pred>
-      requires (std::copyable<value_type>)
+      requires (copyable<value_type>)
     ilist get_filtered(Pred&& pred) const noexcept
     {
       ilist res{ allocator() };
@@ -1226,7 +1226,7 @@ namespace utils
     }
 
     template <unary_generator<value_type> Gen, ilist_non_const_iterator<value_type, allocator_type> It>
-      requires (std::copyable<value_type> || std::movable<value_type>)
+      requires (clonable<value_type>)
     ilist& generate(It iter, size_type n, Gen&& gen) noexcept
     {
       auto count = n;

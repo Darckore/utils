@@ -9,12 +9,6 @@ namespace ut_tests
       int value;
 
       explicit list_node(int val) noexcept :
-        base_type{ base_type::make_detached_tag{} },
-        value{ val }
-      {}
-
-      list_node(list_type& list, int val) noexcept :
-        base_type{ list },
         value{ val }
       {}
 
@@ -34,12 +28,6 @@ namespace ut_tests
       int value;
 
       explicit list_node_uc(int val) noexcept :
-        base_type{ base_type::make_detached_tag{} },
-        value{ val }
-      {}
-
-      list_node_uc(list_type& list, int val) noexcept :
-        base_type{ list },
         value{ val }
       {}
 
@@ -52,7 +40,6 @@ namespace ut_tests
       list_node_uc& operator=(const list_node_uc&) = delete;
       
       list_node_uc(list_node_uc&& other) noexcept :
-        base_type{ base_type::make_detached_tag{} },
         value{ other.value }
       {
         other.value = -666;

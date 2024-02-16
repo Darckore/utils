@@ -38,14 +38,10 @@ namespace utils
 
     friend list_type;
 
-    struct make_detached_tag {};
-
   private:
     static constexpr auto allocTag = std::byte{ 0xFF };
 
   public:
-    ilist_node() = delete;
-
     ~ilist_node() noexcept
     {
       if (!is_attached())
@@ -55,7 +51,7 @@ namespace utils
     }
 
   protected:
-    explicit ilist_node(make_detached_tag) noexcept :
+    ilist_node() noexcept :
       m_list{ {}, allocTag }
     {
       static_assert(std::derived_from<value_type, base_type>);
@@ -68,7 +64,7 @@ namespace utils
     }
 
     ilist_node(const ilist_node&) noexcept :
-      ilist_node{ make_detached_tag{} }
+      ilist_node{}
     {}
 
     ilist_node& operator=(const ilist_node&) noexcept
@@ -77,7 +73,7 @@ namespace utils
     }
 
     ilist_node(ilist_node&&) noexcept :
-      ilist_node{ make_detached_tag{} }
+      ilist_node{}
     {}
 
     ilist_node& operator=(ilist_node&&) noexcept
@@ -262,11 +258,11 @@ namespace utils
     }
 
     template <typename ...Args>
-      requires (constructible<value_type, list_type&, Args...>)
+      requires (constructible<value_type, Args...>)
     static reference make(allocator_type alloc, pointer l, pointer r, list_type& owner, Args&& ...args) noexcept
     {
       auto storage = alloc.allocate(1);
-      auto newVal = new (storage) value_type{ owner, std::forward<Args>(args)... };
+      auto newVal = new (storage) value_type{ std::forward<Args>(args)... };
       newVal->m_list.reset(&owner);
       return link(l, *newVal, r);
     }

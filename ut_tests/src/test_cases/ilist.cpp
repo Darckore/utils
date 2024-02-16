@@ -999,4 +999,20 @@ namespace ut_tests
     EXPECT_NE(it2, view.end());
     EXPECT_EQ(it2->value, 2);
   }
+
+  TEST(ilist_view, t_equ_compare)
+  {
+    list_wrapper lw1{ 1, 2, 3, 4, 5, 6 };
+    list_wrapper lw2{ 6, 5, 4, 3, 2, 1 };
+
+    auto v1 = lw1.list.to_view();
+    auto v2 = lw1.list.to_view();
+    EXPECT_EQ(v1, v2);
+
+    v2 = lw2.list.to_view();
+    EXPECT_NE(v1, v2);
+
+    auto rv = lw2.list.to_rev_view();
+    EXPECT_EQ(v1, rv);
+  }
 }

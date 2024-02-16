@@ -1428,8 +1428,14 @@ namespace utils
   bool operator==(const ilist<T1, A1>& l, const ilist<T2, A2>& r) noexcept
     requires (equ_comparable<T1, T2>)
   {
+    if (addr_bits(l) == addr_bits(r))
+      return true;
+
     if (l.size() != r.size())
       return false;
+
+    if (l.empty())
+      return true;
 
     for (auto&& [ln, rn] : make_iterators(l, r))
     {
@@ -1552,8 +1558,6 @@ namespace utils
         ++head;
       }
     }
-
-    constexpr bool operator==(const ilist_view&) const noexcept = default;
 
   public:
     const_reference front() const noexcept
@@ -1718,4 +1722,26 @@ namespace utils
   template <typename T, typename A>
   ilist_view(ilist_rev_iter<const T, A>, ilist_rev_iter<const T, A>, std::size_t)
     -> ilist_view<true, T, A>;
+
+  template <bool R1, bool R2, typename T1, typename T2, typename A1, typename A2 >
+  bool operator==(const ilist_view<R1, T1, A1>& l, const ilist_view<R2, T2, A2>& r) noexcept
+    requires (equ_comparable<T1, T2>)
+  {
+    if (addr_bits(l) == addr_bits(r))
+      return true;
+
+    if (l.size() != r.size())
+      return false;
+
+    if (l.empty())
+      return true;
+
+    for (auto&& [ln, rn] : make_iterators(l, r))
+    {
+      if (ln != rn)
+        return false;
+    }
+
+    return true;
+  }
 }

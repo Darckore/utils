@@ -217,6 +217,28 @@ namespace utils
     return std::bit_cast<Res>(static_cast<ures>(value) << (Pos * byte_size()));
   }
 
+  //
+  // Bit-casts a pointer to its integer representation
+  // Meant for the purpose of comparison, casting the result back to a ptr
+  // will most likely invoke UB
+  //
+  template <typename Obj>
+  constexpr auto addr_bits(Obj* obj) noexcept
+  {
+    return std::bit_cast<std::uintptr_t>(obj);
+  }
+
+  //
+  // Bit-casts an address of an object to its integer representation
+  // Meant for the purpose of comparison, casting the result back to a ptr
+  // will most likely invoke UB
+  //
+  template <typename Obj>
+  constexpr auto addr_bits(Obj&& obj) noexcept
+  {
+    return addr_bits(&obj);
+  }
+
 
   //
   // Holds an obfuscated pointer which can be used to store some data

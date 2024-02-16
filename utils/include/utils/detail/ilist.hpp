@@ -1608,6 +1608,21 @@ namespace utils
       return const_reverse_iterator{ head.get() };
     }
 
+  public:
+    ilist_view remove_prefix(size_type n) const noexcept
+    {
+      if (size() <= n) return {};
+      auto head = std::next(m_head, n);
+      return { head, m_tail, size() - n };
+    }
+
+    ilist_view remove_suffix(size_type n) const noexcept
+    {
+      if (size() <= n) return {};
+      auto tail = std::prev(m_tail, n);
+      return { m_head, tail, size() - n };
+    }
+
   private:
     const_iterator m_head{};
     const_iterator m_tail{};

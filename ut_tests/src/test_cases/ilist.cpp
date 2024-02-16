@@ -939,4 +939,36 @@ namespace ut_tests
     EXPECT_NE(lv0, lv3);
     verify_list(lv3, std::array{ 6, 5, 4 });
   }
+
+  TEST(ilist_view, t_remove_prefix)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    auto view = lw.list.to_view();
+    view = view.remove_prefix(2);
+    verify_list(view, std::array{ 3, 4, 5, 6 });
+    view = view.remove_prefix(10);
+    EXPECT_TRUE(view.empty());
+
+    auto rview = lw.list.to_rev_view();
+    rview = rview.remove_prefix(3);
+    verify_list(rview, std::array{ 3, 2, 1 });
+    rview = rview.remove_prefix(10);
+    EXPECT_TRUE(rview.empty());
+  }
+
+  TEST(ilist_view, t_remove_suffix)
+  {
+    list_wrapper lw{ 1, 2, 3, 4, 5, 6 };
+    auto view = lw.list.to_view();
+    view = view.remove_suffix(2);
+    verify_list(view, std::array{ 1, 2, 3, 4 });
+    view = view.remove_suffix(10);
+    EXPECT_TRUE(view.empty());
+
+    auto rview = lw.list.to_rev_view();
+    rview = rview.remove_suffix(3);
+    verify_list(rview, std::array{ 6, 5, 4 });
+    rview = rview.remove_suffix(10);
+    EXPECT_TRUE(rview.empty());
+  }
 }

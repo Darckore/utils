@@ -41,7 +41,7 @@ namespace utils
     template <typename ...Args> requires (not_empty<Args...>)
     str_t format(str_t fmtString, Args&& ...args) noexcept
     {
-      auto fmtArgs = std::make_format_args(std::forward<Args>(args)...);
+      auto fmtArgs = std::make_format_args(args...);
 
       // We don't care about exceptions here. An empty resulting string means error
       try

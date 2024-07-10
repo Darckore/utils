@@ -967,7 +967,7 @@ namespace utils
       if (m_head) node_type::link(other.m_tail, *m_head, m_head->next());
       m_head = other.m_head;
       if (!m_tail) m_tail = other.m_tail;
-      other.loose_content();
+      other.lose_content();
       return *this;
     }
     ilist& prepend_to(reference node, ilist&& other) noexcept
@@ -985,7 +985,7 @@ namespace utils
       node_type::link(other.m_tail, node, node.next());
       node_type::link(nodePrev, other.front(), other.m_head->next());
       if (node.same_as(m_head)) set_head(other.m_head);
-      other.loose_content();
+      other.lose_content();
       return *this;
     }
     ilist& prepend_to(iterator it, ilist&& other) noexcept
@@ -1013,7 +1013,7 @@ namespace utils
       node_type::link(m_tail, other.front(), other.m_head->next());
       m_tail = other.m_tail;
       if (!m_head) m_head = other.m_head;
-      other.loose_content();
+      other.lose_content();
       return *this;
     }
     ilist& append_to(reference node, ilist&& other) noexcept
@@ -1031,7 +1031,7 @@ namespace utils
       node_type::link(node.prev(), node, other.m_head);
       node_type::link(other.m_tail->prev(), other.back(), nodeNext);
       if (node.same_as(m_tail)) set_tail(other.m_tail);
-      other.loose_content();
+      other.lose_content();
       return *this;
     }
     ilist& append_to(iterator it, ilist&& other) noexcept
@@ -1080,7 +1080,7 @@ namespace utils
         m_head->kill_next(allocator());
 
       node_type::dealloc(allocator(), m_head);
-      loose_content();
+      lose_content();
       return *this;
     }
 
@@ -1411,7 +1411,7 @@ namespace utils
     {
       m_size = {};
     }
-    void loose_content() noexcept
+    void lose_content() noexcept
     {
       reset_bounds();
       reset_size();

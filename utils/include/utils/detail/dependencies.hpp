@@ -85,6 +85,12 @@ namespace utils
   concept constructible = std::is_nothrow_constructible_v<T, Args...>;
 
   //
+  // Checks that a type can be default-constructed
+  //
+  template <typename T>
+  concept default_constructible = constructible<T>;
+
+  //
   // Checks that a type can be moved or copied
   //
   template <typename T>

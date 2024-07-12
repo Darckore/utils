@@ -5,7 +5,7 @@ namespace utils
   //
   // A stack implementation based on std vector
   //
-  template <typename T, typename Allocator = std::allocator<T>>
+  template <clonable T, typename Allocator = std::allocator<T>>
   class stack final
   {
   public:
@@ -57,7 +57,8 @@ namespace utils
 
     void pop() noexcept
     {
-      m_data.pop_back();
+      if(!empty())
+        m_data.pop_back();
     }
 
     const_reference top() const noexcept
@@ -68,6 +69,18 @@ namespace utils
     reference top() noexcept
     {
       return FROM_CONST(top);
+    }
+
+    value_type extract() noexcept requires (default_constructible<value_type>)
+    {
+      SCOPE_GUARD(pop());
+      return (!empty()) ? std::move(top()) : value_type{};
+    }
+
+    value_type extract(value_type def) noexcept
+    {
+      SCOPE_GUARD(pop());
+      return (!empty()) ? std::move(top()) : std::move(def);
     }
 
   private:

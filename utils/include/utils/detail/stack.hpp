@@ -88,12 +88,12 @@ namespace utils
       if (count > m_data.size())
         return;
 
-      auto beg = std::next(m_data.begin(), m_data.size() - count);
+      const auto delta = m_data.size() - count;
+      auto beg = std::next(m_data.begin(), delta);
       for (auto it = beg; it < m_data.end(); ++it)
         proc(*it);
 
-      while (count--)
-        pop();
+      m_data.resize(delta);
     }
 
   private:

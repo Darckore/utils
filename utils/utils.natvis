@@ -201,4 +201,11 @@
     </Expand>
   </Type>
 
+  <Type Name="utils::stack&lt;*&gt;">
+    <DisplayString>stack</DisplayString>
+    <Expand>
+      <Item Name="[data]">m_data</Item>
+    </Expand>
+  </Type>
+  
 </AutoVisualizer>

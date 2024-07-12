@@ -16,4 +16,5 @@
 #include "detail/colour.hpp"
 #include "detail/mul_iterable.hpp"
 #include "detail/ilist.hpp"
+#include "detail/stack.hpp"
 #include "detail/scope_guard.hpp"

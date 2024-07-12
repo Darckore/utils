@@ -20,6 +20,8 @@
 
 #define CLASS_DEFAULT_ORD(clName) auto operator<=>(const clName&) const noexcept CLASS_DEFAULT
 
+#define CLASS_DEFAULT_DTOR(clName) ~clName() noexcept CLASS_DEFAULT
+
 #define CLASS_SPECIALS_ALL(clName)\
   CLASS_DEFAULT_CTOR(clName)  CLASS_DEFAULT;\
   CLASS_COPY_CTOR(clName)     CLASS_DEFAULT;\

@@ -67,4 +67,27 @@ namespace ut_tests
     auto nv = nds.extract(42);
     ASSERT_EQ(nv.value, 42);
   }
+
+  TEST(stack, t_walk_up)
+  {
+    stack_t st{ 4 };
+    st.push(1);
+    st.push(2);
+    st.push(3);
+    st.push(4);
+    std::array base{ 0, 0, 0 };
+    unsigned idx{};
+
+    st.walk_up(3, [&](const stack_item& i) noexcept
+      {
+        base[idx++] = i.value;
+      });
+
+    ASSERT_EQ(base[0], 2);
+    ASSERT_EQ(base[1], 3);
+    ASSERT_EQ(base[2], 4);
+
+    ASSERT_EQ(st.size(), 1);
+    ASSERT_EQ(st.top().value, 1);
+  }
 }

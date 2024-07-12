@@ -83,6 +83,19 @@ namespace utils
       return (!empty()) ? std::move(top()) : std::move(def);
     }
 
+    void walk_up(size_type count, callable<void, const_reference> auto&& proc) noexcept
+    {
+      if (count > m_data.size())
+        return;
+
+      auto beg = std::next(m_data.begin(), m_data.size() - count);
+      for (auto it = beg; it < m_data.end(); ++it)
+        proc(*it);
+
+      while (count--)
+        pop();
+    }
+
   private:
     container_type m_data;
   };

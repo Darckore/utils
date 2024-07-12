@@ -206,23 +206,29 @@ namespace utils
   using idx_gen = std::make_index_sequence<N>;
 
   //
+  // Any callable object
+  //
+  template <typename F, typename Ret, typename... Args>
+  concept callable = std::is_nothrow_invocable_r_v<Ret, F, Args...>;
+
+  //
   // A unary predicate
   //
   template <typename F, typename Obj>
-  concept unary_predicate = std::is_nothrow_invocable_r_v<bool, F, const Obj&>;
+  concept unary_predicate = callable<F, bool, const Obj&>;
 
   //
   // A binary predicate
   //
   template <typename F, typename Obj>
-  concept binary_predicate = std::is_nothrow_invocable_r_v<bool, F, const Obj&, const Obj&>;
+  concept binary_predicate = callable<F, bool, const Obj&, const Obj&>;
 
   //
   // A unary transform
   // Should modify the provided object in-place
   //
   template <typename F, typename Obj>
-  concept unary_transform = std::is_nothrow_invocable_r_v<void, F, Obj&>;
+  concept unary_transform = callable<F, void, Obj&>;
 
   //
   // A unary generator
@@ -231,5 +237,5 @@ namespace utils
   // Should handle a nullptr case
   //
   template <typename F, typename Obj>
-  concept unary_generator = std::is_nothrow_invocable_r_v<Obj, F, const Obj*>;
+  concept unary_generator = callable<F, Obj, const Obj*>;
 }

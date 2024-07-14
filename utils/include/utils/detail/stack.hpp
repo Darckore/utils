@@ -96,6 +96,43 @@ namespace utils
       m_data.resize(delta);
     }
 
+    void clear() noexcept
+    {
+      m_data.clear();
+    }
+
+    void sink(callable<void, const_reference> auto&& proc) noexcept
+    {
+      while (!empty())
+      {
+        proc(top());
+        pop();
+      }
+    }
+
+    void sink(size_type count, callable<void, const_reference> auto&& proc) noexcept
+    {
+      while (count--)
+      {
+        proc(extract());
+      }
+    }
+
+    bool has(size_type count, callable<bool, const_reference> auto&& proc) noexcept
+    {
+      if (count >= m_data.size())
+        return false;
+
+      const auto delta = m_data.size() - count;
+      auto beg = std::next(m_data.begin(), delta);
+      for (auto it = beg; it < m_data.end(); ++it)
+      {
+        if (!proc(*it))
+          return false;
+      }
+      return true;
+    }
+
   private:
     container_type m_data;
   };

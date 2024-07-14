@@ -90,4 +90,70 @@ namespace ut_tests
     ASSERT_EQ(st.size(), 1);
     ASSERT_EQ(st.top().value, 1);
   }
+
+  TEST(stack, t_sink)
+  {
+    stack_t st{ 4 };
+    st.push(1);
+    st.push(2);
+    st.push(3);
+    st.push(4);
+    std::array base{ 0, 0, 0 };
+    unsigned idx{};
+
+    st.sink([&](const stack_item& i) noexcept
+      {
+        if (idx >= base.size()) return;
+        base[idx++] = i.value;
+      });
+
+    ASSERT_EQ(base[0], 4);
+    ASSERT_EQ(base[1], 3);
+    ASSERT_EQ(base[2], 2);
+    ASSERT_TRUE(st.empty());
+  }
+
+  TEST(stack, t_sink_n)
+  {
+    stack_t st{ 4 };
+    st.push(1);
+    st.push(2);
+    st.push(3);
+    st.push(4);
+    std::array base{ 0, 0, 0 };
+    unsigned idx{};
+
+    st.sink(3, [&](const stack_item& i) noexcept
+      {
+        if (idx >= base.size()) return;
+        base[idx++] = i.value;
+      });
+
+    ASSERT_EQ(base[0], 4);
+    ASSERT_EQ(base[1], 3);
+    ASSERT_EQ(base[2], 2);
+    ASSERT_EQ(st.size(), 1);
+    ASSERT_EQ(st.top().value, 1);
+  }
+
+  TEST(stack, t_has)
+  {
+    stack_t st{ 4 };
+    st.push(1);
+    st.push(-2);
+    st.push(3);
+    st.push(4);
+
+    const auto func = [](const stack_item& i) noexcept
+      {
+        return i.value > 0;
+      };
+
+    auto res = st.has(3, func);
+    ASSERT_FALSE(res);
+
+    st.push(5);
+    res = st.has(3, func);
+    ASSERT_TRUE(res);
+  }
 }

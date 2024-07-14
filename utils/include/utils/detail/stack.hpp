@@ -90,7 +90,7 @@ namespace utils
 
       const auto delta = m_data.size() - count;
       auto beg = std::next(m_data.begin(), delta);
-      for (auto it = beg; it < m_data.end(); ++it)
+      for (auto it = beg; it != m_data.end(); ++it)
         proc(*it);
 
       m_data.resize(delta);
@@ -125,7 +125,7 @@ namespace utils
 
       const auto delta = m_data.size() - count;
       auto beg = std::next(m_data.begin(), delta);
-      for (auto it = beg; it < m_data.end(); ++it)
+      for (auto it = beg; it != m_data.end(); ++it)
       {
         if (!proc(*it))
           return false;

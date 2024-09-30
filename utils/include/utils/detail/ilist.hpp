@@ -827,7 +827,7 @@ namespace utils
     {
       return attach_before(node, clone(std::forward<R>(attached)));
     }
-    template <ilist_non_const_iterator It, typename R>
+    template <ilist_non_const_iterator<node_type, allocator_type> It, typename R>
     ilist& insert_before(It it, R&& attached) noexcept
     {
       return attach_before(it, clone(std::forward<R>(attached)));
@@ -838,7 +838,7 @@ namespace utils
     {
       return attach_after(node, clone(std::forward<R>(attached)));
     }
-    template <ilist_non_const_iterator It, typename R>
+    template <ilist_non_const_iterator<node_type, allocator_type> It, typename R>
     ilist& insert_after(It it, R&& attached) noexcept
     {
       return attach_after(it, clone(std::forward<R>(attached)));
